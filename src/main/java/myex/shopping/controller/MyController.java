@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class MyController {
 
-    @ResponseBody
+//    @ResponseBody
     @GetMapping("/")
     public String start() {
-        return " 안녕 하세요";
+        return "login";
 
     }
 }
