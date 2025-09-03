@@ -5,6 +5,8 @@ import myex.shopping.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 //클래스 레벨에 쓰며 자동 @Bean 등록 및 계층 구분 의미(젤로 기능이 없음)
 @Service
@@ -38,5 +40,8 @@ public class UserService {
         }
         return null;
 
+    }
+    public List<User> allUser() {
+        return userRepository.findAll();
     }
 }

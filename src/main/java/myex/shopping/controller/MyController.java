@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 //@Bean은 메소드 레벨(개발자가 직접 반환 객체를 빈으로 등록), @Component는 클래스 레벨
 //@Configuration : Bean 메소드 모아놓고, Bean 메서드 싱글톤 보장
 
@@ -56,6 +58,15 @@ public class MyController {
         userService.save(user);
 
         return "redirect:/";
+    }
+
+    @GetMapping("/allUser")
+    public String allUser(Model model) {
+        //controller --> service --> repository
+        //return : List 로 받은 User 목록들 th:each로 루프 돌리기.
+        List<User> users = userService.allUser();
+        model.addAttribute("users", users);
+        return "allUser";
     }
 
 }
