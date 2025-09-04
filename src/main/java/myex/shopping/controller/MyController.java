@@ -69,4 +69,9 @@ public class MyController {
         return "allUser";
     }
 
+    @GetMapping("/main")
+    public String main() {
+        return "main";
+    }
+
 }
