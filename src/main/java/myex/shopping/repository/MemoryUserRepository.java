@@ -3,10 +3,7 @@ package myex.shopping.repository;
 import myex.shopping.domain.User;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 //@Bean 등록이랑 DB 접근 예외를 스프링 예외로 변환하는 기능 가짐.
 @Repository
@@ -26,37 +23,47 @@ public class MemoryUserRepository implements UserRepository{
     }
 
     @Override
-    public User findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
 
-        List<User> alluser = findAll();
-        for (User user : alluser) {
-            if (user.getEmail().equals(email)){
+        Collection<User> values = map.values();
+
+        //두개 합쳐서 향상된 for문 가능.(이것도 iterator를 쓰기 때문에 구현 되있어야함).
+        Iterator<User> iterator = values.iterator();
+        while(iterator.hasNext())
+        {
+            User next = iterator.next();
+            if (next.getEmail().equals(email)) {
+                return Optional.of(next);
+            }
+        }
+        return Optional.empty();
+
+    /*    Collection<User> value2 = map.values();
+        for (User user : value2) {
+            if (user.getEmail().equals(email)) {
                 return user;
             }
-            
-        }
-        
-        return null;
+        }*/
+
+
+
     }
 
     @Override
     public User findByName(String name) {
-        List<User> alluser = findAll();
-
-        //Java Iterator 사용해보기
-        Iterator<User> iterator = alluser.iterator();
-        System.out.println("iterator = " + iterator.getClass());
-        while (iterator.hasNext())
-        {
-            if (iterator.next().getName().equals(name))
-                return iterator.next();
-        }
-        
+        Optional<User> findUser = map.values().stream()
+                .filter(user -> user.getName().equals(name))
+                .findFirst();
         return null;
     }
 
     @Override
     public List<User> findAll() {
         return new ArrayList<>(map.values());
+    }
+
+    @Override
+    public void clearStore() {
+        map.clear();
     }
 }
