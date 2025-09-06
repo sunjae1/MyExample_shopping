@@ -5,8 +5,8 @@ import myex.shopping.domain.Item;
 import myex.shopping.repository.ItemRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -24,6 +24,31 @@ public class ItemController {
         List<Item> items = itemRepository.findAll();
         model.addAttribute("items", items);
         return "items/items";
+    }
+
+    //개별 아이템 상세 조회
+    @GetMapping("/{itemId}")
+    public String item(@PathVariable long itemId, Model model) {
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute("item", item);
+        return "items/item";
+
+    }
+
+    //아이템 추가
+    @GetMapping("/add")
+    public String addForm(Model model) {
+        model.addAttribute("item", new Item()); //th:object 쓸려고 빈 객체 넣음.
+        return "items/addForm";
+    }
+
+    @PostMapping("/add")
+    public String addItem(@ModelAttribute("item")Item item,
+                          RedirectAttributes redirectAttributes)
+    {
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        return "redirect:/items/{itemId}";
     }
 
 

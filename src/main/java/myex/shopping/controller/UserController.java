@@ -1,6 +1,9 @@
 package myex.shopping.controller;
 
+import lombok.RequiredArgsConstructor;
+import myex.shopping.domain.Item;
 import myex.shopping.domain.User;
+import myex.shopping.repository.ItemRepository;
 import myex.shopping.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,12 +17,13 @@ import java.util.List;
 
 //자동 @Bean 등록이랑 HttpServlet request url parsing 이랑 handler 연결하고 viewResolver 와 HttpServlet Response 로 등등 여러 역할 수행하는 어노테이션(젤 기능 많음)
 @Controller
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final ItemRepository itemRepository; //생성자 주입.
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+
+
 
     //    @ResponseBody
     @GetMapping("/")
@@ -70,7 +74,9 @@ public class UserController {
     }
 
     @GetMapping("/main")
-    public String main() {
+    public String main(Model model) {
+        List<Item> items = itemRepository.findAll();
+        model.addAttribute("items", items);
         return "main";
     }
 

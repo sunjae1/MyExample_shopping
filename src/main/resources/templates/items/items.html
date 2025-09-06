@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/item.css">
+
 </head>
 <body>
 <div>
@@ -10,7 +12,7 @@
 <!--        th:text 안에는 타임리프 표현식 또는 변수 참조 넣어야함.
             단순 문자열은 표현식으로 해석할려함.
             문자열 그대로 쓸려면 ' ' 로 감싸야 함.-->
-        <h2 th:text="'상품 목록'">상품목록</h2>
+        <h2 th:text="' 관리자용 전체 상품 관리 목록'">상품목록</h2>
     </div>
 
     <div>
@@ -35,7 +37,7 @@
             </thead>
             <tbody>
             <tr th:each = "item : ${items}">
-                <td><a href="item.html" th:href="@{/items/{itemId}(itemId=${item.id})}" th:text="${item.id}">회원 ID</a> </td>
+                <td><a href="item.html" th:href="@{/items/{itemId}(itemId=${item.id})}" th:text="${item.id}">상품 ID</a> </td>
                 <td><a href="item.html" th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">상품명</a></td>
                 <td th:text="${item.price}">10000</td>
                 <td th:text="${item.quantity}">10</td>

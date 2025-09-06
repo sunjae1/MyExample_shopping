@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <link th:href="@{/item_detail.css}"  rel="stylesheet">
+</head>
+<body>
+
+<div>
+
+  <div>
+    <h2>옷 상품 상세</h2>
+  </div>
+
+
+  <div>
+    <img th:src="${item.imagePath}">
+  </div>
+
+
+<div class="item-container">
+     <div class="item-details">
+     <div class="detail-row">
+       <label for="itemId" class="detail-label" >상품 ID</label>
+       <input type="text" id="itemId" name="itemId" value="1" th:value="${item.id}"
+       readonly class="detail-value">
+     </div>
+     <div class="detail-row">
+       <label for ="itemName" class="detail-label">상품명</label>
+       <input type ="text" id="itemName" name="itemName" value="상품A" th:value="${item.itemName}" readonly class="detail-value">
+     </div>
+     <div class="detail-row">
+       <label for ="price" class="detail-label">가격</label>
+       <input type="text" id="price" name="price" value="10000" th:value="${item.price}" readonly class="detail-value">
+     </div>
+     <div class="detail-row">
+       <label for="quantity" class="detail-label">수량</label>
+       <input type="text" id="quantity" name="quantity" value="10" th:value="${item.quantity}" readonly class="detail-value">
+     </div>
+     </div>
+
+</div>
+
+<hr>
+<div class="button-container">
+    <div class="detail-row">
+        <button class="btn"
+                th:onclick="|location.href='@{/items/{itemId}/edit(itemId=${item.id})}'|" type="button">상품 수정(아직)</button>
+    </div>
+
+    <div class="detail-row">
+        <button class="btn"
+                th:onclick="|location.href='@{/main}'|" type="button">메인 페이지로</button>
+    </div>
+    <div class="detail-row">
+        <button class="btn"
+                th:onclick="|location.href='@{/items}'|" type="button">상품 관리 목록으로</button>
+    </div>
+</div>
+
+</div>
+
+
+</body>
+</html>
