@@ -14,10 +14,10 @@ import java.util.List;
 
 //자동 @Bean 등록이랑 HttpServlet request url parsing 이랑 handler 연결하고 viewResolver 와 HttpServlet Response 로 등등 여러 역할 수행하는 어노테이션(젤 기능 많음)
 @Controller
-public class MyController {
+public class UserController {
     private final UserService userService;
 
-    public MyController(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
