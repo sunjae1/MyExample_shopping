@@ -44,8 +44,9 @@ public class UserController {
             model.addAttribute("errorMessage", "아이디나 비밀번호가 틀렸습니다."); //뷰로 한번 가면 사라짐. PRG 패턴에서 저장 안됨.
             redirectAttributes.addFlashAttribute("errorMessage","아이디나 비밀번호가 틀렸습니다.");
             //세션 잠깐 활용. 리다이렉트 이후 새 요청에서 1번만 사용가능 URL 노출 안됨.
+            return "redirect:/";
         }
-        return "redirect:/";
+        return "redirect:/main";
     }
 
     @GetMapping("/register")
