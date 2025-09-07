@@ -1,5 +1,8 @@
 package myex.shopping.controller;
 
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.domain.User;
@@ -25,7 +28,7 @@ public class UserController {
 
 
 
-    //    @ResponseBody
+
     @GetMapping("/")
     public String start() {
         return "login";
@@ -35,6 +38,7 @@ public class UserController {
     public String login(@RequestParam("email")String email,
                         @RequestParam("password")String password,
                         Model model,
+                        HttpServletRequest request,
                         RedirectAttributes redirectAttributes) {
         User loginUser = userService.login(email, password);
         System.out.println(loginUser+" login에 성공했습니다.(userService.login 메소드 통과함)");
@@ -46,6 +50,11 @@ public class UserController {
             //세션 잠깐 활용. 리다이렉트 이후 새 요청에서 1번만 사용가능 URL 노출 안됨.
             return "redirect:/";
         }
+
+        //로그인 성공 로직 (UUID 해서 있으면 그냥 반환, 아니면 신규 세션 생성.
+        HttpSession session = request.getSession();
+        session.setAttribute("loginUser", loginUser);
+
         return "redirect:/main";
     }
 
@@ -75,9 +84,15 @@ public class UserController {
     }
 
     @GetMapping("/main")
-    public String main(Model model) {
+    public String main(Model model,HttpServletRequest request) {
         List<Item> items = itemRepository.findAll();
         model.addAttribute("items", items);
+
+        HttpSession session = request.getSession(false);
+        User loginUser = (User) session.getAttribute("loginUser");
+
+        model.addAttribute("user",loginUser);
+
         return "main";
     }
 

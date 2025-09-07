@@ -51,5 +51,22 @@ public class ItemController {
         return "redirect:/items/{itemId}";
     }
 
+    //아이템 수정
+    @GetMapping("/{itemId}/edit")
+    public String editForm (@PathVariable("itemId") Long itemId,
+                            Model model) {
+        Item findItem = itemRepository.findById(itemId);
+        model.addAttribute("item", findItem);
+        return "items/editForm"; //이건 뿌리는 뷰 (서버 html 위치)
+    }
+
+    @PostMapping("/{itemId}/edit") //이게 URL
+    public String edit (@PathVariable Long itemId,
+                        @ModelAttribute("item")Item item)
+    {
+        itemRepository.update(itemId, item);
+        return "redirect:/items/{itemId}"; //@PathVariable 쓰면 itemId를 자동으로 모델에 넣어줘서 redirect"{itemId} 로 사용 가능. @PathVariable 안쓰면 오류.
+    }
+
 
 }

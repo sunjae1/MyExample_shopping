@@ -92,6 +92,7 @@ src/main/resources/META-INF/resources/
                 <p th:text="'남은 재고 : '+${item.quantity}+'개'">10</p>
 
                 <button> Add To Cart</button>
+                <td><a th:href="@{|/items/${item.id}/order|}">주문하기</a></td>
             </div>
 
             <!-- Product 3 -->
@@ -100,8 +101,13 @@ src/main/resources/META-INF/resources/
                 <h3>Product 3</h3>
                 <p>$39.99</p>
                 <button>Add to Cart</button>
+
             </div>
             <!-- Add more products as needed -->
+        </div>
+<!--        -->
+        <div>
+            <a th:href="@{/}">로그인 페이지로</a>
         </div>
     </div>
     <footer>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order List</title>
+    <link rel="stylesheet" href="/item.css">
+</head>
+<body>
+<div>
+    <div>
+        <h2>Order List</h2>
+    </div>
+
+    <hr>
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>User Name</th>
+                <th>Paid Price</th>
+                <th>Paid Quantity</th>
+                <th>Total Price</th>
+                <th>Order Date</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.id}">Order ID</td>
+                <td th:text="${order.user}">User Name</td>
+                <td>
+                    <p th:text="${order.orderItems}"></p>
+                    <span th:each="oi: ${order.orderItems}"
+                            th:text="${oi.orderPrice}">당시 가격</span>
+
+                </td>
+                <td th:each ="oi: ${order.orderItems}"
+                        th:text="${oi.quantity}">주문 수량</td>
+
+                <td th:text="${order.getTotalPrice()}">Total Price</td>
+                <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">Order Date</td>
+                <td th:text="${order.status}">Status</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
