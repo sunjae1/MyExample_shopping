@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order List</title>
+    <link rel="stylesheet" href="/item.css">
+</head>
+<body>
+<div>
+    <div>
+        <h2>Cart List</h2>
+    </div>
+
+    <hr>
+
+    <div th:if="${empty_cart_error !=null}">
+        <h3 th:text="${empty_cart_error}">장바구니 empty order 메세지</h3>
+        <hr>
+
+    </div>
+
+
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th>CartItem Item</th>
+                <th>Item Price</th>
+                <th>quantity</th>
+                <th>해당 상품 가격</th>
+                <th>취소하기</th>
+
+            </tr>
+            </thead>
+            <tbody th:if ="${cart !=null && !#lists.isEmpty(cart.cartItems)}">
+<!--            장바구니가 비어있지 않을때 ${cart}랑 동일.(null 체크 해줌) :명시적 표기 위해서-->
+            <tr  th:each="cartItem : ${cart.cartItems}">
+                <td th:text="${cartItem.item}">CartItem ID</td>
+                <td th:text="${cartItem.item.price}">Item Price</td>
+                <td th:text="${cartItem.quantity}">quantity</td>
+                <td th:text="${cartItem.totalItemPrice()}">해당 상품 가격</td>
+                <td>
+                    <form th:action="@{/items/cart/remove}" method="post">
+                        <input type="hidden" name="itemId" th:value="${cartItem.item.id}">
+                        <button type="submit">취소하기</button>
+                    </form>
+
+                </td>
+            </tr>
+
+
+
+            </tbody>
+
+            <!--            장바구니가 없거나 비어있을 때-->
+            <tbody th:if="${cart ==null || #lists.isEmpty(cart.cartItems)}">
+            <tr>
+                <td colspan="4"> 장바구니에 추가된 상품이 없습니다. </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+    <hr>
+
+    <form th:action="@{/items/order}" method="post">
+        <button type="submit">주문하기 </button>
+    </form>
+
+</div>
+</body>
+</html>

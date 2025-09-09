@@ -9,6 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
+//프로퍼티 접근법 Thymeleaf 에서 쓰임.
 public class Order {
     private Long id;
     private User user;
@@ -36,6 +37,15 @@ public class Order {
                 .sum();
     }
 
+    //총 수량 계산
+    public int getTotalQuantity() {
+        return orderItems.stream()
+                .mapToInt(OrderItem::getQuantity)
+                .sum();
+    }
+
+
+
     //주문 확정 시 재고 감소 : 주문 --> 결제 --> 확정(orderItem이 item을 가져야만 decreaseStock() 사용가능.) 앞 사람이 재고를 다 털어가면 Exception 내야함.
     public void confirmOrder() {
         for (OrderItem orderItem : orderItems) {
@@ -51,6 +61,28 @@ public class Order {
             orderItem.getItem().increaseStock(orderItem.getQuantity());
         }
         this.status =OrderStatus.CANCELLED;
+    }
+
+
+    //전체 장바구니 --> 주문 버튼으로.
+    //장바구니 -> Order 로 전환
+    public Order checkout(Order order, Cart cart, User user) {
+//        Order order = new Order(user);
+        for (CartItem ci : cart.getCartItems()) {
+            order.addOrderItem(new OrderItem(ci.getItem(), ci.getItem().getPrice(), ci.getQuantity()));
+        }
+        return order;
+    }
+
+
+    //위에 있네.
+    //주문 한개에 있는 모든 주문 아이템 가격 다 더하기.
+    public int allOrderItemPrice() {
+        int sum=0;
+        for (OrderItem orderItem : orderItems) {
+            sum +=orderItem.getTotalPrice();
+        }
+        return sum;
     }
 
 }

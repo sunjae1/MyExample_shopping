@@ -18,7 +18,7 @@
             <tr>
                 <th>Order ID</th>
                 <th>User Name</th>
-                <th>Paid Price</th>
+                <th>Paid Price(전체 가격)</th>
                 <th>Paid Quantity</th>
                 <th>Total Price</th>
                 <th>Order Date</th>
@@ -29,14 +29,23 @@
             <tr th:each="order : ${orders}">
                 <td th:text="${order.id}">Order ID</td>
                 <td th:text="${order.user}">User Name</td>
+
                 <td>
-                    <p th:text="${order.orderItems}"></p>
-                    <span th:each="oi: ${order.orderItems}"
-                            th:text="${oi.orderPrice}">당시 가격</span>
+
+                    <p th:each="orderItem: ${order.orderItems}"
+                        th:text="${orderItem}">Paid Price(전체 가격)
+                    </p>
+
+                    <span th:each="oi: ${order.orderItems}">
+                        <span th:text="'금액 계산식: ' +${oi.printCalculate()}" >계산식</span>
+                        <br>
+                    </span>
+
 
                 </td>
-                <td th:each ="oi: ${order.orderItems}"
-                        th:text="${oi.quantity}">주문 수량</td>
+                <td th:text="${order.getTotalQuantity()}">Paid Quantity</td>
+               <!-- <td th:each ="oi: ${order.orderItems}"
+                        th:text="${oi.quantity}">주문 수량</td>-->
 
                 <td th:text="${order.getTotalPrice()}">Total Price</td>
                 <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">Order Date</td>

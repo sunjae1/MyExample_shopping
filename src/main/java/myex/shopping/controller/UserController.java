@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import myex.shopping.domain.Cart;
 import myex.shopping.domain.Item;
 import myex.shopping.domain.User;
 import myex.shopping.repository.ItemRepository;
@@ -54,6 +55,8 @@ public class UserController {
         //로그인 성공 로직 (UUID 해서 있으면 그냥 반환, 아니면 신규 세션 생성.
         HttpSession session = request.getSession();
         session.setAttribute("loginUser", loginUser);
+
+
 
         return "redirect:/main";
     }

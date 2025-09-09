@@ -92,7 +92,7 @@ src/main/resources/META-INF/resources/
                 <p th:text="'남은 재고 : '+${item.quantity}+'개'">10</p>
 
                 <button> Add To Cart</button>
-                <td><a th:href="@{|/items/${item.id}/order|}">주문하기</a></td>
+                <td><a th:href="@{|/items/${item.id}/cart|}">장바구니에 담기</a></td>
             </div>
 
             <!-- Product 3 -->
@@ -108,6 +108,7 @@ src/main/resources/META-INF/resources/
 <!--        -->
         <div>
             <a th:href="@{/}">로그인 페이지로</a>
+            <h2><a th:href ="@{/items/cartAll}">전체 장바구니 보기</a></h2>
         </div>
     </div>
     <footer>

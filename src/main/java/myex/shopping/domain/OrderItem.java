@@ -21,4 +21,9 @@ public class OrderItem {
         this.orderPrice = orderPrice;
         this.quantity = quantity;
     }
+
+    public String printCalculate() {
+        return orderPrice + " X " + quantity + "= "+getTotalPrice();
+    }
+
 }
