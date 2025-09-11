@@ -42,6 +42,13 @@ public class ItemRepository {
 
     }
 
+    public void update_exceptImgUrl(Long itemId, Item updateParam){
+        Item findItem = findById(itemId);
+        findItem.setItemName(updateParam.getItemName());
+        findItem.setPrice(updateParam.getPrice());
+        findItem.setQuantity(updateParam.getQuantity());
+    }
+
     //item 저장소 전부 삭제.
     public void clearStore() {
         store.clear();
