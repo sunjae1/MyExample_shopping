@@ -26,4 +26,11 @@ public class OrderItem {
         return orderPrice + " X " + quantity + "= "+getTotalPrice();
     }
 
+    @Override
+    public String toString() {
+        return "주문상품 : " +
+                item + "<br>" +
+                "주문가격=" + orderPrice + "<br>" +
+                "주문수량=" + quantity;
+    }
 }

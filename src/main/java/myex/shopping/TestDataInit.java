@@ -24,9 +24,9 @@ public class TestDataInit {
      */
     @PostConstruct //스프링 빈이 생성되고, 의존성 주입이 끝난 뒤 호출되는 메서드 (빈 이 다 준비되면 자동으로 메소드 실행
     public void init() {
-        Item itemA = new Item("아이템A", 2000, 10, "/img/1.webp");
+        Item itemA = new Item("아이템A", 2000, 10,"/img/1.webp");
         itemRepository.save(itemA);
-        itemRepository.save(new Item("아이템B", 4000,20,"/img/2.webp"));
+        itemRepository.save(new Item("아이템B", 4000,20, "/img/2.webp"));
 
         User user = new User("test@na.com","테스터","test!");
         userRepository.save(user);

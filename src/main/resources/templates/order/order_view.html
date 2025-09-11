@@ -33,7 +33,9 @@
                 <td>
 
                     <p th:each="orderItem: ${order.orderItems}"
-                        th:text="${orderItem}">Paid Price(전체 가격)
+                        th:utext="${orderItem}">Paid Price(전체 가격)
+<!--                        th:utext ==> 특수문자를 변환 안해서 html 코드 출력 가능.
+                            th:text는 특수문자를 &lt;등으로 뷰에 보이게만 바꿈.-->
                     </p>
 
                     <span th:each="oi: ${order.orderItems}">

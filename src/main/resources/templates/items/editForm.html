@@ -14,11 +14,12 @@
     <h2 class="form-title"> 상품 수정 </h2>
   </div>
 
-  <form action="item.html" th:action th:object="${item}" method="post">
+  <form action="item.html" th:action th:object="${item}" method="post"
+      enctype="multipart/form-data">
 
     <div class="form-group">
-      <label for="imagePath" class="form-label">이미지 경로</label>
-      <input type="text" id="imagePath" th:field="*{imagePath}" placeholder="이미지 경로를 직접 입력하세요" class="form-input image-path">
+      <label for="imageFile" class="form-label">이미지 경로</label>
+      <input type="file" id="imageFile" th:field="*{imageFile}" class="form-input image-path">
 
     </div>
 

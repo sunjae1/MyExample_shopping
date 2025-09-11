@@ -10,5 +10,10 @@ public class User {
     private final String password;
 
 
-
+    @Override
+    public String toString() {
+        return "User{" + "email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

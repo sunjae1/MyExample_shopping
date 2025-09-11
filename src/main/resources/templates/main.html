@@ -85,7 +85,7 @@ src/main/resources/META-INF/resources/
             <div class="product-card"
                      th:each = "item : ${items}">
                 <a href="item.html" th:href="@{|/items/${item.id}|}">
-                    <img th:src ="${item.imagePath}" alt ="Product"></a>
+                    <img th:src ="@{${item.imageUrl}}" alt ="Product"></a>
 
                 <h3><a href="item.html" th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">상품명</a></h3>
                 <p th:text="'가격 : ' +${item.price}+'원'">10000</p>
