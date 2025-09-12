@@ -101,4 +101,24 @@ public class OrderController {
         model.addAttribute("orders", orderAll);
         return "order/order_view";
     }
+
+    //주문 취소. : items/{id}/cancel
+    @GetMapping("/{id}/cancel")
+    public String orderCancel(@PathVariable Long id) {
+        Order order = orderRepository.findById(id)
+                .orElse(null);
+        order.cancel(); //orderItem 마다 재고 다 올리고 상태는 CANCELLED로 바뀜. 주문내역은 사라지지 않음.
+        return "redirect:/items/orderAll";
+    }
+
+    @GetMapping("/{id}/cancelByUser")
+    public String orderCancelByUser(@PathVariable Long id) {
+        Order order = orderRepository.findById(id)
+                .orElse(null);
+        order.cancel(); //orderItem 마다 재고 다 올리고 상태는 CANCELLED로 바뀜. 주문내역은 사라지지 않음.
+        return "redirect:/mypage";
+    }
+
+
+
 }

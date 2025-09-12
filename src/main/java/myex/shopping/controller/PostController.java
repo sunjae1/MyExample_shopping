@@ -71,7 +71,17 @@ public class PostController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id,
+                         @RequestParam(required = false) String redirectInfo) {
+
+        System.out.println(redirectInfo);
+//        항상 null 가능성이 있는 변수를 .equals() 앞에 쓰면 NPE 위험
+        if ("mypage".equals(redirectInfo))
+        {
+            postRepository.delete(id);
+            return "redirect:/mypage";
+        }
+
         postRepository.delete(id);
         return "redirect:/posts";
     }

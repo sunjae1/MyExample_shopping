@@ -23,6 +23,7 @@
                 <th>Total Price</th>
                 <th>Order Date</th>
                 <th>Status</th>
+                <th>주문 취소</th>
             </tr>
             </thead>
             <tbody>
@@ -52,10 +53,23 @@
                 <td th:text="${order.getTotalPrice()}">Total Price</td>
                 <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">Order Date</td>
                 <td th:text="${order.status}">Status</td>
+<!--                유지보수 할때 부정 -> 긍정 메소드로 만들기.-->
+                <td th:if="${order.status.name() != 'CANCELLED'}">
+                    <button th:onclick="|location.href='@{/items/{id}/cancel(id=${order.id})}'|"
+                        type="button">
+                        주문 취소
+                    </button>
+                    </td>
             </tr>
             </tbody>
         </table>
     </div>
 </div>
+
+<div>
+    <h2><a th:href ="@{/main}">메인 페이지로 돌아가기</a></h2>
+</div>
+
+
 </body>
 </html>

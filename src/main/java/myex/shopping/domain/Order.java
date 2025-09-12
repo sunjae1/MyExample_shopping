@@ -2,6 +2,7 @@ package myex.shopping.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 //프로퍼티 접근법 Thymeleaf 에서 쓰임.
 public class Order {
     private Long id;
@@ -75,14 +77,5 @@ public class Order {
     }
 
 
-    //위에 있네.
-    //주문 한개에 있는 모든 주문 아이템 가격 다 더하기.
-    public int allOrderItemPrice() {
-        int sum=0;
-        for (OrderItem orderItem : orderItems) {
-            sum +=orderItem.getTotalPrice();
-        }
-        return sum;
-    }
 
 }

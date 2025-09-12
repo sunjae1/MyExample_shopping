@@ -35,6 +35,7 @@ public class MemoryPostRepository implements PostRepository{
     }
 
     //User 로 Order 전체 찾기. (사용자가 주문한 내역 전부 호출)
+    @Override
     public List<Post> findByUser(User user) {
         return store.values().stream()
                 .filter(post -> post.getUserId().equals(user.getId()))

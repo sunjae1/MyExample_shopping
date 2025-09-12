@@ -22,6 +22,7 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
+    //계산식.
     public String printCalculate() {
         return orderPrice + " X " + quantity + "= "+getTotalPrice();
     }
