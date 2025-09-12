@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Order List</title>
+  <link rel="stylesheet" href="/item.css">
+</head>
+<body>
+<h2> 새 글 작성 </h2>
+
+<!--post : title, content, /userId-->
+
+<form th:action="@{/posts}" th:object="${post}" method="post">
+  <p>제목 : <input type="text" th:field="*{title}"></p>
+<!--  <p>작성자 : <input type="text" th:field="*{author}"></p>-->
+<!--  작성자 는 session 에서 꺼내서 userid 넣기.-->
+<!--  placeholder는 value 없을때 사용됨. value 속성 제일 우선.-->
+  <p>작성자 : <input type="text" th:value="${user.name}" readonly></p>
+              <input type="hidden" name="userId" th:value="${user.id}">
+  <p>내용 : <textarea th:field="*{content}"></textarea></p>
+  <button type="submit">작성</button>
+</form>
+
+</body>
+</html>

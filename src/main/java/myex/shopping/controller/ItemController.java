@@ -109,6 +109,7 @@ public class ItemController {
             String fileName = file.getOriginalFilename();
 
             //경로 + 파일명 이 둘 다 같으면 (Upload 폴더에 있는 사진 업로드 하면) 같은 파일로 판단해 move 불가능. -> 오류 발생. UUID로 이름 바꾸면 경로+파일명이 경로만 같아서 다른 파일이라고 판단하고 업로드 가능.
+            // + 다른경로 +같은 파일명 : 덮어쓰기 해버림.
             //확장자
             String ext = fileName.substring(fileName.lastIndexOf("."));
             String uniqueName = UUID.randomUUID().toString() +ext;

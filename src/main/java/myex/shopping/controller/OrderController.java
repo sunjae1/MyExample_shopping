@@ -66,7 +66,7 @@ public class OrderController {
         //장바구니가 아무것도 없을때 주문하기 눌르면,
 
         Cart cart = (Cart) session.getAttribute("CART");
-        if (cart == null) {
+        if (cart == null ||  cart.getCartItems().isEmpty()   ) {
             model.addAttribute("empty_cart_error", "주문 불가 : 장바구니에 상품을 담아주세요.");
 
             return "cart/cart_view";
@@ -83,7 +83,6 @@ public class OrderController {
 
 
         //repository에 저장.
-
         orderRepository.save(order);
 
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.

@@ -1,10 +1,12 @@
 package myex.shopping.repository;
 
 import myex.shopping.domain.Order;
+import myex.shopping.domain.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Repository
 public class OrderRepository {
@@ -23,6 +25,14 @@ public class OrderRepository {
     public Optional<Order> findById(Long id) {
         return Optional.ofNullable(store.get(id));
     }
+
+    //User 로 Order 전체 찾기. (사용자가 주문한 내역 전부 호출)
+    public List<Order> findByUser(User user) {
+        return store.values().stream()
+                .filter(order -> order.getUser().equals(user))
+                .collect(Collectors.toList());
+    }
+
 
     //전체 주문 반환.
     public List<Order> findAll() {

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Order List</title>
+  <link rel="stylesheet" href="/item.css">
+</head>
+<body>
+<h2>게시판</h2>
+<a th:href="@{/posts/new}"> 새 글 작성 </a>
+<table>
+
+  <tr>
+    <th>번호</th>
+    <th>제목</th>
+    <th>작성자</th>
+    <th>작성일</th>
+    <th>관리</th>
+  </tr>
+<!--post : id(DB), title, author, -->
+  <tr th:each="post : ${posts}">
+    <td th:text="${post.id}">1</td>
+    <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">제목</a> </td>
+    <td th:text="${post.author}">작성자</td>
+    <td th:text="${#temporals.format(post.createdDate,'yyyy-MM-dd HH:mm')}"> 날짜 </td>
+    <td>
+      <form th:action="@{|/posts/${post.id}/delete|}" method="post">
+        <button type="submit"> 삭제</button>
+
+      </form>
+
+    </td>
+
+
+  </tr>
+
+</table>
+<div>
+  <a th:href="@{/main}">메인으로 </a>
+</div>
+
+</body>
+</html>
