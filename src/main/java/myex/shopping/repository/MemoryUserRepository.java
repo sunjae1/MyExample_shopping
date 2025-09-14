@@ -23,6 +23,12 @@ public class MemoryUserRepository implements UserRepository{
     }
 
     @Override
+    public Optional<User> findById(Long id) {
+        return Optional.ofNullable(map.get(id));
+
+    }
+
+    @Override
     public Optional<User> findByEmail(String email) {
 
         Collection<User> values = map.values();
