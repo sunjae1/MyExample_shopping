@@ -1,7 +1,9 @@
 package myex.shopping.dto;
 
+import lombok.Getter;
 import myex.shopping.domain.OrderItem;
 
+@Getter
 public class OrderItemDto {
     private String itemName;
     private int price;

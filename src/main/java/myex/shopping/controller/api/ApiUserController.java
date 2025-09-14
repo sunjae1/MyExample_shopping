@@ -93,6 +93,7 @@ public class ApiUserController {
         Cart cart = getOrCreateCart(session);
 
         System.out.println("orders = " + orders);
+        System.out.println("cart = " + cart);
 
 
         return new MyPageDto(loginUser, orders, posts, cart);
