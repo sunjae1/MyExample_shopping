@@ -2,13 +2,8 @@ package myex.shopping;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import myex.shopping.domain.Item;
-import myex.shopping.domain.Order;
-import myex.shopping.domain.OrderItem;
-import myex.shopping.domain.User;
-import myex.shopping.repository.ItemRepository;
-import myex.shopping.repository.OrderRepository;
-import myex.shopping.repository.UserRepository;
+import myex.shopping.domain.*;
+import myex.shopping.repository.*;
 import org.springframework.stereotype.Component;
 
 @Component //클래스 레벨에서 스프링 빈으로 등록
@@ -18,6 +13,8 @@ public class TestDataInit {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 테스트용 데이터 추가
@@ -35,13 +32,25 @@ public class TestDataInit {
         int quantity = 3;
 
         //OrderItem, Order 테스트 데이터 생성.
-
-
         OrderItem orderItem = new OrderItem(itemA, price, quantity);
         Order order = new Order(user);
         order.addOrderItem(orderItem);
         orderRepository.save(order);
         order.confirmOrder();
+
+        //게시글 등록
+        Post post = new Post("첫 글 축하", "테스트용 게시글입니다. 게시글 입니다.\n게시글 게시글 게시글");
+        post.setUserId(user.getId());
+        postRepository.save(post);
+
+        //댓글 등록
+        Comment comment = new Comment();
+        comment.setUser(user);
+        comment.setPost(post);
+        comment.setContent("테스트용 댓글 입력 중입니다. \n테스트 테스트  테스트 테스트 ");
+        post.addComment(comment);
+        commentRepository.save(comment);
+
 
     }
 

@@ -9,9 +9,33 @@
 <h2 th:text="${post.title}">제목</h2>
 <p>작성자 : <span th:text="${post.author}">작성자</span></p>
 <h5>게시물 내용</h5>
-<p th:text="${post.content}">내용</p>
+<p th:text="${post.content}" style="white-space: pre-wrap;">내용</p>
 <p th:text="${'작성날짜 : '+ #temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">작성일</p>
 <a th:href="@{/posts}">목록으로</a>
 
 </body>
+
+<!-- 댓글 작성 -->
+<!--"@{|/posts/${post.id}|}"-->
+
+<h3>댓글</h3>
+<!--애초에 null 이면 each 루프 돌지 않음.-->
+<div th:each="comment : ${post.comments}">
+  <hr>
+  <div>작성자 :
+    <b th:text="${comment.user.name}">작성자</b>
+    <br>
+    <span th:text="${comment.content}" style="white-space: pre-wrap;">댓글 내용</span>
+    <br>
+    <small th:text="'작성 날짜 : ' + ${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">작성 날짜</small>
+  </div>
+  <hr>
+</div>
+
+
+<form th:action="@{|/posts/${post.id}/comments|}" method="post">
+  <textarea name="reply_content" placeholder="댓글을 입력하세요"></textarea>
+  <button type="submit">댓글 작성</button>
+</form>
+
 </html>
