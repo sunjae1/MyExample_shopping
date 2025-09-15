@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
 import myex.shopping.repository.ItemRepository;
+import myex.shopping.service.ItemService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class ItemController {
 
     private final ItemRepository itemRepository; //생성자 주입.
+    private final ItemService itemService;
 
     //전체 아이템 조회
     @GetMapping
@@ -53,37 +55,20 @@ public class ItemController {
     public String addItem(@ModelAttribute("item")ItemAddForm form,
                           RedirectAttributes redirectAttributes) throws IOException {
 
-        MultipartFile file = form.getImageFile();
-        if (file != null && !file.isEmpty())
-        {
-            Item item = new Item();
-            //서버에 저장할 경로
-            String uploadDir = "C:/Users/kimsunjae/Desktop/NewFolder/Java_INTELLIJ/MyExample/UploadFolder/";
-            String fileName = file.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir, fileName);
 
-            //폴더 없으면 생성
-            Files.createDirectories(filePath.getParent());
+        Item item = itemService.ImageSave(form, new Item());
+        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
 
-            //파일 저장
-            file.transferTo(filePath.toFile());
-
-            //브라우저에서 접근할 URL 생성
-            item.setItemName(form.getItemName());
-            item.setPrice(form.getPrice());
-            item.setQuantity(form.getQuantity());
-            item.setImageUrl("/img/"+fileName);
-
-            Item savedItem = itemRepository.save(item);
-            redirectAttributes.addAttribute("itemId", savedItem.getId());
-
-            System.out.println(savedItem.getImageUrl());
-            System.out.println(item.getImageUrl());
-            System.out.println(item.getImageUrl());
-
-        }
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
 
 
+        //맞는지 확인.
+        System.out.println(savedItem.getImageUrl());
+        System.out.println(item.getImageUrl());
+        System.out.println(item.getImageUrl());
         System.out.println("ItemController.addItem : postmapping");;
         return "redirect:/items/{itemId}";
     }
@@ -99,39 +84,23 @@ public class ItemController {
 
     @PostMapping("/{itemId}/edit") //이게 URL
     public String edit (@PathVariable Long itemId,
-                        @ModelAttribute("item")Item item) throws IOException {
-        MultipartFile file = item.getImageFile();
-        if (file != null && !file.isEmpty())
-        {
-            //업로드 경로에 있는 파일 선택 테스트
-            //서버에 저장할 경로
-            String uploadDir = "C:/Users/kimsunjae/Desktop/NewFolder/Java_INTELLIJ/MyExample/UploadFolder/";
-            String fileName = file.getOriginalFilename();
+                        @ModelAttribute("item")ItemAddForm form) throws IOException {
 
-            //경로 + 파일명 이 둘 다 같으면 (Upload 폴더에 있는 사진 업로드 하면) 같은 파일로 판단해 move 불가능. -> 오류 발생. UUID로 이름 바꾸면 경로+파일명이 경로만 같아서 다른 파일이라고 판단하고 업로드 가능.
-            // + 다른경로 +같은 파일명 : 덮어쓰기 해버림.
-            //확장자
-            String ext = fileName.substring(fileName.lastIndexOf("."));
-            String uniqueName = UUID.randomUUID().toString() +ext;
 
-            Path filePath = Paths.get(uploadDir, uniqueName);
+        Item item = itemService.imageEditSaveByUUID(form, new Item());
+        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
 
-            //폴더 없으면 생성
-            Files.createDirectories(filePath.getParent());
-
-            //파일 저장
-            file.transferTo(filePath.toFile());
-
-            //브라우저에서 접근할 URL 생성
-            item.setImageUrl("/img/"+uniqueName);
-            System.out.println(item.getImageUrl());
-            itemRepository.update(itemId, item);
-
-        }
-
-        itemRepository.update_exceptImgUrl(itemId, item);
-
-        return "redirect:/items/{itemId}"; //@PathVariable 쓰면 itemId를 자동으로 모델에 넣어줘서 redirect"{itemId} 로 사용 가능. @PathVariable 안쓰면 오류.
+        itemRepository.update(itemId, item);
+//        itemRepository.update_exceptImgUrl(itemId, item);
+        return "redirect:/items/{itemId}";
+        //{} 치환 순위.
+        /*
+          1. RedirectAttributes.addAttribute("itemId",...)
+          2. @PathVariable, @RequestParma, 같은 요청
+             메서드 파라미터 이름 Long itemId 랑 매칭됨.
+        */
     }
 
 

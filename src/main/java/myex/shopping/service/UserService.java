@@ -34,25 +34,9 @@ public class UserService {
     public User login(String email, String password) {
 
         //반환이 Optional 1개 담는 컨테이너 여서 여러 값(컬렉션)을 처리하는 Stream 안쓰고 바로 .filter 가능.
-        return userRepository.findByEmail(email).filter(user -> user.getPassword().equals(password))
-                .orElse(null); //여기서 Optional 안에 꺼내서 User로 반환 가능.
-
-
-      /*  Optional<User> findByEmail = userRepository.findByEmail(email);
-
-        if (findByEmail.isPresent()) {
-            User user = findByEmail.get();
-            if (user.getPassword().equals(password)) {
-                return user;
-            }
-        }*/
-
-    /*    if (byEmail != null) {
-            if (byEmail.getPassword().equals(password)) {
-                return byEmail;
-            }
-        }*/
-
+        return userRepository.findByEmail(email)
+                .filter(user -> user.getPassword().equals(password))
+                .orElseThrow(() ->new RuntimeException("아이디나 비밀번호가 일치하지 않습니다.")); //여기서 Optional 안에 꺼내서 User로 반환 가능.
 
     }
     public List<User> allUser() {

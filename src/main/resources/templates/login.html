@@ -12,7 +12,7 @@
 
     <h7 th:text="${errorMessage}"></h7>
 
-    <form method="post" th:action action="/login" id="login-form">
+    <form method="post" th:action="@{/login}" action="/login" id="login-form">
         <input type="text" name="email" placeholder="Email">
         <input type="password" name="password" placeholder="Password">
         <label for="remember-check">

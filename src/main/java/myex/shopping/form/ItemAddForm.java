@@ -8,9 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 public class ItemAddForm {
 
-    private MultipartFile imageFile;
     private String itemName;
     private int price;
     private int quantity;
+    private MultipartFile imageFile;
 
 }

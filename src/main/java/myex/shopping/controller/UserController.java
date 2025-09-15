@@ -1,6 +1,5 @@
 package myex.shopping.controller;
 
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -37,15 +36,16 @@ public class UserController {
         return "login";
 
     }
-    @PostMapping("/")
+    @PostMapping("/login")
     public String login(@RequestParam("email")String email,
                         @RequestParam("password")String password,
                         Model model,
                         HttpServletRequest request,
                         RedirectAttributes redirectAttributes) {
         User loginUser = userService.login(email, password);
-        System.out.println(loginUser+" login에 성공했습니다.(userService.login 메소드 통과함)");
 
+        System.out.println(loginUser+" login에 성공했습니다.(userService.login 메소드 통과함)");
+        //로그인 실패시
         if (loginUser == null) {
             System.out.println("아이디나 비밀번호가 틀렸습니다. ");
             model.addAttribute("errorMessage", "아이디나 비밀번호가 틀렸습니다."); //뷰로 한번 가면 사라짐. PRG 패턴에서 저장 안됨.
@@ -58,10 +58,19 @@ public class UserController {
         HttpSession session = request.getSession();
         session.setAttribute("loginUser", loginUser);
 
-
-
         return "redirect:/main";
     }
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        if (session !=null) {
+            session.invalidate();
+        }
+
+        return "redirect:/";
+    }
+
+
 
     @GetMapping("/register")
     public String register() {
@@ -71,7 +80,7 @@ public class UserController {
     @PostMapping("/register")
     public String add_user(@ModelAttribute("user")User user) {
         //User user = new User();
-        //user.setEmail, setName, setPassword
+        //user.setEmail, setName, setPassword 파라미터 매핑
         //model.addAttribute("user",user) : 뷰에 정보 뿌릴때 사용.
         //ModelAttribute가 자동으로 생성해줌.
         userService.save(user);
@@ -89,13 +98,12 @@ public class UserController {
     }
 
     @GetMapping("/main")
-    public String main(Model model,HttpServletRequest request) {
+    public String mainPage(Model model,
+                           HttpSession session) {
         List<Item> items = itemRepository.findAll();
-        model.addAttribute("items", items);
-
-        HttpSession session = request.getSession(false);
         User loginUser = (User) session.getAttribute("loginUser");
 
+        model.addAttribute("items", items);
         model.addAttribute("user",loginUser);
 
         return "main";
@@ -108,9 +116,9 @@ public class UserController {
                          Model model)
     {
         User loginUser = (User) session.getAttribute("loginUser");
+        Cart cart = getOrCreateCart(session);
         List<Order> orders = orderRepository.findByUser(loginUser);
         List<Post> posts = postRepository.findByUser(loginUser);
-        Cart cart = getOrCreateCart(session);
 
         System.out.println("orders = " + orders);
 

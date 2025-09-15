@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         // "/img/**" 요청 ==> "uploads/" 폴더
         registry.addResourceHandler("/img/**")
-                .addResourceLocations("file:C:/Users/kimsunjae/Desktop/NewFolder/Java_INTELLIJ/MyExample/UploadFolder/");
+                .addResourceLocations("file:../UploadFolder/");
 
     }
 }
