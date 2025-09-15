@@ -1,10 +1,14 @@
 package myex.shopping.domain;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
-
+@Getter
+@ToString
 public class Cart {
 
     private List<CartItem> cartItems = new ArrayList<>();
@@ -39,10 +43,6 @@ public class Cart {
         cartItems.removeIf(cartItem -> cartItem.getItem().equals(item));
     }
 
-
-    public List<CartItem> getCartItems() {
-        return cartItems;
-    }
 
     public void cartItemClear() {
         cartItems.clear();

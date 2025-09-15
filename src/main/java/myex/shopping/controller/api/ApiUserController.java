@@ -90,6 +90,9 @@ public class ApiUserController {
         List<PostDto> posts = postRepository.findByUser(loginUser).stream()
                 .map(PostDto::new)
                 .collect(Collectors.toList());
+
+        //브라우저 세션이랑 포스트맨 세션이랑 다름.
+        //브라우저에서 카트에 넣어도 포스트맨에서 cart가 세션이라 못받음.
         Cart cart = getOrCreateCart(session);
 
         System.out.println("orders = " + orders);

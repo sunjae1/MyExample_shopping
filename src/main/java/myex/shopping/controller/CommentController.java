@@ -29,9 +29,10 @@ public class CommentController {
         Post post = postRepository.findById(postId)
                 .orElseThrow();
         User loginUser = (User) session.getAttribute("loginUser");
+
         Comment comment = new Comment();
         comment.setUser(loginUser);
-        comment.setPost(post);
+//        comment.setPost(post);
         comment.setContent(reply_content);
         post.addComment(comment);
         commentRepository.save(comment);

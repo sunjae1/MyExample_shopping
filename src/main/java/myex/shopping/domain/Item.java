@@ -11,8 +11,8 @@ public class Item {
     private String itemName;
     private Integer price; //가격
     private Integer quantity; //수량(남은재고)
-    private MultipartFile imageFile; //이미지 경로
-    private String imageUrl;
+    private MultipartFile imageFile; //업로드 파일
+    private String imageUrl; //이미지 경로
 
 
     public Item() {
