@@ -69,11 +69,21 @@ public class Order {
     //전체 장바구니 --> 주문 버튼으로.
     //장바구니 -> Order 로 전환
     public Order checkout(Order order, Cart cart, User user) {
-//        Order order = new Order(user);
         for (CartItem ci : cart.getCartItems()) {
             order.addOrderItem(new OrderItem(ci.getItem(), ci.getItem().getPrice(), ci.getQuantity()));
         }
         return order;
+    }
+
+    public boolean orderIsNotCanCelled() {
+
+        if (this.status ==OrderStatus.CANCELLED)
+        {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
 

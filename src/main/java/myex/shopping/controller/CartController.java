@@ -16,17 +16,14 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
     private final ItemRepository itemRepository;
 
-    //한 상품에 대한 주문 페이지를 보여주고, 담기 클릭시 장바구니에 저장.
+    //한 상품에 대한 주문 페이지를 보여주고, 장바구니 담기 클릭시 장바구니에 저장.
     //@PathVariable은 itemid로 item 꺼내기 위해서 get에서 뽑아서 뷰에 item 뿌려줌.
+    //main --> 장바구니 담기 버튼.
     @GetMapping("/{itemId}/cart")
     public String viewCart(@PathVariable Long itemId,
                            HttpSession session, Model model) {
 
         Item findItem = itemRepository.findById(itemId);
-     /*   //
-        Cart cart = getOrCreateCart(session);
-        model.addAttribute("cart", cart);
-        //*/
         model.addAttribute("item", findItem);
         return "cart/cartForm"; // 주문이랑 똑같이 view에서 받고, 전체 장바구니에서 주문 버튼 만들어서, order.confirmOrder 을 나중으로 미루게.(확정을 나중으로)
 
@@ -34,6 +31,7 @@ public class CartController {
 
     //한 상품에 대한 주문 페이지에서 정보가 넘어오면 장바구니에 저장.
     //cartForm 에서 id - item.id 매핑됨.
+    // id, price, quantity --> CartForm : id, quantity 매핑.
     @PostMapping("/{itemId}/cart")
     public String addToCart(@ModelAttribute CartForm cartForm,
                             HttpSession session) {
@@ -41,6 +39,7 @@ public class CartController {
         Cart cart = getOrCreateCart(session);
         Item findItem = itemRepository.findById(cartForm.getId());
 
+        //아이템과 수량.
         cart.addItem(findItem, cartForm.getQuantity());
         return "redirect:/main";
 
@@ -62,7 +61,7 @@ public class CartController {
     public String cartItemRemove(@RequestParam Long itemId,
                                  HttpSession session) {
         Item findItem = itemRepository.findById(itemId);
-        Cart cart = (Cart) session.getAttribute("CART");
+        Cart cart = getOrCreateCart(session);
         cart.removeItem(findItem);
         return "redirect:/items/cartAll";
     }
@@ -70,7 +69,7 @@ public class CartController {
 
 
 
-    //메소드 들.
+    //메소드
     private Cart getOrCreateCart(HttpSession session) {
         Cart cart = (Cart) session.getAttribute("CART");
         if (cart == null) {

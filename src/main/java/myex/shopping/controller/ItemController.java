@@ -55,7 +55,9 @@ public class ItemController {
     public String addItem(@ModelAttribute("item")ItemAddForm form,
                           RedirectAttributes redirectAttributes) throws IOException {
 
+        //UploadFolder 에 있는 사진 업로드 시도 하면, "같은 경로 + 같은 파일명" 이라 같다고 판단해 move 불가능.(오류 발생. /UUID로 바꿀시, "같은 경로 + 다른 파일명" 이라 다른 파일이라 판단하고 업로드 가능.
 
+        //"다른 경로 + 같은 파일명" : 덮어쓰기 해버림.
         Item item = itemService.ImageSave(form, new Item());
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());
@@ -64,10 +66,8 @@ public class ItemController {
         Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
 
-
         //맞는지 확인.
         System.out.println(savedItem.getImageUrl());
-        System.out.println(item.getImageUrl());
         System.out.println(item.getImageUrl());
         System.out.println("ItemController.addItem : postmapping");;
         return "redirect:/items/{itemId}";
@@ -95,7 +95,7 @@ public class ItemController {
         itemRepository.update(itemId, item);
 //        itemRepository.update_exceptImgUrl(itemId, item);
         return "redirect:/items/{itemId}";
-        //{} 치환 순위.
+        //  {} 치환 순위.
         /*
           1. RedirectAttributes.addAttribute("itemId",...)
           2. @PathVariable, @RequestParma, 같은 요청

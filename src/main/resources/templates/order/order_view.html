@@ -53,12 +53,16 @@
                 <td th:text="${order.getTotalPrice()}">Total Price</td>
                 <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">Order Date</td>
                 <td th:text="${order.status}">Status</td>
-<!--                유지보수 할때 부정 -> 긍정 메소드로 만들기.-->
-                <td th:if="${order.status.name() != 'CANCELLED'}">
-                    <button th:onclick="|location.href='@{/items/{id}/cancel(id=${order.id})}'|"
+<!--                주문이 CANCELLED가 아닐때, 취소하기 버튼 가능. -->
+                <td th:if="${order.orderIsNotCanCelled()}">
+<!--                    @{|    |} 이렇게 해야  | | 리터럴로 먼저 치환되고 @{} URL 파서가 처리함. 이건 아래 방식                            대로 권장-->
+                    <form th:action="@{|/items/${order.id}/cancel|}" method="post">
+                        <button type="submit">주문 취소</button>
+                    </form>
+<!--                    <button th:onclick="|location.href='@{/items/{id}/cancel(id=${order.id})}'|"
                         type="button">
                         주문 취소
-                    </button>
+                    </button>-->
                     </td>
             </tr>
             </tbody>

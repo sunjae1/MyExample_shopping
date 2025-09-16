@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
+import myex.shopping.service.OrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,11 @@ public class OrderController {
 
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
 
-/*    @GetMapping("/{itemId}/order")
+/*  장바구니로 감. 여기선, 장바구니 -> 주문으로 전환만.
+    @GetMapping("/{itemId}/order")
     public String orderView(@PathVariable("itemId")Long itemId,
                             Model model) {
         Item findItem = itemRepository.findById(itemId);
@@ -61,35 +64,32 @@ public class OrderController {
 */
 
     @PostMapping("/order")
-    public String order_all(Model model,
+    public String order_change(Model model,
                         HttpSession session) {
-        //장바구니가 아무것도 없을때 주문하기 눌르면,
 
+        //주문 실패 로직.
+        //장바구니가 아무것도 없을때 주문하기 눌르면,
         Cart cart = (Cart) session.getAttribute("CART");
         if (cart == null ||  cart.getCartItems().isEmpty()   ) {
             model.addAttribute("empty_cart_error", "주문 불가 : 장바구니에 상품을 담아주세요.");
-
             return "cart/cart_view";
         }
 
+        //주문 성공 로직.
         //Order 생성
         User loginUser = (User) session.getAttribute("loginUser");
         Order order = new Order(loginUser);
 
-
-        //OrderItem 생성
-
-        Order checkout = order.checkout(order, cart, loginUser);
-
-
+        //OrderItem 생성 : 장바구니를 주문으로 전환.
+        // Cart : CartItem ==> Order : OrderItem 전환.
+        Order checkout = orderService.checkout(order, cart, loginUser);
         //repository에 저장.
-        orderRepository.save(order);
+        orderRepository.save(checkout);
 
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.
+        //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
         order.confirmOrder();
-
         session.removeAttribute("CART");
-
 
         return "redirect:/main"; //주문 완료 페이지
     }
@@ -103,21 +103,30 @@ public class OrderController {
     }
 
     //주문 취소. : items/{id}/cancel
-    @GetMapping("/{id}/cancel")
-    public String orderCancel(@PathVariable Long id) {
+    @PostMapping("/{id}/cancel")
+    public String orderCancel(@PathVariable Long id,
+                              @RequestParam(required = false) String redirectInfo) {
         Order order = orderRepository.findById(id)
                 .orElse(null);
         order.cancel(); //orderItem 마다 재고 다 올리고 상태는 CANCELLED로 바뀜. 주문내역은 사라지지 않음.
+
+        if ("mypage".equals(redirectInfo))
+        {
+            return "redirect:/mypage";
+        }
+
         return "redirect:/items/orderAll";
     }
 
-    @GetMapping("/{id}/cancelByUser")
+/*
+//    @PostMapping("/{id}/cancelByUser")
     public String orderCancelByUser(@PathVariable Long id) {
         Order order = orderRepository.findById(id)
                 .orElse(null);
         order.cancel(); //orderItem 마다 재고 다 올리고 상태는 CANCELLED로 바뀜. 주문내역은 사라지지 않음.
         return "redirect:/mypage";
     }
+*/
 
 
 

@@ -39,9 +39,8 @@ public class PostController {
     }
 
     //게시물 등록
-//<!--post :         title, content, /userId-->
-//    Post : id(DB), title, content, author, userId, createdDate
-
+//<!--post(Form)   :         title, content, userId-->
+//    Post(domain) : id(DB), title, content, userId, author, createdDate, comments
     @PostMapping
     public String create(@ModelAttribute Post post,
                          HttpSession session) {
@@ -65,7 +64,6 @@ public class PostController {
 
         System.out.println("post = " + post);
 
-
         model.addAttribute("post", post);
         return "posts/view";
     }
@@ -76,13 +74,11 @@ public class PostController {
 
         System.out.println(redirectInfo);
 //        항상 null 가능성이 있는 변수를 .equals() 앞에 쓰면 NPE 위험
+        postRepository.delete(id);
         if ("mypage".equals(redirectInfo))
         {
-            postRepository.delete(id);
             return "redirect:/mypage";
         }
-
-        postRepository.delete(id);
         return "redirect:/posts";
     }
 

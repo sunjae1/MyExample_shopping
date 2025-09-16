@@ -34,9 +34,9 @@
         <th>주문 상품 총 수량 </th>
         <th>주문 계산 식</th>
 
-        <th>상태</th>
         <th>총 금액</th>
         <th>주문일자</th>
+        <th>상태</th>
         <th>주문 취소</th>
 
       </tr>
@@ -61,14 +61,17 @@
         </td>
 
 
-        <td th:text="${order.status}">주문 상태</td>
+
         <td th:text="${order.getTotalPrice()}">주문당 총 가격</td>
         <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">주문 날짜</td>
-        <td th:if="${order.status.name() != 'CANCELLED'}">
-          <button th:onclick="|location.href='@{/items/{id}/cancelByUser(id=${order.id})}'|"
-                  type="button">
-            주문 취소
-          </button>
+        <td th:text="${order.status}">주문 상태</td>
+        <td th:if="${order.orderIsNotCanCelled()}">
+
+          <form th:action="@{|/items/${order.id}/cancel|}" method="post">
+            <input type="hidden" name="redirectInfo" value="mypage">
+            <button type="submit">주문 취소</button>
+          </form>
+
         </td>
 
       </tr>
