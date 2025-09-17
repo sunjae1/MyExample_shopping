@@ -56,14 +56,16 @@ public class PostController {
 
     //게시물 한개 보기.
     @GetMapping("/{id}")
-    public String view(@PathVariable Long id, Model model) {
+    public String view(@PathVariable Long id, Model model, HttpSession session) {
 
+        User loginUser = (User) session.getAttribute("loginUser");
         System.out.println("id = " + id);
         Post post = postRepository.findById(id)
                 .orElse(new Post());
 
         System.out.println("post = " + post);
 
+        model.addAttribute("loginUser",loginUser);
         model.addAttribute("post", post);
         return "posts/view";
     }

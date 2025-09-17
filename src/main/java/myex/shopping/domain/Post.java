@@ -33,5 +33,9 @@ public class Post {
         comments.add(comment);
     }
 
+    public void deleteComment(Comment comment)
+    {
+        comments.remove(comment);
+    }
 
 }

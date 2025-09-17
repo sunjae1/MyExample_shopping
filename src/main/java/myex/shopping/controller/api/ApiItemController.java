@@ -6,6 +6,7 @@ import myex.shopping.form.ItemAddForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.service.ItemService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +16,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.util.List;
 
+/*
+Delete return 은 성공했고, 반환값이 없으니까 No Content 204 응답.
+Put, Patch는 클라이언트가 이미 성공값을 가지고 요청을 한거기 때문에, 서버는 "수정 완료" 만 보내면 되기 때문에, (성공했고, 반환값이 없다) No Content 204 응답 사용 가능.
+ */
 
 @Controller
 @RequestMapping("/api/items")
@@ -53,8 +58,11 @@ public class ApiItemController {
 
     //아이템 추가 로직
     //AddForm, 프론트에서 imageFile, itemName, price, quantity 넘어옴.
-    @PostMapping("/add")
-    public ResponseEntity<Item> addItem(@ModelAttribute("item")ItemAddForm form,
+    //JSON + File => Postman Body form-data(multipart/form-data)
+    //원래 Form은 url에 key=value로 전송.
+    //multipart/form-data는 각 input 파트로 나눠서 전송.(텍스트+파일 가능)
+    @PostMapping(value = "/add", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Item> addItem(@ModelAttribute ItemAddForm form,
                           RedirectAttributes redirectAttributes) throws IOException {
 
         Item item = itemService.ImageSave(form, new Item());
@@ -83,12 +91,12 @@ public class ApiItemController {
      */
     
     //한개만 수정 : PutMapping
-    @PutMapping("/{itemId}/edit") //이게 URL
+    @PutMapping(value = "/{itemId}/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) //이게 URL
     public ResponseEntity<Item> editItem (@PathVariable Long itemId,
-                        @ModelAttribute("item")ItemAddForm form) throws IOException {
+                        @ModelAttribute ItemAddForm form) throws IOException {
 
-
-        Item item = itemService.imageEditSaveByUUID(form, new Item());
+        Item findItem = itemRepository.findById(itemId);
+        Item item = itemService.imageEditSaveByUUID(form, findItem);
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());
         item.setQuantity(form.getQuantity());

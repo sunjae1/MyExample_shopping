@@ -8,6 +8,7 @@ import myex.shopping.domain.User;
 import myex.shopping.repository.CommentRepository;
 import myex.shopping.repository.PostRepository;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,5 +45,35 @@ public class CommentController {
     }
 
     //댓글 삭제
+    @PostMapping("/{postId}/comments/{commentId}")
+    public String deleteComment(@PathVariable Long postId,
+                                @PathVariable Long commentId,
+                                HttpSession session,
+                                Model model) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        Comment comment = commentRepository.findById(commentId)
+                .orElse(null);
+
+        Post post = postRepository.findById(postId).orElse(null);
+
+
+        model.addAttribute("loginUser",loginUser);
+
+        //없는 댓글이면 게시글 보기 페이지로 리다이렉트
+        if (comment == null) {
+            return "redirect:/posts/{postId}";
+        }
+
+        //작성자 본인만 삭제 가능
+        if (loginUser != null && comment.getUser().getId().equals(loginUser.getId())) {
+            commentRepository.delete(commentId);
+            post.deleteComment(comment);
+
+        }
+
+        //삭제 성공/실패와 상관없이 다시 게시글 상세 페이지로
+        return "redirect:/posts/{postId}";
+
+    }
 
 }

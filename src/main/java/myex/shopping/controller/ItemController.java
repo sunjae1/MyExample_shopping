@@ -86,8 +86,8 @@ public class ItemController {
     public String edit (@PathVariable Long itemId,
                         @ModelAttribute("item")ItemAddForm form) throws IOException {
 
-
-        Item item = itemService.imageEditSaveByUUID(form, new Item());
+        Item findItem = itemRepository.findById(itemId);
+        Item item = itemService.imageEditSaveByUUID(form, findItem);
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());
         item.setQuantity(form.getQuantity());

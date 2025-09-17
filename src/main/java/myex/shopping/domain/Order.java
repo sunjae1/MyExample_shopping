@@ -59,6 +59,10 @@ public class Order {
 
     //주문 취소
     public void cancel() {
+
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("이미 취소된 주문입니다.");
+        }
         for (OrderItem orderItem : orderItems) {
             orderItem.getItem().increaseStock(orderItem.getQuantity());
         }

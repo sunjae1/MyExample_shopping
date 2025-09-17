@@ -16,6 +16,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//API 컨트롤러 에서는 뷰를 리턴하지 않고, JSON + 상태 코드만 리턴함.
+//어디로 이동해야 할지는 서버가 아닌 클라이언트(React, Vue, Angular, 모바일 앱 등)가 결정해야한다.
 
 @RestController
 @RequiredArgsConstructor
@@ -65,8 +67,7 @@ public class ApiUserController {
 
     //메인 페이지, 상품 전체 조회. (record 확인 한번 하기)
     @GetMapping("/main")
-    public UserResponse mainPage(Model model,
-                                 HttpSession session) {
+    public UserResponse mainPage(HttpSession session) {
         List<ItemDto> itemDto = itemRepository.findAll().stream()
                 .map(ItemDto::new)
                 .collect(Collectors.toList());
@@ -79,8 +80,7 @@ public class ApiUserController {
 
     //마이페이지 보내는거 : user, orders, posts, cart : 아직 오류남.
     @GetMapping("/myPage")
-    public MyPageDto myPage(HttpSession session,
-                            Model model)
+    public MyPageDto myPage(HttpSession session)
     {
         User loginUser = (User) session.getAttribute("loginUser");
         List<OrderDto> orders = orderRepository.findByUser(loginUser).stream()

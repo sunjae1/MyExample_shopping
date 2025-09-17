@@ -28,9 +28,19 @@
     <span th:text="${comment.content}" style="white-space: pre-wrap;">댓글 내용</span>
     <br>
     <small th:text="'작성 날짜 : ' + ${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">작성 날짜</small>
+
+    <!-- 댓글 삭제 버튼(작성자 본인만 보이도록 조건 처리)-->
+    <form th:if="${loginUser !=null && loginUser.id == comment.user.id}"
+            th:action="@{|/posts/${post.id}/comments/${comment.id}|}"
+            method="post">
+      <button type="submit">댓글 삭제</button>
+    </form>
+
   </div>
   <hr>
 </div>
+
+
 
 
 <form th:action="@{|/posts/${post.id}/comments|}" method="post">

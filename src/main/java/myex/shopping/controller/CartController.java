@@ -37,6 +37,7 @@ public class CartController {
                             HttpSession session) {
 
         Cart cart = getOrCreateCart(session);
+        System.out.println("cartForm = " + cartForm);
         Item findItem = itemRepository.findById(cartForm.getId());
 
         //아이템과 수량.

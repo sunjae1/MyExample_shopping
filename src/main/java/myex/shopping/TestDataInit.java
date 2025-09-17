@@ -46,7 +46,7 @@ public class TestDataInit {
         //댓글 등록
         Comment comment = new Comment();
         comment.setUser(user);
-        comment.setPost(post);
+//        comment.setPost(post);
         comment.setContent("테스트용 댓글 입력 중입니다. \n테스트 테스트  테스트 테스트 ");
         post.addComment(comment);
         commentRepository.save(comment);
