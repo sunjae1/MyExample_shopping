@@ -19,6 +19,10 @@ import java.util.stream.Collectors;
 //API 컨트롤러 에서는 뷰를 리턴하지 않고, JSON + 상태 코드만 리턴함.
 //어디로 이동해야 할지는 서버가 아닌 클라이언트(React, Vue, Angular, 모바일 앱 등)가 결정해야한다.
 
+//GET(단순 조회)는 200 OK 고정이라 --> DTO만 반환하는 경우 많다.
+//POST/PUT/PATCH/DELETE(등록, 수정, 삭제) : 성공/실패 여부 따라
+//201 CREATED, 204 NO CONTENT, 400 BAD REQUEST, 404 NOT FOUND 등 다양한 상태 코드 필요. --> ResponseEntity<DTO> 반환.
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")

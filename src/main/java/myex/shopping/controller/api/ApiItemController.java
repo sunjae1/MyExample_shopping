@@ -21,7 +21,7 @@ Delete return 은 성공했고, 반환값이 없으니까 No Content 204 응답.
 Put, Patch는 클라이언트가 이미 성공값을 가지고 요청을 한거기 때문에, 서버는 "수정 완료" 만 보내면 되기 때문에, (성공했고, 반환값이 없다) No Content 204 응답 사용 가능.
  */
 
-@Controller
+@RestController
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
 public class ApiItemController {
