@@ -1,5 +1,6 @@
 package myex.shopping.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
@@ -7,16 +8,12 @@ import myex.shopping.repository.ItemRepository;
 import myex.shopping.service.ItemService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 
 @Controller
@@ -51,13 +48,24 @@ public class ItemController {
         return "items/addForm";
     }
 
+
+    /* @Valid + @BindingResult 조합은 @ModelAttribute랑 @RequestBody 처럼 객체를 받고 검사해서 오류보고서에 저장하는거.
+       @Validated : @RequestParam, @PathVariable은 단일 값 요청 처리 핵심 전제 라서, 이게 틀리면 요청 자체 진행할 필요가 없어서 바로 예외 터트림.
+    * */
     @PostMapping("/add")
-    public String addItem(@ModelAttribute("item")ItemAddForm form,
+    public String addItem(@Valid @ModelAttribute("item")ItemAddForm form,
+                          BindingResult bindingResult,
                           RedirectAttributes redirectAttributes) throws IOException {
 
         //UploadFolder 에 있는 사진 업로드 시도 하면, "같은 경로 + 같은 파일명" 이라 같다고 판단해 move 불가능.(오류 발생. /UUID로 바꿀시, "같은 경로 + 다른 파일명" 이라 다른 파일이라 판단하고 업로드 가능.
 
         //"다른 경로 + 같은 파일명" : 덮어쓰기 해버림.
+
+        if (bindingResult.hasErrors()) {
+
+            return "items/addForm";
+        }
+
         Item item = itemService.ImageSave(form, new Item());
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());

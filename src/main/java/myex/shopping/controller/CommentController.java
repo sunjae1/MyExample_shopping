@@ -29,7 +29,7 @@ public class CommentController {
                              HttpSession session) {
         Post post = postRepository.findById(postId)
                 .orElseThrow();
-        User loginUser = (User) session.getAttribute("loginUser");
+        User loginUser = (User)session.getAttribute("loginUser");
 
         Comment comment = new Comment();
         comment.setUser(loginUser);

@@ -31,15 +31,32 @@
             <label for="itemName" class="form-label">상품명</label>
 <!--            th:field가 id name value 다 itemName 으로 맞춰주는데, id는 IDE가 에러 내서 그냥 같이 씀.-->
             <input type="text" id="itemName" th:field="*{itemName}" placeholder="상품명을 입력하세요" class="form-input image-path">
+            <div class="field-error" th:errors="*{itemName}">
+                상품명 오류 메시지
+            </div>
+
         </div>
+
+
+
         <div class="form-group">
             <label for="price" class="form-label">가격</label>
             <input type="text" id="price" th:field="*{price}" placeholder="가격을 입력하세요." class="form-input image-path">
+
+            <div class="field-error" th:errors="*{price}">
+                상품 가격 오류 메시지
+            </div>
+
         </div>
 
         <div class="form-group">
             <label for="quantity" class="form-label">수량</label>
             <input type="text" id="quantity" th:field="*{quantity}" placeholder="수량을 입력하세요." class="form-input image-path">
+
+            <div class="field-error" th:errors="*{quantity}">
+                상품 수량 오류 메시지
+            </div>
+
         </div>
 
         <hr>

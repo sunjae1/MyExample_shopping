@@ -92,3 +92,10 @@ body{
     background-repeat: no-repeat;
     background-size: contain;
 }
+
+
+/* field-error */
+.field-error {
+    color: red;
+    font-size: 12px;
+}

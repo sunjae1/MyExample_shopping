@@ -59,7 +59,7 @@ public class PostController {
     public String view(@PathVariable Long id, Model model, HttpSession session) {
 
         User loginUser = (User) session.getAttribute("loginUser");
-        System.out.println("id = " + id);
+        System.out.println("post.id = " + id);
         Post post = postRepository.findById(id)
                 .orElse(new Post());
 

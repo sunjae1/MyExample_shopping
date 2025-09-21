@@ -12,9 +12,19 @@
 
     <h7 th:text="${errorMessage}"></h7>
 
-    <form method="post" th:action="@{/login}" action="/login" id="login-form">
-        <input type="text" name="email" placeholder="Email">
-        <input type="password" name="password" placeholder="Password">
+    <form method="post" th:action="@{/login}" action="/login" th:object="${form}" id="login-form">
+        <input type="text" th:field="*{email}" placeholder="Email">
+<!--th:errors 속성은 필드 경로를 넣는 용도 *{email}-->
+<!--        ${#fields.errors('email')} 이건 EL표현식.-->
+        <div class="field-error" th:errors="*{email}">
+            이메일 오류 메시지
+        </div>
+
+        <input type="password" th:field="*{password}" placeholder="Password">
+        <div class="field-error" th:errors="*{password}">
+            패스워드 오류 메시지
+        </div>
+
         <label for="remember-check">
             <input type="checkbox" id="remember-check">아이디 저장하기
         </label>

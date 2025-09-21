@@ -2,14 +2,20 @@ package myex.shopping.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
+import myex.shopping.form.LoginForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -19,6 +25,9 @@ import java.util.List;
 //@Configuration : Bean 메소드 모아놓고, Bean 메서드 싱글톤 보장
 
 //자동 @Bean 등록이랑 HttpServlet request url parsing 이랑 handler 연결하고 viewResolver 와 HttpServlet Response 로 등등 여러 역할 수행하는 어노테이션(젤 기능 많음)
+
+//@Valid + BindingResult : "오류를 수집해서 알려줌" - 자바 표준
+//@Validated on class : "오류 하나라도 나면 즉시 예외 터뜨림. - Spring 전용 기능
 @Controller
 @RequiredArgsConstructor
 public class UserController {
@@ -30,19 +39,28 @@ public class UserController {
 
 
 
-
+    //로그인 페이지로 보내기.
     @GetMapping("/")
-    public String start() {
+    public String start(Model model) {
+        model.addAttribute("form", new LoginForm());
         return "login";
 
     }
     @PostMapping("/login")
-    public String login(@RequestParam("email")String email,
-                        @RequestParam("password")String password,
+    public String login(@Valid @ModelAttribute("form") LoginForm form,
+                        BindingResult bindingResult,
                         Model model,
                         HttpServletRequest request,
                         RedirectAttributes redirectAttributes) {
-        User loginUser = userService.login(email, password);
+
+        //검증 실패시
+        if (bindingResult.hasErrors()) {
+            System.out.println("검증 오류 발생: "+ bindingResult);
+            return "login";
+        }
+
+
+        User loginUser = userService.login(form.getEmail(), form.getPassword());
 
         System.out.println(loginUser+" login에 성공했습니다.(userService.login 메소드 통과함)");
         //로그인 실패시
@@ -70,6 +88,7 @@ public class UserController {
     }
 
 
+//회원가입.
 
     @GetMapping("/register")
     public String register() {
@@ -77,11 +96,19 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String add_user(@ModelAttribute("user")User user) {
+    public String add_user(@Valid @ModelAttribute User user,
+                           BindingResult bindingResult) {
         //User user = new User();
         //user.setEmail, setName, setPassword 파라미터 매핑
         //model.addAttribute("user",user) : 뷰에 정보 뿌릴때 사용.
         //ModelAttribute가 자동으로 생성해줌.
+
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
+
+
+        //회원가입 성공 시
         userService.save(user);
 
         return "redirect:/";
