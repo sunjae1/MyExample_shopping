@@ -10,14 +10,23 @@
 
 <!--post : title, content, /userId-->
 
-<form th:action="@{/posts}" th:object="${post}" method="post">
+<form th:action="@{/posts/new}" th:object="${post}" method="post">
   <p>제목 : <input type="text" th:field="*{title}"></p>
 <!--  <p>작성자 : <input type="text" th:field="*{author}"></p>-->
 <!--  작성자 는 session 에서 꺼내서 userid 넣기.-->
 <!--  placeholder는 value 없을때 사용됨. value 속성 제일 우선.-->
-  <p>작성자 : <input type="text" th:value="${user.name}" readonly></p>
+  <div class="field-error" th:errors="*{title}">
+    제목 오류 메시지
+  </div>
+
+  <p>작성자 : <span th:text="${user.name}"></span></p>
               <input type="hidden" name="userId" th:value="${user.id}">
   <p>내용 : <textarea th:field="*{content}"></textarea></p>
+
+  <div class="field-error" th:errors="*{content}">
+    제목 오류 메시지
+  </div>
+
   <button type="submit">작성</button>
 </form>
 

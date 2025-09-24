@@ -1,6 +1,7 @@
 package myex.shopping.domain;
 
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,8 +14,12 @@ public class Post {
     //게시판 : DB id, 제목, 내용, 글쓴이
 
     private Long id;
+
+    @NotEmpty(message = "제목을 입력해주세요.")
     private String title;
+    @NotEmpty(message = "내용을 입력해주세요")
     private String content;
+
     private String author;
     private Long userId;
     private LocalDateTime createdDate;

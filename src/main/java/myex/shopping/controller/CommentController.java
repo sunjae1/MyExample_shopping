@@ -1,18 +1,18 @@
 package myex.shopping.controller;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.form.CommentForm;
 import myex.shopping.repository.CommentRepository;
 import myex.shopping.repository.PostRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/posts")
@@ -25,16 +25,32 @@ public class CommentController {
     //댓글 추가
     @PostMapping("/{postId}/comments")
     public String addComment(@PathVariable Long postId,
-                             @RequestParam String reply_content,
-                             HttpSession session) {
+                             @Valid @ModelAttribute CommentForm form,
+                             BindingResult bindingResult,
+                             HttpSession session,
+                             Model model) {
         Post post = postRepository.findById(postId)
                 .orElseThrow();
         User loginUser = (User)session.getAttribute("loginUser");
 
+
+        /*
+        ModelAttribute는 Pathvariable도 객체 멤버변수에 있으면 바인딩 해줌.
+         */
+
+        System.out.println("loginUser = " + loginUser);
+        System.out.println("form = " + form);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("post", post);
+            return "posts/view";
+        }
+
+
         Comment comment = new Comment();
         comment.setUser(loginUser);
 //        comment.setPost(post);
-        comment.setContent(reply_content);
+        comment.setContent(form.getContent());
         post.addComment(comment);
         commentRepository.save(comment);
 
@@ -73,6 +89,7 @@ public class CommentController {
 
         //삭제 성공/실패와 상관없이 다시 게시글 상세 페이지로
         return "redirect:/posts/{postId}";
+
 
     }
 

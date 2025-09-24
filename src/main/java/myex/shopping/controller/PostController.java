@@ -1,12 +1,15 @@
 package myex.shopping.controller;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.form.CommentForm;
 import myex.shopping.repository.PostRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,10 +44,19 @@ public class PostController {
     //게시물 등록
 //<!--post(Form)   :         title, content, userId-->
 //    Post(domain) : id(DB), title, content, userId, author, createdDate, comments
-    @PostMapping
-    public String create(@ModelAttribute Post post,
+    @PostMapping("/new")
+    public String create(@Valid @ModelAttribute Post post,
+                         BindingResult bindingResult,
+                         Model model,
                          HttpSession session) {
+
         User loginUser = (User) session.getAttribute("loginUser");
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("user",loginUser);
+            return "posts/new";
+        }
+
 
         post.setUserId(loginUser.getId());
         post.setAuthor(loginUser.getName());
@@ -67,6 +79,7 @@ public class PostController {
 
         model.addAttribute("loginUser",loginUser);
         model.addAttribute("post", post);
+        model.addAttribute("commentForm", new CommentForm());
         return "posts/view";
     }
 

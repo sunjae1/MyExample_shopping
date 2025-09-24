@@ -8,8 +8,12 @@ import lombok.Data;
 public class CartForm {
 
     //주문 시 받을 정보 : itemId(아이템 조회), 수량 (몇개 주문 했는지)
+    @NotNull
     private Long id;
     @NotNull
-    @Min(value = 1)
+    @Min(value = 1, message = "수량은 1부터 입력 가능합니다.")
     private Integer quantity;
+
+    //price (장바구니 BindingResult 뿌리기 위해서)
+    private Integer price;
 }

@@ -75,3 +75,12 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+
+/*field - error */
+
+.field-error {
+    color : red;
+    font-size: 12px;
+
+}

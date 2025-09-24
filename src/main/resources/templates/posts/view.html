@@ -39,9 +39,13 @@
   </div>
   <hr>
 </div>
+<!--/* */-->
+<form th:action="@{|/posts/${post.id}/comments|}" method="post" th:object="${commentForm}">
+  <textarea th:field="*{content}" placeholder="댓글을 입력하세요"></textarea>
 
-<form th:action="@{|/posts/${post.id}/comments|}" method="post">
-  <textarea name="reply_content" placeholder="댓글을 입력하세요"></textarea>
+  <div class="field-error" th:errors="*{content}"> 댓글 내용 에러 메시지
+  </div>
+
   <button type="submit">댓글 작성</button>
 </form>
 
