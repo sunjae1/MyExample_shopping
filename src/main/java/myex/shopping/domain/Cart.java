@@ -14,16 +14,23 @@ public class Cart {
     private List<CartItem> cartItems = new ArrayList<>();
 
     //장바구니 아이템 추가
-    public void addItem(Item item, int quantity) {
+    public boolean addItem(Item item, int quantity) {
         //이미 담은 상품이면 수량만 증가
         for (CartItem cartItem : cartItems) {
             if (cartItem.getItem().equals(item)) {
+
+                if (cartItem.getQuantity() + quantity > item.getQuantity())
+                {
+                    return false;
+                }
                 cartItem.addQuantity(quantity);
-                return;
+                return true;
             }
         }
 
+
         cartItems.add(new CartItem(item, quantity));
+        return true;
 
     }
 

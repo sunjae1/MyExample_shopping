@@ -72,8 +72,15 @@ public class PostController {
 
         User loginUser = (User) session.getAttribute("loginUser");
         System.out.println("post.id = " + id);
-        Post post = postRepository.findById(id)
-                .orElse(new Post());
+
+        //posts/-1 이런 값 넘길때 요청 안받고 다시 리다이렉트로 보냄.
+        Optional<Post> postOpt = postRepository.findById(id);
+        if (postOpt.isEmpty()) {
+            return "redirect:/posts";
+        }
+
+        Post post = postOpt.get();
+
 
         System.out.println("post = " + post);
 
@@ -89,6 +96,8 @@ public class PostController {
 
         System.out.println(redirectInfo);
 //        항상 null 가능성이 있는 변수를 .equals() 앞에 쓰면 NPE 위험
+
+
         postRepository.delete(id);
         if ("mypage".equals(redirectInfo))
         {

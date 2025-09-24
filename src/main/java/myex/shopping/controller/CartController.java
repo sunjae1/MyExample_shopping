@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
+import myex.shopping.domain.CartItem;
 import myex.shopping.domain.Item;
 import myex.shopping.form.CartForm;
 import myex.shopping.repository.ItemRepository;
@@ -25,6 +26,7 @@ public class CartController {
     public String viewCart(@PathVariable Long itemId,
                            HttpSession session, Model model,
                            @ModelAttribute CartForm cartForm) {
+        //빈 객체 보내고 post에서 받는거. (이건 @Valid 하면 안됨.)
 
         System.out.println("cartForm = " + cartForm);
 
@@ -53,15 +55,21 @@ public class CartController {
             bindingResult.rejectValue("quantity","Exceed","상품 재고 수량을 초과할 수 없습니다.");
         }
 
+        Cart cart = getOrCreateCart(session);
+        System.out.println("cartForm = " + cartForm);
+        //아이템과 수량.
+        boolean result = cart.addItem(findItem, cartForm.getQuantity());
+        if (result == false)
+        {
+            bindingResult.rejectValue("quantity", "TotalExceed","전체 장바구니 수량이 상품 총 수량을 넘었습니다.");
+        }
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("item",findItem);
             return "cart/cartForm";
         }
 
-        Cart cart = getOrCreateCart(session);
-        System.out.println("cartForm = " + cartForm);
-        //아이템과 수량.
-        cart.addItem(findItem, cartForm.getQuantity());
+
         return "redirect:/main";
 
     }
@@ -81,6 +89,8 @@ public class CartController {
     @PostMapping("/cart/remove")
     public String cartItemRemove(@RequestParam Long itemId,
                                  HttpSession session) {
+        //Hashmap 에서 get, remove 둘 다 없는 값이면 null 반환이라 그렇게 -1 줘도 검증 굳이.
+
         Item findItem = itemRepository.findById(itemId);
         Cart cart = getOrCreateCart(session);
         cart.removeItem(findItem);

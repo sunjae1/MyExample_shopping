@@ -41,8 +41,9 @@
 </div>
 <!--/* */-->
 <form th:action="@{|/posts/${post.id}/comments|}" method="post" th:object="${commentForm}">
+  <div>
   <textarea th:field="*{content}" placeholder="댓글을 입력하세요"></textarea>
-
+  </div>
   <div class="field-error" th:errors="*{content}"> 댓글 내용 에러 메시지
   </div>
 
