@@ -1,6 +1,8 @@
 package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Order;
@@ -12,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/items")
+@Validated
 public class ApiOrderController {
 
     private final ItemRepository itemRepository;
@@ -71,7 +75,7 @@ public class ApiOrderController {
 
     //주문 취소. : items/{id}/cancel
     @DeleteMapping("/{id}/cancel")
-    public ResponseEntity<?> orderCancel(@PathVariable Long id) {
+    public ResponseEntity<?> orderCancel(@PathVariable @Positive Long id) {
         Order order = orderRepository.findById(id)
                 .orElse(null);
         if (order == null) {

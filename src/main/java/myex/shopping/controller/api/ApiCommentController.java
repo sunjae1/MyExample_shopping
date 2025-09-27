@@ -1,6 +1,8 @@
 package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
@@ -12,11 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@Validated
 public class ApiCommentController {
 
     private final PostRepository postRepository;
@@ -25,7 +29,7 @@ public class ApiCommentController {
     //댓글 추가 : @RequestParam : form-data로 보내기.
     //@RequestBody : Dto 써서, JSON 으로 보내기 가능. (고민중)
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<?> addComment(@PathVariable Long postId,
+    public ResponseEntity<?> addComment(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long postId,
                                         @RequestParam String reply_content,
                                         HttpSession session) {
         Post post = postRepository.findById(postId)
@@ -51,8 +55,8 @@ public class ApiCommentController {
 
     //댓글 삭제
     @DeleteMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long postId,
-                                           @PathVariable Long commentId,
+    public ResponseEntity<?> deleteComment(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long postId,
+                                           @PathVariable @Positive(message = "양수만 입력가능합니다.") Long commentId,
                                            HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {

@@ -1,6 +1,8 @@
 package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/posts")
+@Validated
 public class ApiPostController {
     private final PostRepository postRepository;
 
@@ -32,7 +36,7 @@ public class ApiPostController {
 //<!--post(Form)   :         title, content, userId-->
 //    Post(domain) : id(DB), title, content, userId, author, createdDate, comments
     @PostMapping("/new")
-    public ResponseEntity<?> create(@RequestBody Post post,
+    public ResponseEntity<?> create(@Valid @RequestBody Post post,
                                     HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
 
@@ -50,7 +54,7 @@ public class ApiPostController {
 
     //게시물 한개 보기.
     @GetMapping("/{id}")
-    public ResponseEntity<Post> view(@PathVariable Long id) {
+    public ResponseEntity<Post> view(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long id) {
 
         return postRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -60,7 +64,7 @@ public class ApiPostController {
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long id) {
 
         Post post = postRepository.findById(id).orElse(null);
         if (post == null) {

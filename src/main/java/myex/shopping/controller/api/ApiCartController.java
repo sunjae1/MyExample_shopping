@@ -1,6 +1,8 @@
 package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Item;
@@ -10,11 +12,13 @@ import myex.shopping.repository.ItemRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/items")
+@Validated
 public class ApiCartController {
     private final ItemRepository itemRepository;
 
@@ -23,10 +27,10 @@ public class ApiCartController {
     //cartForm 에서 id - item.id 매핑됨.
     // id, price, quantity --> CartForm : id(상품 id 넣기), quantity 매핑.
 
-    //?????? 이상한데 itemId 하거나 CartForm id 쓰거나 한개만 써.
+    //?????? 이상한데 itemId 하거나 CartForm id 쓰거나 한개만 써.  --> itemId로.
     @PostMapping("/{itemId}/cart")
-    public ResponseEntity<Cart> addToCart(@PathVariable Long itemId,
-                                          @RequestBody CartForm cartForm,
+    public ResponseEntity<Cart> addToCart(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long itemId,
+                                          @Valid @RequestBody CartForm cartForm,
                                           HttpSession session) {
 
 
@@ -55,7 +59,7 @@ public class ApiCartController {
     //장바구니 아이템 삭제
     //@RequestBody Long id 하면 JSON 에 { "itemId" : "1"} 이거는 객체형 그냥 1 이렇게 보내야함. JSON 으로 보낼 수 있는것들 검색.
     @DeleteMapping("/cart/remove")
-    public ResponseEntity<Cart> cartItemRemove(@RequestBody RemoveCartDto cartDto,
+    public ResponseEntity<Cart> cartItemRemove(@Valid @RequestBody RemoveCartDto cartDto,
                                                HttpSession session) {
         Item findItem = itemRepository.findById(cartDto.getItemId());
         

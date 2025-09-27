@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.form.LoginForm;
+import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
@@ -96,7 +97,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String add_user(@Valid @ModelAttribute User user,
+    public String add_user(@Valid @ModelAttribute RegisterForm form,
                            BindingResult bindingResult) {
         //User user = new User();
         //user.setEmail, setName, setPassword 파라미터 매핑
@@ -106,7 +107,7 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             return "register";
         }
-
+        User user = new User(form.getEmail(), form.getName(), form.getPassword());
 
         //회원가입 성공 시
         userService.save(user);

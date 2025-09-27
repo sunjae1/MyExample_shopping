@@ -1,6 +1,7 @@
 package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.dto.*;
@@ -10,6 +11,7 @@ import myex.shopping.repository.PostRepository;
 import myex.shopping.repository.UserRepository;
 import myex.shopping.service.UserService;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Validated // 선택 사항 : @RequestParam, @PathVariable 검증 시 필요.
+//DTO는 그냥 @Valid 만 매개변수 앞에 붙여도 검증 가능.
 public class ApiUserController {
 
     //Api 에서는 프론트엔드에서 뷰를 뿌리고, 프론트에서 오는 정보를 서버를 거쳐 처리하고 다시 JSON 으로 반환. (뷰 필요없어서 GetMapping 거의 다 사라짐.)
@@ -39,7 +43,7 @@ public class ApiUserController {
 
     //로그인
     @PostMapping("/login")
-    public UserDto login(@RequestBody LoginRequestDto loginRequestDto,
+    public UserDto login(@Valid @RequestBody LoginRequestDto loginRequestDto,
                         HttpSession session) {
 
 

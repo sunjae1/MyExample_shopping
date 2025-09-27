@@ -1,5 +1,8 @@
 package myex.shopping.controller.api;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
@@ -10,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -24,6 +28,7 @@ Put, Patch는 클라이언트가 이미 성공값을 가지고 요청을 한거�
 @RestController
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
+@Validated
 public class ApiItemController {
 
     private final ItemRepository itemRepository; //생성자 주입.
@@ -38,7 +43,7 @@ public class ApiItemController {
 
     //개별 아이템 상세 조회
     @GetMapping("/{itemId}")
-    public ResponseEntity<Item> item(@PathVariable long itemId) {
+    public ResponseEntity<Item> item(@PathVariable @Positive(message = "양수만 입력 가능합니다.") long itemId) {
         Item item = itemRepository.findById(itemId);
         if (item != null)
             return ResponseEntity.ok(item);
@@ -62,7 +67,7 @@ public class ApiItemController {
     //원래 Form은 url에 key=value로 전송.
     //multipart/form-data는 각 input 파트로 나눠서 전송.(텍스트+파일 가능)
     @PostMapping(value = "/add", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Item> addItem(@ModelAttribute ItemAddForm form,
+    public ResponseEntity<Item> addItem(@Valid @ModelAttribute ItemAddForm form,
                           RedirectAttributes redirectAttributes) throws IOException {
 
         Item item = itemService.ImageSave(form, new Item());
@@ -92,8 +97,8 @@ public class ApiItemController {
     
     //한개만 수정 : PutMapping
     @PutMapping(value = "/{itemId}/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) //이게 URL
-    public ResponseEntity<Item> editItem (@PathVariable Long itemId,
-                        @ModelAttribute ItemAddForm form) throws IOException {
+    public ResponseEntity<Item> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
+                        @Valid @ModelAttribute ItemAddForm form) throws IOException {
 
         Item findItem = itemRepository.findById(itemId);
         Item item = itemService.imageEditSaveByUUID(form, findItem);
@@ -107,7 +112,7 @@ public class ApiItemController {
 
 
     @DeleteMapping("/{itemId}/delete")
-    public ResponseEntity<?> deleteItem(@PathVariable Long itemId) {
+    public ResponseEntity<?> deleteItem(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long itemId) {
 
         Item findItem = itemRepository.findById(itemId);
         if (findItem != null) {
