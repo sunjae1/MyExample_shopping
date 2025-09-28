@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.form.PostForm;
 import myex.shopping.repository.PostRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class ApiPostController {
 //<!--post(Form)   :         title, content, userId-->
 //    Post(domain) : id(DB), title, content, userId, author, createdDate, comments
     @PostMapping("/new")
-    public ResponseEntity<?> create(@Valid @RequestBody Post post,
+    public ResponseEntity<?> create(@Valid @RequestBody PostForm form,
                                     HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
 
@@ -44,6 +45,11 @@ public class ApiPostController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인이 필요합니다.");
         }
+
+        Post post = new Post();
+        post.setTitle(form.getTitle());
+        post.setContent(form.getContent());
+
         post.setUserId(loginUser.getId());
         post.setAuthor(loginUser.getName());
 

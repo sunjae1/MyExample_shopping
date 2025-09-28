@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 @Controller
@@ -34,8 +35,15 @@ public class ItemController {
 
     //개별 아이템 상세 조회
     @GetMapping("/{itemId}")
-    public String item(@PathVariable long itemId, Model model) {
-        Item item = itemRepository.findById(itemId);
+    public String item(@PathVariable long itemId, Model model,
+                       RedirectAttributes redirectAttributes) {
+        Optional<Item> itemOpt = itemRepository.findById(itemId);
+        //경로변수 -1 이런 값 들어올때 검증.
+        if (itemOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorPV", "유효하지 않은 ItemId 값입니다.");
+            return "redirect:/items";
+        }
+        Item item = itemOpt.get();
         model.addAttribute("item", item);
         return "items/item";
 
@@ -84,8 +92,16 @@ public class ItemController {
     //아이템 수정
     @GetMapping("/{itemId}/edit")
     public String editForm (@PathVariable("itemId") Long itemId,
-                            Model model) {
-        Item findItem = itemRepository.findById(itemId);
+                            Model model,
+                            RedirectAttributes redirectAttributes) {
+        Optional<Item> byId = itemRepository.findById(itemId);
+
+        if (byId.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorPV","유효하지 않은 ID 값입니다.");
+            return "redirect:/main";
+        }
+
+        Item findItem = byId.get();
         model.addAttribute("item", findItem);
         return "items/editForm"; //이건 뿌리는 뷰 (서버 html 위치)
     }
@@ -94,7 +110,8 @@ public class ItemController {
     public String edit (@PathVariable Long itemId,
                         @ModelAttribute("item")ItemAddForm form) throws IOException {
 
-        Item findItem = itemRepository.findById(itemId);
+        Optional<Item> byId = itemRepository.findById(itemId);
+        Item findItem =  byId.get();
         Item item = itemService.imageEditSaveByUUID(form, findItem);
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());

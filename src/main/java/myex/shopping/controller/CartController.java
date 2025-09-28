@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/items")
@@ -30,7 +32,8 @@ public class CartController {
 
         System.out.println("cartForm = " + cartForm);
 
-        Item findItem = itemRepository.findById(itemId);
+        Optional<Item> byId = itemRepository.findById(itemId);
+        Item findItem = byId.get();
         model.addAttribute("item", findItem);
         return "cart/cartForm"; // 주문이랑 똑같이 view에서 받고, 전체 장바구니에서 주문 버튼 만들어서, order.confirmOrder 을 나중으로 미루게.(확정을 나중으로)
 
@@ -47,7 +50,8 @@ public class CartController {
                             HttpSession session) {
 
 
-        Item findItem = itemRepository.findById(cartForm.getId());
+        Optional<Item> byId = itemRepository.findById(cartForm.getId());
+        Item findItem = byId.get();
 
         //재고 수량 초과로 장바구니 담을 시
         if (findItem.getQuantity() < cartForm.getQuantity()) {
@@ -91,7 +95,8 @@ public class CartController {
                                  HttpSession session) {
         //Hashmap 에서 get, remove 둘 다 없는 값이면 null 반환이라 그렇게 -1 줘도 검증 굳이.
 
-        Item findItem = itemRepository.findById(itemId);
+        Optional<Item> byId = itemRepository.findById(itemId);
+        Item findItem = byId.get();
         Cart cart = getOrCreateCart(session);
         cart.removeItem(findItem);
         return "redirect:/items/cartAll";

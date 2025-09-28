@@ -15,6 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/items")
@@ -36,12 +38,12 @@ public class ApiCartController {
 
         Cart cart = getOrCreateCart(session);
 //        Item findItem = itemRepository.findById(cartForm.getId());
-        Item findItem = itemRepository.findById(itemId);
+        Optional<Item> findItemOpt = itemRepository.findById(itemId);
 
-        if (findItem == null) {
+        if (findItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-
+        Item findItem = findItemOpt.get();
         //아이템과 수량.
         cart.addItem(findItem, cartForm.getQuantity());
         return ResponseEntity.ok(cart);
@@ -61,12 +63,13 @@ public class ApiCartController {
     @DeleteMapping("/cart/remove")
     public ResponseEntity<Cart> cartItemRemove(@Valid @RequestBody RemoveCartDto cartDto,
                                                HttpSession session) {
-        Item findItem = itemRepository.findById(cartDto.getItemId());
+        Optional<Item> findItemOpt = itemRepository.findById(cartDto.getItemId());
         
-        if (findItem == null) {
+        if (findItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+        Item findItem = findItemOpt.get();
+
         Cart cart = getOrCreateCart(session);
         cart.removeItem(findItem);
         return ResponseEntity.ok(cart); //삭제 후 전체 장바구니 상태 반환

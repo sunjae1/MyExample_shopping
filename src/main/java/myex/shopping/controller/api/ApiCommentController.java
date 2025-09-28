@@ -1,6 +1,7 @@
 package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -30,13 +33,13 @@ public class ApiCommentController {
     //@RequestBody : Dto 써서, JSON 으로 보내기 가능. (고민중)
     @PostMapping("/{postId}/comments")
     public ResponseEntity<?> addComment(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long postId,
-                                        @RequestParam String reply_content,
+                                        @RequestParam @NotBlank(message = "댓글 내용을 입력해주세요") String reply_content,
                                         HttpSession session) {
-        Post post = postRepository.findById(postId)
-                .orElse(null);
-        if (post ==null) {
+        Optional<Post> postOpt = postRepository.findById(postId);
+        if (postOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        Post post =  postOpt.get();
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

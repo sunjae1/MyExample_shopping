@@ -1,6 +1,7 @@
 package myex.shopping.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RestControllerAdvice
+@RestControllerAdvice("myex.shopping.controller.api") //범위 지정
 public class ApiExceptionHandler {
 
     //DTO 검증 실패 -
@@ -40,7 +41,12 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    //@PathVariable 검증을 위해서.
+    //@PathVariable 검증을 위해서. + @RequestParam null 방지.
+    /*
+    @RequestParam을 처리할 때, Spring은 말씀하신 대로 단계적으로 확인합니다.
+     1. 1단계: 파라미터 존재 여부 확인(MissingServletRequestParameterException)
+     2. 2단계: 값 유효성 검증(ConstraintViolationException)
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, List<String>>> handleConstraintViolation(ConstraintViolationException ex) {
         Map<String, List<String>> errors = new HashMap<>();
@@ -60,5 +66,17 @@ public class ApiExceptionHandler {
         Map<String, String> error = new HashMap<>();
         error.put(ex.getParameterName(), "필드를 작성해주세요.");
         return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(TypeMismatchException.class)
+    public ResponseEntity<Map<String,String>> handleTypeMismatch(TypeMismatchException ex) {
+        Map<String, String> error = new HashMap<>();
+        String field = (ex.getPropertyName() == null) ? null : ex.getPropertyName(); //파라미터 명. Long id
+        String invalidValue = (ex.getValue() == null) ? null : ex.getValue().toString(); //무효 요청 값.
+        String requiredType = (ex.getRequiredType() == null) ? null : ex.getRequiredType().getSimpleName();
+        error.put(field, String.format("'%s'은(는) %s 타입으로 변환할 수 없습니다.", invalidValue, requiredType));
+
+        return ResponseEntity.badRequest().body(error);
+
     }
 }

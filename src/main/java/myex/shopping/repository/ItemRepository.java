@@ -3,10 +3,7 @@ package myex.shopping.repository;
 import myex.shopping.domain.Item;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class ItemRepository {
@@ -23,8 +20,8 @@ public class ItemRepository {
         return item;
     }
     //상품 조회(id, key 로 조회)
-    public Item findById(Long id) {
-        return store.get(id);
+    public Optional<Item> findById(Long id) {
+        return Optional.ofNullable(store.get(id));
     }
 
     //전체 상품 조회
@@ -34,7 +31,8 @@ public class ItemRepository {
 
     //업데이트 처리(이름, 가격, 재고 수정)
     public void update(Long itemId, Item updateParam) {
-        Item findItem = findById(itemId);
+        Optional<Item> byId = findById(itemId);
+        Item findItem = byId.get();
         findItem.setItemName(updateParam.getItemName());
         findItem.setPrice(updateParam.getPrice());
         findItem.setQuantity(updateParam.getQuantity());
@@ -43,7 +41,8 @@ public class ItemRepository {
     }
 
     public void update_exceptImgUrl(Long itemId, Item updateParam){
-        Item findItem = findById(itemId);
+        Optional<Item> byId = findById(itemId);
+        Item findItem = byId.get();
         findItem.setItemName(updateParam.getItemName());
         findItem.setPrice(updateParam.getPrice());
         findItem.setQuantity(updateParam.getQuantity());

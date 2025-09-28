@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.dto.*;
+import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
@@ -59,7 +60,8 @@ public class ApiUserController {
 
     //회원가입 email, name, password 날아옴
     @PostMapping("/register")
-    public UserDto add_user(@RequestBody User user) {
+    public UserDto add_user(@Valid @RequestBody RegisterForm form) {
+        User user = new User(form.getEmail(),form.getName(), form.getPassword());
         Long saveUserId = userService.save(user);
         return new UserDto(user);
     }

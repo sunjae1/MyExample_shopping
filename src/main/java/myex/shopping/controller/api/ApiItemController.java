@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /*
 Delete return 은 성공했고, 반환값이 없으니까 No Content 204 응답.
@@ -44,9 +45,12 @@ public class ApiItemController {
     //개별 아이템 상세 조회
     @GetMapping("/{itemId}")
     public ResponseEntity<Item> item(@PathVariable @Positive(message = "양수만 입력 가능합니다.") long itemId) {
-        Item item = itemRepository.findById(itemId);
-        if (item != null)
+        Optional<Item> findItemOpt = itemRepository.findById(itemId);
+
+        if (findItemOpt.isPresent()) {
+            Item item = findItemOpt.get();
             return ResponseEntity.ok(item);
+        }
         else
             //바디 없이 상태 코드만 가진 ResponseEntity 반환 가능.
             return ResponseEntity.notFound().build();
@@ -100,7 +104,8 @@ public class ApiItemController {
     public ResponseEntity<Item> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
                         @Valid @ModelAttribute ItemAddForm form) throws IOException {
 
-        Item findItem = itemRepository.findById(itemId);
+        Optional<Item> byId = itemRepository.findById(itemId);
+        Item findItem = byId.get();
         Item item = itemService.imageEditSaveByUUID(form, findItem);
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());
@@ -114,8 +119,10 @@ public class ApiItemController {
     @DeleteMapping("/{itemId}/delete")
     public ResponseEntity<?> deleteItem(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long itemId) {
 
-        Item findItem = itemRepository.findById(itemId);
-        if (findItem != null) {
+        Optional<Item> findItemOpt = itemRepository.findById(itemId);
+        if (findItemOpt.isPresent()) {
+
+            Item findItem = findItemOpt.get();
             itemRepository.deleteItem(itemId);
             return ResponseEntity.noContent().build(); //204 No Content
         }

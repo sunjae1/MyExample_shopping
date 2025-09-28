@@ -78,6 +78,9 @@ src/main/resources/META-INF/resources/
         <a th:href="@{/}">Login</a>
         <a th:href="@{/register}">Register</a>
     </nav>
+
+<p class="field-error" th:if="${errorPV}" th:text="${errorPV}">PathVariable 에러 메시지</p>
+
     <div class="container">
         <h2>Featured Products</h2>
         <div class="product-grid">
