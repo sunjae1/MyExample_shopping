@@ -1,18 +1,15 @@
 package myex.shopping.controller.api;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
-import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.MemoryItemRepository;
 import myex.shopping.service.ItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -32,20 +29,20 @@ Put, Patch는 클라이언트가 이미 성공값을 가지고 요청을 한거�
 @Validated
 public class ApiItemController {
 
-    private final ItemRepository itemRepository; //생성자 주입.
+    private final MemoryItemRepository memoryItemRepository; //생성자 주입.
     private final ItemService itemService;
 
     //전체 아이템 조회
     @GetMapping
     public ResponseEntity<List<Item>> items() {
-        List<Item> items = itemRepository.findAll();
+        List<Item> items = memoryItemRepository.findAll();
         return ResponseEntity.ok(items);
     }
 
     //개별 아이템 상세 조회
     @GetMapping("/{itemId}")
     public ResponseEntity<Item> item(@PathVariable @Positive(message = "양수만 입력 가능합니다.") long itemId) {
-        Optional<Item> findItemOpt = itemRepository.findById(itemId);
+        Optional<Item> findItemOpt = memoryItemRepository.findById(itemId);
 
         if (findItemOpt.isPresent()) {
             Item item = findItemOpt.get();
@@ -79,7 +76,7 @@ public class ApiItemController {
         item.setPrice(form.getPrice());
         item.setQuantity(form.getQuantity());
 
-        Item savedItem = itemRepository.save(item);
+        Item savedItem = memoryItemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
 
         //맞는지 확인.
@@ -104,14 +101,14 @@ public class ApiItemController {
     public ResponseEntity<Item> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
                         @Valid @ModelAttribute ItemAddForm form) throws IOException {
 
-        Optional<Item> byId = itemRepository.findById(itemId);
+        Optional<Item> byId = memoryItemRepository.findById(itemId);
         Item findItem = byId.get();
         Item item = itemService.imageEditSaveByUUID(form, findItem);
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());
         item.setQuantity(form.getQuantity());
 
-        itemRepository.update(itemId, item);
+        memoryItemRepository.update(itemId, item);
         return ResponseEntity.ok(item);
     }
 
@@ -119,11 +116,11 @@ public class ApiItemController {
     @DeleteMapping("/{itemId}/delete")
     public ResponseEntity<?> deleteItem(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long itemId) {
 
-        Optional<Item> findItemOpt = itemRepository.findById(itemId);
+        Optional<Item> findItemOpt = memoryItemRepository.findById(itemId);
         if (findItemOpt.isPresent()) {
 
             Item findItem = findItemOpt.get();
-            itemRepository.deleteItem(itemId);
+            memoryItemRepository.deleteItem(itemId);
             return ResponseEntity.noContent().build(); //204 No Content
         }
         else {

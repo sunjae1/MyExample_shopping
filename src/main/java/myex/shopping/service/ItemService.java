@@ -3,7 +3,7 @@ package myex.shopping.service;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
-import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.MemoryItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ItemService {
-    private final ItemRepository itemRepository;
+    private final MemoryItemRepository memoryItemRepository;
 
     public Item ImageSave(ItemAddForm form, Item item) throws IOException {
         MultipartFile file = form.getImageFile();

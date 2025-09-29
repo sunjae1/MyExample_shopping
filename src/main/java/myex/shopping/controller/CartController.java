@@ -4,10 +4,9 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
-import myex.shopping.domain.CartItem;
 import myex.shopping.domain.Item;
 import myex.shopping.form.CartForm;
-import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.MemoryItemRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/items")
 public class CartController {
-    private final ItemRepository itemRepository;
+    private final MemoryItemRepository memoryItemRepository;
 
     //한 상품에 대한 주문 페이지를 보여주고, 장바구니 담기 클릭시 장바구니에 저장.
     //@PathVariable은 itemid로 item 꺼내기 위해서 get에서 뽑아서 뷰에 item 뿌려줌.
@@ -32,7 +31,7 @@ public class CartController {
 
         System.out.println("cartForm = " + cartForm);
 
-        Optional<Item> byId = itemRepository.findById(itemId);
+        Optional<Item> byId = memoryItemRepository.findById(itemId);
         Item findItem = byId.get();
         model.addAttribute("item", findItem);
         return "cart/cartForm"; // 주문이랑 똑같이 view에서 받고, 전체 장바구니에서 주문 버튼 만들어서, order.confirmOrder 을 나중으로 미루게.(확정을 나중으로)
@@ -50,7 +49,7 @@ public class CartController {
                             HttpSession session) {
 
 
-        Optional<Item> byId = itemRepository.findById(cartForm.getId());
+        Optional<Item> byId = memoryItemRepository.findById(cartForm.getId());
         Item findItem = byId.get();
 
         //재고 수량 초과로 장바구니 담을 시
@@ -95,7 +94,7 @@ public class CartController {
                                  HttpSession session) {
         //Hashmap 에서 get, remove 둘 다 없는 값이면 null 반환이라 그렇게 -1 줘도 검증 굳이.
 
-        Optional<Item> byId = itemRepository.findById(itemId);
+        Optional<Item> byId = memoryItemRepository.findById(itemId);
         Item findItem = byId.get();
         Cart cart = getOrCreateCart(session);
         cart.removeItem(findItem);

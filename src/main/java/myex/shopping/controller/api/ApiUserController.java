@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.dto.*;
 import myex.shopping.form.RegisterForm;
-import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.MemoryItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.repository.UserRepository;
@@ -14,7 +14,6 @@ import myex.shopping.service.UserService;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +36,7 @@ public class ApiUserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository; //생성자 주입.
+    private final MemoryItemRepository memoryItemRepository; //생성자 주입.
     private final OrderRepository orderRepository;
     private final PostRepository postRepository;
 
@@ -78,7 +77,7 @@ public class ApiUserController {
     //메인 페이지, 상품 전체 조회. (record 확인 한번 하기)
     @GetMapping("/main")
     public UserResponse mainPage(HttpSession session) {
-        List<ItemDto> itemDto = itemRepository.findAll().stream()
+        List<ItemDto> itemDto = memoryItemRepository.findAll().stream()
                 .map(ItemDto::new)
                 .collect(Collectors.toList());
 

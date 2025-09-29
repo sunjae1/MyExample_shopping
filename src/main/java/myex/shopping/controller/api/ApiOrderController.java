@@ -1,19 +1,16 @@
 package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Order;
 import myex.shopping.domain.User;
-import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.MemoryItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +22,7 @@ import java.util.List;
 @Validated
 public class ApiOrderController {
 
-    private final ItemRepository itemRepository;
+    private final MemoryItemRepository memoryItemRepository;
     private final OrderRepository orderRepository;
     private final OrderService orderService;
 

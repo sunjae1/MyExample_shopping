@@ -3,7 +3,7 @@ package myex.shopping.controller;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
-import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.MemoryItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.service.OrderService;
 import org.springframework.stereotype.Controller;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/items")
 public class OrderController {
 
-    private final ItemRepository itemRepository;
+    private final MemoryItemRepository memoryItemRepository;
     private final OrderRepository orderRepository;
     private final OrderService orderService;
 

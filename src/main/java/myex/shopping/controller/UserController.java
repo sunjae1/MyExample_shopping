@@ -3,20 +3,17 @@ package myex.shopping.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
-import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.MemoryItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -33,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final ItemRepository itemRepository; //생성자 주입.
+    private final MemoryItemRepository memoryItemRepository; //생성자 주입.
     private final OrderRepository orderRepository;
     private final PostRepository postRepository;
 
@@ -127,7 +124,7 @@ public class UserController {
     @GetMapping("/main")
     public String mainPage(Model model,
                            HttpSession session) {
-        List<Item> items = itemRepository.findAll();
+        List<Item> items = memoryItemRepository.findAll();
         User loginUser = (User) session.getAttribute("loginUser");
 
         model.addAttribute("items", items);

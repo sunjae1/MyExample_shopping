@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
 
     }*/
 
-    //타입 미스매치, 뷰로 뿌리는건 나중에 변경.
+    //타입 미스매치, 뷰로 뿌리는건 나중에 변경. (전체 추가해야 해서 hmtl layout 사용 예정)
     @ExceptionHandler(TypeMismatchException.class)
     public ResponseEntity<Map<String,String>> handleTypeMismatch(TypeMismatchException ex) {
         Map<String, String> error = new HashMap<>();
