@@ -1,20 +1,22 @@
 package myex.shopping.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Objects;
 
 @Data
+@Entity
+@Table(name = "MEMBER") //USER는 H2 예약어. 충돌 남.
 public class User {
 
+    @Id @GeneratedValue
     private Long id;
-
-    //현재 Register에 사용중.
 
     @NotEmpty(message = "이메일을 입력해주세요")
     private final String email;
