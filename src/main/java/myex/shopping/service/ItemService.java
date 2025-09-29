@@ -3,7 +3,7 @@ package myex.shopping.service;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
-import myex.shopping.repository.MemoryItemRepository;
+import myex.shopping.repository.memory.MemoryItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

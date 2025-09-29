@@ -1,8 +1,8 @@
-package myex.shopping.repository;
+package myex.shopping.repository.memory;
 
-import myex.shopping.domain.Order;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.repository.PostRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-public class MemoryPostRepository implements PostRepository{
+public class MemoryPostRepository implements PostRepository {
 
     private Map<Long, Post> store = new HashMap<>();
     private long sequence = 0L;

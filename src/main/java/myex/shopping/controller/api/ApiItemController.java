@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
-import myex.shopping.repository.MemoryItemRepository;
+import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.service.ItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

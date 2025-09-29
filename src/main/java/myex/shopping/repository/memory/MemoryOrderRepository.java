@@ -1,7 +1,8 @@
-package myex.shopping.repository;
+package myex.shopping.repository.memory;
 
 import myex.shopping.domain.Order;
 import myex.shopping.domain.User;
+import myex.shopping.repository.OrderRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -9,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Repository
-public class MemoryOrderRepository implements OrderRepository{
+public class MemoryOrderRepository implements OrderRepository {
     private final Map<Long, Order> store = new HashMap<>();
     private final AtomicLong sequence = new AtomicLong(0);
 

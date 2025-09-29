@@ -56,7 +56,9 @@
 <!--                주문이 CANCELLED가 아닐때, 취소하기 버튼 가능. -->
                 <td th:if="${order.orderIsNotCanCelled()}">
 <!--                    @{|    |} 이렇게 해야  | | 리터럴로 먼저 치환되고 @{} URL 파서가 처리함. 이건 아래 방식                            대로 권장-->
-                    <form th:action="@{|/items/${order.id}/cancel|}" method="post">
+<!--                    자신만 삭제할 수 있게 조건 추가-->
+                    <form th:if="${loginUser !=null && loginUser.id == order.user.id}"
+                            th:action="@{|/items/${order.id}/cancel|}" method="post">
                         <button type="submit">주문 취소</button>
                     </form>
 <!--                    <button th:onclick="|location.href='@{/items/{id}/cancel(id=${order.id})}'|"

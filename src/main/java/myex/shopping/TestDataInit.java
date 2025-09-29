@@ -4,6 +4,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.repository.*;
+import myex.shopping.repository.memory.MemoryCommentRepository;
+import myex.shopping.repository.memory.MemoryItemRepository;
+import myex.shopping.repository.memory.MemoryOrderRepository;
 import org.springframework.stereotype.Component;
 
 @Component //클래스 레벨에서 스프링 빈으로 등록
@@ -14,7 +17,7 @@ public class TestDataInit {
     private final MemoryItemRepository memoryItemRepository;
     private final MemoryOrderRepository memoryOrderRepository;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
+    private final MemoryCommentRepository memoryCommentRepository;
 
     /**
      * 테스트용 데이터 추가
@@ -50,7 +53,7 @@ public class TestDataInit {
 //        comment.setPost(post);
         comment.setContent("테스트용 댓글 입력 중입니다. \n테스트 테스트  테스트 테스트 ");
         post.addComment(comment);
-        commentRepository.save(comment);
+        memoryCommentRepository.save(comment);
 
 
     }

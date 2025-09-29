@@ -1,16 +1,13 @@
 package myex.shopping.service;
 
 import myex.shopping.domain.User;
-import myex.shopping.repository.MemoryUserRepository;
+import myex.shopping.repository.memory.MemoryUserRepository;
 import myex.shopping.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 //단위 테스트 목적. DI로 스프링 애플리케이션이 넣는게 아니라,(@SpringTest, 통합) 직접 자바 코드로 직접 주입하고 직접 다 해보는거. 스프링 없이.
 class UserServiceTest {

@@ -2,19 +2,15 @@ package myex.shopping.controller.api;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
-import myex.shopping.repository.CommentRepository;
+import myex.shopping.repository.memory.MemoryCommentRepository;
 import myex.shopping.repository.PostRepository;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +23,7 @@ import java.util.Optional;
 public class ApiCommentController {
 
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
+    private final MemoryCommentRepository memoryCommentRepository;
 
     //댓글 추가 : @RequestParam : form-data로 보내기.
     //@RequestBody : Dto 써서, JSON 으로 보내기 가능. (고민중)
@@ -50,7 +46,7 @@ public class ApiCommentController {
         comment.setUser(loginUser);
         comment.setContent(reply_content);
         post.addComment(comment);
-        commentRepository.save(comment);
+        memoryCommentRepository.save(comment);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(comment);
 
@@ -66,7 +62,7 @@ public class ApiCommentController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인이 필요합니다.");
         }
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = memoryCommentRepository.findById(commentId)
                 .orElse(null);
         if (comment == null) {
             return ResponseEntity.notFound().build();
@@ -84,7 +80,7 @@ public class ApiCommentController {
                     .body("댓글 작성자만 삭제할 수 있습니다.");
         }
 
-        commentRepository.delete(commentId);
+        memoryCommentRepository.delete(commentId);
         post.deleteComment(comment);
 
         //삭제 성공/실패와 상관없이 다시 게시글 상세 페이지로

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Item;
 import myex.shopping.form.CartForm;
-import myex.shopping.repository.MemoryItemRepository;
+import myex.shopping.repository.memory.MemoryItemRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

@@ -1,12 +1,13 @@
-package myex.shopping.repository;
+package myex.shopping.repository.memory;
 
 import myex.shopping.domain.Item;
+import myex.shopping.repository.ItemRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 @Repository
-public class MemoryItemRepository implements ItemRepository{
+public class MemoryItemRepository implements ItemRepository {
 
     //@Repository 하면 스프링이 클래스 단위로 싱글톤 보장 해줘서, 멤버변수에 static 할 필요 없음.
     private static Long sequence = 0L;

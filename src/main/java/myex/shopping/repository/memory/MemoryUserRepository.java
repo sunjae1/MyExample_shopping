@@ -1,13 +1,14 @@
-package myex.shopping.repository;
+package myex.shopping.repository.memory;
 
 import myex.shopping.domain.User;
+import myex.shopping.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 //@Bean 등록이랑 DB 접근 예외를 스프링 예외로 변환하는 기능 가짐.
 @Repository
-public class MemoryUserRepository implements UserRepository{
+public class MemoryUserRepository implements UserRepository {
 
     //@Repository 이런 어노테이션에 다 싱글톤 보장 : 해당 클래스의 객체가 딱 하나만 만들어지도록. / 근데 예제에서 명시적으로 private static 처럼 싱글톤 흉내내기 위해.
     private static HashMap<Long, User> map = new HashMap<>();

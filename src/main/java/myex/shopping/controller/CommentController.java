@@ -7,7 +7,7 @@ import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
 import myex.shopping.form.CommentForm;
-import myex.shopping.repository.CommentRepository;
+import myex.shopping.repository.memory.MemoryCommentRepository;
 import myex.shopping.repository.PostRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
+    private final MemoryCommentRepository memoryCommentRepository;
 
     //댓글 추가
     @PostMapping("/{postId}/comments")
@@ -43,6 +43,7 @@ public class CommentController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("post", post);
+            model.addAttribute("loginUser",loginUser);
             return "posts/view";
         }
 
@@ -52,7 +53,7 @@ public class CommentController {
 //        comment.setPost(post);
         comment.setContent(form.getContent());
         post.addComment(comment);
-        commentRepository.save(comment);
+        memoryCommentRepository.save(comment);
 
         //PathVariable 은 url에서 변수로 받을 수 있고, 자동으로 redirect에서 받을 수 있다.
 
@@ -67,7 +68,7 @@ public class CommentController {
                                 HttpSession session,
                                 Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = memoryCommentRepository.findById(commentId)
                 .orElse(null);
 
         Post post = postRepository.findById(postId).orElse(null);
@@ -82,7 +83,7 @@ public class CommentController {
 
         //작성자 본인만 삭제 가능
         if (loginUser != null && comment.getUser().getId().equals(loginUser.getId())) {
-            commentRepository.delete(commentId);
+            memoryCommentRepository.delete(commentId);
             post.deleteComment(comment);
 
         }

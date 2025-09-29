@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
-import myex.shopping.repository.MemoryItemRepository;
-import myex.shopping.repository.MemoryOrderRepository;
+import myex.shopping.repository.memory.MemoryItemRepository;
+import myex.shopping.repository.memory.MemoryOrderRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -86,15 +86,15 @@ public class UserController {
     }
 
 
-//회원가입.
-
+//회원가입
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("form", new RegisterForm());
         return "register";
     }
 
     @PostMapping("/register")
-    public String add_user(@Valid @ModelAttribute RegisterForm form,
+    public String add_user(@Valid @ModelAttribute("form") RegisterForm form,
                            BindingResult bindingResult) {
         //User user = new User();
         //user.setEmail, setName, setPassword 파라미터 매핑

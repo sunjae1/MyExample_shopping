@@ -3,8 +3,8 @@ package myex.shopping.controller;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
-import myex.shopping.repository.MemoryItemRepository;
-import myex.shopping.repository.MemoryOrderRepository;
+import myex.shopping.repository.memory.MemoryItemRepository;
+import myex.shopping.repository.memory.MemoryOrderRepository;
 import myex.shopping.service.OrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -96,9 +96,13 @@ public class OrderController {
 
 
     @GetMapping("/orderAll")
-    public String orderAll(Model model) {
+    public String orderAll(Model model,
+                           HttpSession session) {
         List<Order> orderAll = memoryOrderRepository.findAll();
+        User loginUser = (User) session.getAttribute("loginUser");
+
         model.addAttribute("orders", orderAll);
+        model.addAttribute("loginUser", loginUser);
         return "order/order_view";
     }
 

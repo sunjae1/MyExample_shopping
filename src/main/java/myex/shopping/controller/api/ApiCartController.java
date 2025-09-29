@@ -8,7 +8,7 @@ import myex.shopping.domain.Cart;
 import myex.shopping.domain.Item;
 import myex.shopping.dto.RemoveCartDto;
 import myex.shopping.form.CartForm;
-import myex.shopping.repository.MemoryItemRepository;
+import myex.shopping.repository.memory.MemoryItemRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

@@ -31,8 +31,13 @@ public class PostController {
 
     //게시판 조회.
     @GetMapping
-    public String list(Model model) {
+    public String list(Model model,
+                       HttpSession session) {
         List<Post> posts = postRepository.findAll();
+
+        User loginUser = (User) session.getAttribute("loginUser");
+
+        model.addAttribute("loginUser", loginUser);
         model.addAttribute("posts", posts);
         return "posts/list";
     }
