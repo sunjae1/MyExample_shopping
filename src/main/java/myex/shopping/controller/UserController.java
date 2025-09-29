@@ -8,7 +8,7 @@ import myex.shopping.domain.*;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.MemoryItemRepository;
-import myex.shopping.repository.OrderRepository;
+import myex.shopping.repository.MemoryOrderRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -31,7 +31,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final MemoryItemRepository memoryItemRepository; //생성자 주입.
-    private final OrderRepository orderRepository;
+    private final MemoryOrderRepository memoryOrderRepository;
     private final PostRepository postRepository;
 
 
@@ -141,7 +141,7 @@ public class UserController {
     {
         User loginUser = (User) session.getAttribute("loginUser");
         Cart cart = getOrCreateCart(session);
-        List<Order> orders = orderRepository.findByUser(loginUser);
+        List<Order> orders = memoryOrderRepository.findByUser(loginUser);
         List<Post> posts = postRepository.findByUser(loginUser);
 
         System.out.println("orders = " + orders);

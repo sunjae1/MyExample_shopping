@@ -12,7 +12,7 @@ public class TestDataInit {
 
     private final UserRepository userRepository;
     private final MemoryItemRepository memoryItemRepository;
-    private final OrderRepository orderRepository;
+    private final MemoryOrderRepository memoryOrderRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
@@ -35,7 +35,7 @@ public class TestDataInit {
         OrderItem orderItem = new OrderItem(itemA, price, quantity);
         Order order = new Order(user);
         order.addOrderItem(orderItem);
-        orderRepository.save(order);
+        memoryOrderRepository.save(order);
         order.confirmOrder();
 
         //게시글 등록

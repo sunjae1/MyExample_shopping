@@ -7,7 +7,7 @@ import myex.shopping.domain.Cart;
 import myex.shopping.domain.Order;
 import myex.shopping.domain.User;
 import myex.shopping.repository.MemoryItemRepository;
-import myex.shopping.repository.OrderRepository;
+import myex.shopping.repository.MemoryOrderRepository;
 import myex.shopping.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ import java.util.List;
 public class ApiOrderController {
 
     private final MemoryItemRepository memoryItemRepository;
-    private final OrderRepository orderRepository;
+    private final MemoryOrderRepository memoryOrderRepository;
     private final OrderService orderService;
 
 
@@ -52,7 +52,7 @@ public class ApiOrderController {
         // Cart : CartItem ==> Order : OrderItem 전환.
         Order checkout = orderService.checkout(order, cart, loginUser);
         //repository에 저장.
-        orderRepository.save(checkout);
+        memoryOrderRepository.save(checkout);
 
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.
         //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
@@ -66,14 +66,14 @@ public class ApiOrderController {
 
     @GetMapping("/orderAll")
     public ResponseEntity<List<Order>> orderAll() {
-        List<Order> orderAll = orderRepository.findAll();
+        List<Order> orderAll = memoryOrderRepository.findAll();
         return ResponseEntity.ok(orderAll);
     }
 
     //주문 취소. : items/{id}/cancel
     @DeleteMapping("/{id}/cancel")
     public ResponseEntity<?> orderCancel(@PathVariable @Positive Long id) {
-        Order order = orderRepository.findById(id)
+        Order order = memoryOrderRepository.findById(id)
                 .orElse(null);
         if (order == null) {
             return ResponseEntity.notFound().build();

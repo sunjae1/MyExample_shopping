@@ -2,7 +2,6 @@ package myex.shopping.service;
 
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
-import myex.shopping.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
 @Service

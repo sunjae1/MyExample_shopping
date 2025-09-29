@@ -7,7 +7,7 @@ import myex.shopping.domain.*;
 import myex.shopping.dto.*;
 import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.MemoryItemRepository;
-import myex.shopping.repository.OrderRepository;
+import myex.shopping.repository.MemoryOrderRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.repository.UserRepository;
 import myex.shopping.service.UserService;
@@ -37,7 +37,7 @@ public class ApiUserController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final MemoryItemRepository memoryItemRepository; //생성자 주입.
-    private final OrderRepository orderRepository;
+    private final MemoryOrderRepository memoryOrderRepository;
     private final PostRepository postRepository;
 
 
@@ -92,7 +92,7 @@ public class ApiUserController {
     public MyPageDto myPage(HttpSession session)
     {
         User loginUser = (User) session.getAttribute("loginUser");
-        List<OrderDto> orders = orderRepository.findByUser(loginUser).stream()
+        List<OrderDto> orders = memoryOrderRepository.findByUser(loginUser).stream()
                 .map(OrderDto::new)
                 .collect(Collectors.toList());
 

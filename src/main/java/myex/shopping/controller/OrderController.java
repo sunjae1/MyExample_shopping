@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.repository.MemoryItemRepository;
-import myex.shopping.repository.OrderRepository;
+import myex.shopping.repository.MemoryOrderRepository;
 import myex.shopping.service.OrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +18,7 @@ import java.util.List;
 public class OrderController {
 
     private final MemoryItemRepository memoryItemRepository;
-    private final OrderRepository orderRepository;
+    private final MemoryOrderRepository memoryOrderRepository;
     private final OrderService orderService;
 
 
@@ -84,7 +84,7 @@ public class OrderController {
         // Cart : CartItem ==> Order : OrderItem 전환.
         Order checkout = orderService.checkout(order, cart, loginUser);
         //repository에 저장.
-        orderRepository.save(checkout);
+        memoryOrderRepository.save(checkout);
 
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.
         //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
@@ -97,7 +97,7 @@ public class OrderController {
 
     @GetMapping("/orderAll")
     public String orderAll(Model model) {
-        List<Order> orderAll = orderRepository.findAll();
+        List<Order> orderAll = memoryOrderRepository.findAll();
         model.addAttribute("orders", orderAll);
         return "order/order_view";
     }
@@ -106,7 +106,7 @@ public class OrderController {
     @PostMapping("/{id}/cancel")
     public String orderCancel(@PathVariable Long id,
                               @RequestParam(required = false) String redirectInfo) {
-        Order order = orderRepository.findById(id)
+        Order order = memoryOrderRepository.findById(id)
                 .orElse(null);
         order.cancel(); //orderItem 마다 재고 다 올리고 상태는 CANCELLED로 바뀜. 주문내역은 사라지지 않음.
 
