@@ -4,6 +4,7 @@ import myex.shopping.domain.User;
 import myex.shopping.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 //클래스 레벨에 쓰며 자동 @Bean 등록 및 계층 구분 의미(젤로 기능이 없음)
 @Service
+@Transactional //readOnly =false가 기본 값. 보통, save만 false 해서 쓰기 허용.
 public class UserService {
     private final UserRepository userRepository;
 

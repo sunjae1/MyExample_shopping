@@ -1,13 +1,25 @@
 package myex.shopping.domain;
 
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
+@Entity
 public class OrderItem {
 
+    @Id @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn
     private Item item; //주문 생성시점 주문 확정 시점이 다를 때는 참조하고 있어야 편리 할인/재고 차감 같은 것이 결제 완료 후 처리 로직으로 바로 적용 가능 하니깐.
     private int orderPrice; //주문 당시 가격
     private int quantity;
+
+
+    @ManyToOne
+    @JoinColumn
+    private Order order;
 
     //책임을 정의만 하고 흐름은 더 위에서 활용.
     //메소드를 짤때, 안에서만 신경써서 기능을 만들면 될듯 하다. 그 기능을 쓰는건 외부에서

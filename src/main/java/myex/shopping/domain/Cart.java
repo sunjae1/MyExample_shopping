@@ -1,5 +1,9 @@
 package myex.shopping.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -10,8 +14,15 @@ import java.util.Optional;
 
 @Getter
 @ToString
+@Entity
 public class Cart {
 
+
+    @Id @GeneratedValue
+    private Long id;
+
+    @OneToMany(mappedBy = "cart") //CarItem.cart 가 필드가 연관관계 주인.
+    //mappedBy는 연관관계 주인을 가리킴. (저쪽이 주인이야)
     private List<CartItem> cartItems = new ArrayList<>();
 
     //장바구니 아이템 추가

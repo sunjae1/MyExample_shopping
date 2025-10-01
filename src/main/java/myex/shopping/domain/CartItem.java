@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Entity
 public class CartItem {
+
     @Id @GeneratedValue
     private Long id;
 
@@ -20,6 +21,10 @@ public class CartItem {
     @JoinColumn(name = "item_id") //FK "다" 에 저장.
     private Item item;
     private int quantity;
+
+    @ManyToOne
+    @JoinColumn
+    private Cart cart;
 
     public CartItem(Item item, int quantity) {
         this.item = item;

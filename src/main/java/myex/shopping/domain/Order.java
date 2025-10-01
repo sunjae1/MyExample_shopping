@@ -1,5 +1,6 @@
 package myex.shopping.domain;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,10 +12,17 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@Entity
 //프로퍼티 접근법 Thymeleaf 에서 쓰임.
 public class Order {
+    @Id @GeneratedValue
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
     private LocalDateTime orderDate;
     private OrderStatus status;
