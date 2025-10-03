@@ -2,12 +2,16 @@ package myex.shopping.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@Data
-//@ToString(exclude = "post")
+//@Data
+@ToString(exclude = "post")
+@Getter
+@Setter
 @Entity
 public class Comment {
 
@@ -15,7 +19,7 @@ public class Comment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne

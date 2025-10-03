@@ -4,12 +4,15 @@ package myex.shopping.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class Post {
 
@@ -40,13 +43,16 @@ public class Post {
         this.content = content;
     }
 
+    //연관관계 편의 메소드
     public void addComment(Comment comment) {
         comments.add(comment);
+        comment.setPost(this);
     }
 
     public void deleteComment(Comment comment)
     {
         comments.remove(comment);
+        comment.setPost(null);
     }
 
 }

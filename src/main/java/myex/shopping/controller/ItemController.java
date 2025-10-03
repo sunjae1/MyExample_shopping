@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.form.ItemAddForm;
+import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.service.ItemService;
 import org.springframework.stereotype.Controller;
@@ -22,13 +23,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemController {
 
-    private final MemoryItemRepository memoryItemRepository; //생성자 주입.
+    private final ItemRepository itemRepository; //생성자 주입.
     private final ItemService itemService;
 
     //전체 아이템 조회
     @GetMapping
     public String items(Model model) {
-        List<Item> items = memoryItemRepository.findAll();
+        List<Item> items = itemRepository.findAll();
         model.addAttribute("items", items);
         return "items/items";
     }
@@ -37,7 +38,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public String item(@PathVariable long itemId, Model model,
                        RedirectAttributes redirectAttributes) {
-        Optional<Item> itemOpt = memoryItemRepository.findById(itemId);
+        Optional<Item> itemOpt = itemRepository.findById(itemId);
         //경로변수 -1 이런 값 들어올때 검증.
         if (itemOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorPV", "유효하지 않은 ItemId 값입니다.");
@@ -79,7 +80,7 @@ public class ItemController {
         item.setPrice(form.getPrice());
         item.setQuantity(form.getQuantity());
 
-        Item savedItem = memoryItemRepository.save(item);
+        Item savedItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId", savedItem.getId());
 
         //맞는지 확인.
@@ -94,7 +95,7 @@ public class ItemController {
     public String editForm (@PathVariable("itemId") Long itemId,
                             Model model,
                             RedirectAttributes redirectAttributes) {
-        Optional<Item> byId = memoryItemRepository.findById(itemId);
+        Optional<Item> byId = itemRepository.findById(itemId);
 
         if (byId.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorPV","유효하지 않은 ID 값입니다.");
@@ -110,14 +111,14 @@ public class ItemController {
     public String edit (@PathVariable Long itemId,
                         @ModelAttribute("item")ItemAddForm form) throws IOException {
 
-        Optional<Item> byId = memoryItemRepository.findById(itemId);
+        Optional<Item> byId = itemRepository.findById(itemId);
         Item findItem =  byId.get();
         Item item = itemService.imageEditSaveByUUID(form, findItem);
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());
         item.setQuantity(form.getQuantity());
 
-        memoryItemRepository.update(itemId, item);
+        itemRepository.update(itemId, item);
 //        itemRepository.update_exceptImgUrl(itemId, item);
         return "redirect:/items/{itemId}";
         //  {} 치환 순위.
@@ -131,7 +132,7 @@ public class ItemController {
     //아이템 삭제하기 넣기.
     @PostMapping("/{itemId}/delete")
     public String deleteItem(@PathVariable Long itemId) {
-        memoryItemRepository.deleteItem(itemId);
+        itemRepository.deleteItem(itemId);
         return "redirect:/items";
     }
 

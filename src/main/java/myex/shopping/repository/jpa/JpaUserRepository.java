@@ -6,6 +6,7 @@ import myex.shopping.domain.User;
 import myex.shopping.repository.UserRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +14,13 @@ import java.util.Optional;
 @Primary
 @Repository
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class JpaUserRepository implements UserRepository {
 
     private final EntityManager em;
 
     @Override
+    @Transactional(readOnly = false)
     public User save(User user) {
         em.persist(user); //지금 insert문 X, commit 시 insert문 O
         return user;

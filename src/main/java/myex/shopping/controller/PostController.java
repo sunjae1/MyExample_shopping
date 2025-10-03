@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +72,7 @@ public class PostController {
         Post post = new Post();
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
-
+        post.setCreatedDate(LocalDateTime.now());
         post.setUserId(loginUser.getId());
         post.setAuthor(loginUser.getName());
 

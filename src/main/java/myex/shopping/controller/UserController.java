@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
-import myex.shopping.repository.memory.MemoryItemRepository;
-import myex.shopping.repository.memory.MemoryOrderRepository;
+import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -30,8 +30,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final MemoryItemRepository memoryItemRepository; //생성자 주입.
-    private final MemoryOrderRepository memoryOrderRepository;
+    private final ItemRepository itemRepository; //생성자 주입.
+    private final OrderRepository orderRepository;
     private final PostRepository postRepository;
 
 
@@ -124,7 +124,7 @@ public class UserController {
     @GetMapping("/main")
     public String mainPage(Model model,
                            HttpSession session) {
-        List<Item> items = memoryItemRepository.findAll();
+        List<Item> items = itemRepository.findAll();
         User loginUser = (User) session.getAttribute("loginUser");
 
         model.addAttribute("items", items);
@@ -141,7 +141,7 @@ public class UserController {
     {
         User loginUser = (User) session.getAttribute("loginUser");
         Cart cart = getOrCreateCart(session);
-        List<Order> orders = memoryOrderRepository.findByUser(loginUser);
+        List<Order> orders = orderRepository.findByUser(loginUser);
         List<Post> posts = postRepository.findByUser(loginUser);
 
         System.out.println("orders = " + orders);

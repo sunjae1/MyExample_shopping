@@ -3,10 +3,12 @@ package myex.shopping.controller;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
+import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
 import myex.shopping.service.OrderService;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +19,8 @@ import java.util.List;
 @RequestMapping("/items")
 public class OrderController {
 
-    private final MemoryItemRepository memoryItemRepository;
-    private final MemoryOrderRepository memoryOrderRepository;
+//    private final MemoryItemRepository memoryItemRepository;
+    private final OrderRepository orderRepository;
     private final OrderService orderService;
 
 
@@ -62,7 +64,7 @@ public class OrderController {
     }
 
 */
-
+    @Transactional
     @PostMapping("/order")
     public String order_change(Model model,
                         HttpSession session) {
@@ -83,8 +85,11 @@ public class OrderController {
         //OrderItem 생성 : 장바구니를 주문으로 전환.
         // Cart : CartItem ==> Order : OrderItem 전환.
         Order checkout = orderService.checkout(order, cart, loginUser);
+
+        System.out.println("checkout = " + checkout);
+
         //repository에 저장.
-        memoryOrderRepository.save(checkout);
+        orderRepository.save(checkout);
 
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.
         //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
@@ -98,19 +103,20 @@ public class OrderController {
     @GetMapping("/orderAll")
     public String orderAll(Model model,
                            HttpSession session) {
-        List<Order> orderAll = memoryOrderRepository.findAll();
+        List<Order> orderAll = orderRepository.findAll();
         User loginUser = (User) session.getAttribute("loginUser");
-
+        System.out.println("orderAll = " + orderAll);
         model.addAttribute("orders", orderAll);
         model.addAttribute("loginUser", loginUser);
         return "order/order_view";
     }
 
     //주문 취소. : items/{id}/cancel
+    @Transactional
     @PostMapping("/{id}/cancel")
     public String orderCancel(@PathVariable Long id,
                               @RequestParam(required = false) String redirectInfo) {
-        Order order = memoryOrderRepository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElse(null);
         order.cancel(); //orderItem 마다 재고 다 올리고 상태는 CANCELLED로 바뀜. 주문내역은 사라지지 않음.
 

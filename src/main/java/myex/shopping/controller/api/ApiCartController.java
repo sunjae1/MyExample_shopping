@@ -8,6 +8,7 @@ import myex.shopping.domain.Cart;
 import myex.shopping.domain.Item;
 import myex.shopping.dto.RemoveCartDto;
 import myex.shopping.form.CartForm;
+import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @RequestMapping("api/items")
 @Validated
 public class ApiCartController {
-    private final MemoryItemRepository memoryItemRepository;
+    private final ItemRepository itemRepository;
 
 
     //한 상품에 대한 주문 페이지에서 정보가 넘어오면 장바구니에 저장.
@@ -36,7 +37,7 @@ public class ApiCartController {
 
         Cart cart = getOrCreateCart(session);
 //        Item findItem = itemRepository.findById(cartForm.getId());
-        Optional<Item> findItemOpt = memoryItemRepository.findById(itemId);
+        Optional<Item> findItemOpt = itemRepository.findById(itemId);
 
         if (findItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -61,7 +62,7 @@ public class ApiCartController {
     @DeleteMapping("/cart/remove")
     public ResponseEntity<Cart> cartItemRemove(@Valid @RequestBody RemoveCartDto cartDto,
                                                HttpSession session) {
-        Optional<Item> findItemOpt = memoryItemRepository.findById(cartDto.getItemId());
+        Optional<Item> findItemOpt = itemRepository.findById(cartDto.getItemId());
         
         if (findItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build();

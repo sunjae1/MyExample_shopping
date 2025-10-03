@@ -2,8 +2,13 @@ package myex.shopping.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+//@Data
+//--> equals(), hashCode() 메소드 자동 생성하는데, JPA 지연 로딩 과 복잡한 연관관계 맺을 때 예상치 못한 문제를 일으킬 수 있다.
+@Getter
+@Setter
 @Entity
 public class OrderItem {
 
@@ -20,6 +25,9 @@ public class OrderItem {
     @ManyToOne
     @JoinColumn
     private Order order;
+
+    protected OrderItem() {
+    }
 
     //책임을 정의만 하고 흐름은 더 위에서 활용.
     //메소드를 짤때, 안에서만 신경써서 기능을 만들면 될듯 하다. 그 기능을 쓰는건 외부에서

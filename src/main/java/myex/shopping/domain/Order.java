@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 @ToString
 @Entity
+@Table(name = "orders") //ORDER BY 같은 예약어 때문에 충돌.
 //프로퍼티 접근법 Thymeleaf 에서 쓰임.
 public class Order {
     @Id @GeneratedValue
@@ -22,10 +23,18 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "order")
+    //CascadeType.ALL (엔티티, DB 관점 삭제 따라감)
+    //Parent.remove()  --> Child.delete()
+    //orphanRemoval=true (자바 컬렉션 관점 삭제 더티 체킹으로 따라감)
+    //Parent.getChildren().remove(child)  --> Child.delete()
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
     private LocalDateTime orderDate;
     private OrderStatus status;
+
+    //JPA 전용 기본 생성자
+    protected Order() {
+    }
 
     //주문 시.
     public Order(User user) {
@@ -34,9 +43,10 @@ public class Order {
         this.status = OrderStatus.ORDERED;
     }
 
-    //주문 아이템 추가
+    //주문 아이템 추가 --> 연관관계 편의 메소드 (객체 그래프 동기화)
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
+        orderItem.setOrder(this);
     }
 
     //총 금액 계산
@@ -59,6 +69,7 @@ public class Order {
     //주문 확정 시 재고 감소 : 주문 --> 결제 --> 확정(orderItem이 item을 가져야만 decreaseStock() 사용가능.) 앞 사람이 재고를 다 털어가면 Exception 내야함.
     public void confirmOrder() {
         for (OrderItem orderItem : orderItems) {
+
             orderItem.getItem().decreaseStock(orderItem.getQuantity());
 
         }

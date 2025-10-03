@@ -54,7 +54,13 @@ public class TestDataInit {
         comment.setContent("테스트용 댓글 입력 중입니다. \n테스트 테스트  테스트 테스트 ");
         post.addComment(comment);
         memoryCommentRepository.save(comment);
+    }
 
+    @PostConstruct
+    public void jpa_init() {
+        // 임시 테스트 유저 생성.
+        User user = new User("test@na.com","테스터","test!");
+        userRepository.save(user);
 
     }
 
