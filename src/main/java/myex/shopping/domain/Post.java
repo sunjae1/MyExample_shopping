@@ -32,7 +32,8 @@ public class Post {
     private Long userId;
     private LocalDateTime createdDate;
 
-    @OneToMany(mappedBy = "post")
+    //cascade는 em 엔티티 기준 같이 쿼리 나감. orphanRemoval은 객체 기준, 객체 삭제시 자동으로 자식 객체 고아 삭제.
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
     public Post() {
