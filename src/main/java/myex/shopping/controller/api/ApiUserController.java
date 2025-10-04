@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.dto.*;
 import myex.shopping.form.RegisterForm;
+import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
 import myex.shopping.repository.PostRepository;
@@ -35,9 +37,8 @@ public class ApiUserController {
     //Api 에서는 프론트엔드에서 뷰를 뿌리고, 프론트에서 오는 정보를 서버를 거쳐 처리하고 다시 JSON 으로 반환. (뷰 필요없어서 GetMapping 거의 다 사라짐.)
 
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final MemoryItemRepository memoryItemRepository; //생성자 주입.
-    private final MemoryOrderRepository memoryOrderRepository;
+    private final ItemRepository itemRepository; //생성자 주입.
+    private final OrderRepository orderRepository;
     private final PostRepository postRepository;
 
 
@@ -77,7 +78,7 @@ public class ApiUserController {
     //메인 페이지, 상품 전체 조회. (record 확인 한번 하기)
     @GetMapping("/main")
     public UserResponse mainPage(HttpSession session) {
-        List<ItemDto> itemDto = memoryItemRepository.findAll().stream()
+        List<ItemDto> itemDto = itemRepository.findAll().stream()
                 .map(ItemDto::new)
                 .collect(Collectors.toList());
 
@@ -92,7 +93,7 @@ public class ApiUserController {
     public MyPageDto myPage(HttpSession session)
     {
         User loginUser = (User) session.getAttribute("loginUser");
-        List<OrderDto> orders = memoryOrderRepository.findByUser(loginUser).stream()
+        List<OrderDto> orders = orderRepository.findByUser(loginUser).stream()
                 .map(OrderDto::new)
                 .collect(Collectors.toList());
 

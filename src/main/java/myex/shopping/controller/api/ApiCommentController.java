@@ -10,8 +10,10 @@ import myex.shopping.domain.User;
 import myex.shopping.repository.CommentRepository;
 import myex.shopping.repository.memory.MemoryCommentRepository;
 import myex.shopping.repository.PostRepository;
+import myex.shopping.service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +27,11 @@ public class ApiCommentController {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final CommentService commentService;
 
     //댓글 추가 : @RequestParam : form-data로 보내기.
     //@RequestBody : Dto 써서, JSON 으로 보내기 가능. (고민중)
+    @Transactional
     @PostMapping("/{postId}/comments")
     public ResponseEntity<?> addComment(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long postId,
                                         @RequestParam @NotBlank(message = "댓글 내용을 입력해주세요") String reply_content,
@@ -54,6 +58,7 @@ public class ApiCommentController {
     }
 
     //댓글 삭제
+    @Transactional
     @DeleteMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long postId,
                                            @PathVariable @Positive(message = "양수만 입력가능합니다.") Long commentId,
@@ -81,13 +86,10 @@ public class ApiCommentController {
                     .body("댓글 작성자만 삭제할 수 있습니다.");
         }
 
-        commentRepository.delete(commentId);
-        post.deleteComment(comment);
+        commentService.deleteComment(postId, commentId);
 
         //삭제 성공/실패와 상관없이 다시 게시글 상세 페이지로
         return ResponseEntity.noContent().build(); //204 No Content
-//        return ResponseEntity.ok(post);
-
     }
 
 }

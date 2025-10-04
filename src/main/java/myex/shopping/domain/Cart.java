@@ -14,14 +14,14 @@ import java.util.Optional;
 
 @Getter
 @ToString
-@Entity
+//@Entity
 public class Cart {
 
 
-    @Id @GeneratedValue
-    private Long id;
+//    @Id @GeneratedValue
+//    private Long id;
 
-    @OneToMany(mappedBy = "cart") //CarItem.cart 가 필드가 연관관계 주인.
+//    @OneToMany(mappedBy = "cart") //CarItem.cart 가 필드가 연관관계 주인.
     //mappedBy는 연관관계 주인을 가리킴. (저쪽이 주인이야)
     private List<CartItem> cartItems = new ArrayList<>();
 

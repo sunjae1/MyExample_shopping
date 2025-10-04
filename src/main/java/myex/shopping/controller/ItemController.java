@@ -119,7 +119,6 @@ public class ItemController {
         item.setQuantity(form.getQuantity());
 
         itemRepository.update(itemId, item);
-//        itemRepository.update_exceptImgUrl(itemId, item);
         return "redirect:/items/{itemId}";
         //  {} 치환 순위.
         /*

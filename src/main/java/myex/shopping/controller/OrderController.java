@@ -64,7 +64,6 @@ public class OrderController {
     }
 
 */
-    @Transactional
     @PostMapping("/order")
     public String order_change(Model model,
                         HttpSession session) {
@@ -89,11 +88,11 @@ public class OrderController {
         System.out.println("checkout = " + checkout);
 
         //repository에 저장.
-        orderRepository.save(checkout);
+//        orderRepository.save(checkout);
 
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.
         //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
-        order.confirmOrder();
+//        order.confirmOrder();
         session.removeAttribute("CART");
 
         return "redirect:/main"; //주문 완료 페이지
@@ -112,13 +111,14 @@ public class OrderController {
     }
 
     //주문 취소. : items/{id}/cancel
-    @Transactional
     @PostMapping("/{id}/cancel")
     public String orderCancel(@PathVariable Long id,
                               @RequestParam(required = false) String redirectInfo) {
         Order order = orderRepository.findById(id)
                 .orElse(null);
-        order.cancel(); //orderItem 마다 재고 다 올리고 상태는 CANCELLED로 바뀜. 주문내역은 사라지지 않음.
+        //
+        orderService.orderCancel(order);
+
 
         if ("mypage".equals(redirectInfo))
         {

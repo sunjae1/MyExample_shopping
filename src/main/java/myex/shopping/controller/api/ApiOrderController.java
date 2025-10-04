@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Order;
 import myex.shopping.domain.User;
+import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
 import myex.shopping.service.OrderService;
@@ -22,8 +24,8 @@ import java.util.List;
 @Validated
 public class ApiOrderController {
 
-    private final MemoryItemRepository memoryItemRepository;
-    private final MemoryOrderRepository memoryOrderRepository;
+//    private final ItemRepository itemRepository;
+    private final OrderRepository orderRepository;
     private final OrderService orderService;
 
 
@@ -51,34 +53,29 @@ public class ApiOrderController {
         //OrderItem 생성 : 장바구니를 주문으로 전환.
         // Cart : CartItem ==> Order : OrderItem 전환.
         Order checkout = orderService.checkout(order, cart, loginUser);
-        //repository에 저장.
-        memoryOrderRepository.save(checkout);
 
-        //재고 감소(주문 체결) + 장바구니 아이템 비우기.
-        //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
-        order.confirmOrder();
         session.removeAttribute("CART");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(checkout);
         //생성 완료. /주문 완료된 order 보여줌.
+        return ResponseEntity.status(HttpStatus.CREATED).body(checkout);
     }
 
 
     @GetMapping("/orderAll")
     public ResponseEntity<List<Order>> orderAll() {
-        List<Order> orderAll = memoryOrderRepository.findAll();
+        List<Order> orderAll = orderRepository.findAll();
         return ResponseEntity.ok(orderAll);
     }
 
     //주문 취소. : items/{id}/cancel
     @DeleteMapping("/{id}/cancel")
     public ResponseEntity<?> orderCancel(@PathVariable @Positive Long id) {
-        Order order = memoryOrderRepository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElse(null);
         if (order == null) {
             return ResponseEntity.notFound().build();
         }
-        order.cancel(); // 상태 변경 + 재고 복원
+        orderService.orderCancel(order); // 상태 변경 + 재고 복원
 
       return ResponseEntity.ok(order);
     }

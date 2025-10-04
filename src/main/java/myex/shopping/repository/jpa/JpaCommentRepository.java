@@ -18,7 +18,9 @@ import java.util.Optional;
 public class JpaCommentRepository implements CommentRepository {
 
     private final EntityManager em;
+
     @Override
+    @Transactional(readOnly = false)
     public Comment save(Comment comment) {
         em.persist(comment);
         return comment;
@@ -36,6 +38,7 @@ public class JpaCommentRepository implements CommentRepository {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public void delete(Long id) {
         Comment comment = em.find(Comment.class, id);
         em.remove(comment);
