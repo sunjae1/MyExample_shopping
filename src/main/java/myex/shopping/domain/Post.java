@@ -29,7 +29,9 @@ public class Post {
     private String author;
 
     //User로 바꾸고, @ManyToOne?
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
     private LocalDateTime createdDate;
 
     //cascade는 em 엔티티 기준 같이 쿼리 나감. orphanRemoval은 객체 기준, 객체 삭제시 자동으로 자식 객체 고아 삭제.
@@ -44,7 +46,7 @@ public class Post {
         this.content = content;
     }
 
-    //연관관계 편의 메소드
+    //연관관계 편의 메소드(Comment)
     public void addComment(Comment comment) {
         comments.add(comment);
         comment.setPost(this);
@@ -54,6 +56,28 @@ public class Post {
     {
         comments.remove(comment);
         comment.setPost(null);
+    }
+
+    //연관관계 편의 메소드 (Many에 생성)
+    public void addUser(User user) {
+        //추가할려는데 이미 user가 있다면 user.posts List 에서 현재 Post 제거.
+        if (this.user !=null) {
+            this.user.getPosts().remove(this);
+        }
+        //나 에게 부모를 설정(Post - User) (FK 설정)
+        this.user = user;
+        //부모(User)의 컬렉션에 나(Post)를 추가 (객체 그래프 일관성 유지)
+
+        //detached된 준영속 상태 User loginUser 에서 OneToMany 이기 때문에 기본 LAZY 라서, user(준영속).getPosts() 를 하면 (지연 로딩으로 설정된 연관 데이터를 가져오려고 시도하면 LazyInitializationException 이 발생.)
+        user.getPosts().add(this);
+    }
+
+    public void deleteUser() {
+        //기존 부모(User)의 자식 리스트에서 나(Post)를 제거.
+        if (this.user !=null) {
+            this.user.getPosts().remove(this);
+        }
+        this.user = null;
     }
 
 }

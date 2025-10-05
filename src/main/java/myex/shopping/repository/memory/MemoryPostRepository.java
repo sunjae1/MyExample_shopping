@@ -38,7 +38,7 @@ public class MemoryPostRepository implements PostRepository {
     @Override
     public List<Post> findByUser(User user) {
         return store.values().stream()
-                .filter(post -> post.getUserId().equals(user.getId()))
+                .filter(post -> post.getUser().getId().equals(user.getId()))
                 .collect(Collectors.toList());
     }
 

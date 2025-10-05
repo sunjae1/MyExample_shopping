@@ -26,7 +26,7 @@
     <td th:text="${#temporals.format(post.createdDate,'yyyy-MM-dd HH:mm')}"> 날짜 </td>
     <td>
 <!--      자신만 삭제할 수 있게 조건 추가.-->
-      <form th:if="${loginUser != null && loginUser.id == post.userId}"
+      <form th:if="${loginUser != null && loginUser == post.user}"
               th:action="@{|/posts/${post.id}/delete|}" method="post">
         <button type="submit"> 삭제</button>
       </form>

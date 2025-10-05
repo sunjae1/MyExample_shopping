@@ -9,7 +9,10 @@ import myex.shopping.domain.User;
 import myex.shopping.form.CommentForm;
 import myex.shopping.form.PostForm;
 import myex.shopping.repository.PostRepository;
+import myex.shopping.repository.UserRepository;
+import myex.shopping.service.PostService;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +31,8 @@ import java.util.Optional;
 //메서드 위는 단일 값 검증 RequestParam, PathVariable은 검증 못함.  --> 단일 값 검증은 컨트롤러 안에서 if문으로.
 public class PostController {
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final PostService postService;
 
 
     //게시판 조회.
@@ -73,10 +78,10 @@ public class PostController {
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
         post.setCreatedDate(LocalDateTime.now());
-        post.setUserId(loginUser.getId());
         post.setAuthor(loginUser.getName());
 
-        Post save = postRepository.save(post);
+        Post save = postService.addUser(post, loginUser);
+
         System.out.println("save = " + save);
         return "redirect:/posts";
     }

@@ -67,7 +67,6 @@ public class CommentController {
     }
 
     //댓글 삭제
-//    @Transactional
     @PostMapping("/{postId}/comments/{commentId}")
     public String deleteComment(@PathVariable Long postId,
                                 @PathVariable Long commentId,

@@ -57,7 +57,9 @@ public class TestDataInit {
 
         //게시글 등록
         Post post = new Post("첫 글 축하", "테스트용 게시글입니다. 게시글 입니다.\n게시글 게시글 게시글");
-        post.setUserId(user.getId());
+//        post.setUserId(user.getId());
+        post.addUser(user);
+
         post.setAuthor(user.getName());
         post.setCreatedDate(LocalDateTime.now());
         postRepository.save(post);

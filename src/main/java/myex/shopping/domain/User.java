@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +29,9 @@ public class User {
     @NotEmpty(message = "비밀번호를 입력해주세요")
     @Size(min = 3, max = 15, message = "패스워드는 3자 이상 15자 이하 입니다.")
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
 
 
     //JPA 전용 기본 생성자 - 없을 시 InstantiationException,
@@ -63,4 +67,16 @@ public class User {
     public int hashCode() {
         return Objects.hashCode(getId());
     }
+
+/*    //연관관계 편의 메소드
+    public void addPost(Post post) {
+        posts.add(post);
+        post.setUser(this);
+    }
+
+    public void deletePost(Post post) {
+        posts.remove(post);
+        post.setUser(null);
+    }*/
+
 }

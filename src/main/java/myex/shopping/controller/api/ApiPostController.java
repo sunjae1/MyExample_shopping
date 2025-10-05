@@ -8,6 +8,7 @@ import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
 import myex.shopping.form.PostForm;
 import myex.shopping.repository.PostRepository;
+import myex.shopping.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ import java.util.List;
 @Validated
 public class ApiPostController {
     private final PostRepository postRepository;
+    private final PostService postService;
 
 
     //게시판 조회.
@@ -49,11 +52,13 @@ public class ApiPostController {
         Post post = new Post();
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
-
-        post.setUserId(loginUser.getId());
+        post.setCreatedDate(LocalDateTime.now());
         post.setAuthor(loginUser.getName());
 
-        Post save = postRepository.save(post);
+        Post save = postService.addUser(post, loginUser);
+
+//        post.setUserId(loginUser.getId());
+
         System.out.println("save = " + save);
         return ResponseEntity.status(HttpStatus.CREATED).body(save);
     }
