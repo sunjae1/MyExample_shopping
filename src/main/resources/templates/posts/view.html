@@ -7,7 +7,7 @@
 </head>
 <body>
 <h2 th:text="${post.title}">제목</h2>
-<p>작성자 : <span th:text="${post.author}">작성자</span></p>
+<p>작성자 : <span th:text="${post.authorName}">작성자</span></p>
 <h5>게시물 내용</h5>
 <p th:text="${post.content}" style="white-space: pre-wrap;">내용</p>
 <p th:text="${'작성날짜 : '+ #temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">작성일</p>
@@ -23,14 +23,14 @@
 <div th:each="comment : ${post.comments}">
   <hr>
   <div>작성자 :
-    <b th:text="${comment.user.name}">작성자</b>
+    <b th:text="${comment.username}">작성자</b>
     <br>
     <span th:text="${comment.content}" style="white-space: pre-wrap;">댓글 내용</span>
     <br>
     <small th:text="'작성 날짜 : ' + ${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">작성 날짜</small>
 
     <!-- 댓글 삭제 버튼(작성자 본인만 보이도록 조건 처리)-->
-    <form th:if="${loginUser !=null && loginUser.id == comment.user.id}"
+    <form th:if="${loginUser !=null && loginUser.name.equals(comment.username)}"
             th:action="@{|/posts/${post.id}/comments/${comment.id}|}"
             method="post">
       <button type="submit">댓글 삭제</button>

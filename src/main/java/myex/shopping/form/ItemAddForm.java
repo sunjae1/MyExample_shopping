@@ -12,6 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 public class ItemAddForm {
 
+    //editForm 취소 위해서.
+    private Long id;
+
+
     @NotBlank(message = "아이템 이름을 입력하세요.")
     private String itemName;
 

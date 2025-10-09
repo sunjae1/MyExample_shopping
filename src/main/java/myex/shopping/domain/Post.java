@@ -29,7 +29,7 @@ public class Post {
     private String author;
 
     //User로 바꾸고, @ManyToOne?
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
     private LocalDateTime createdDate;
@@ -37,7 +37,6 @@ public class Post {
     //cascade는 em 엔티티 기준 같이 쿼리 나감. orphanRemoval은 객체 기준, 객체 삭제시 자동으로 자식 객체 고아 삭제.
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
-
     public Post() {
     }
 

@@ -5,10 +5,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 //재고 입장 아이템.
-@Data
+//@Data
+@Getter
+@Setter
 @Entity
 public class Item {
 
@@ -19,7 +23,7 @@ public class Item {
     private Integer price; //가격
     private Integer quantity; //수량(남은재고)
 
-    @Transient //JPA가 컬럼으로 만들지 않음 :업로드 파일은 서버에 저장/DB에는 경로만 저장.
+    @Transient //JPA가 컬럼으로 만들지 않음 :업로드 파일은 서버에 저장/DB에는 경로만 저장. 지금은 Form -> url로 저장함.
     private MultipartFile imageFile; //업로드 파일
     private String imageUrl; //이미지 경로
 

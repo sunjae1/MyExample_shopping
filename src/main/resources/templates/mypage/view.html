@@ -49,7 +49,7 @@
 
         <td>
           <p th:each="orderItem : ${order.orderItems}"
-              th:text="${orderItem.item.itemName +'('+orderItem.orderPrice+'원)'}">주문 상품명들</p>
+              th:text="${orderItem.itemName +'('+orderItem.orderPrice+'원)'}">주문 상품명들</p>
         </td>
         <td>
           <p th:text="${order.getTotalQuantity()}">주문 상품 총 수량</p>
@@ -57,15 +57,15 @@
 
         <td>
           <p th:each="orderItem : ${order.orderItems}"
-              th:text="${orderItem.printCalculate()}">주문 계산식</p>
+              th:text="${orderItem.calculation}">주문 계산식</p>
         </td>
 
 
 
         <td th:text="${order.getTotalPrice()}">주문당 총 가격</td>
-        <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">주문 날짜</td>
+        <td th:text="${order.orderDate}">주문 날짜</td>
         <td th:text="${order.status}">주문 상태</td>
-        <td th:if="${order.orderIsNotCanCelled()}">
+        <td th:if="${order.orderIsNotCanCelled}">
 
           <form th:action="@{|/items/${order.id}/cancel|}" method="post">
             <input type="hidden" name="redirectInfo" value="mypage">

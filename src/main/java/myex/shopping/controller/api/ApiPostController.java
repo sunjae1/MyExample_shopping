@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.dto.dbdto.PostDBDto;
 import myex.shopping.form.PostForm;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.PostService;
@@ -30,8 +31,11 @@ public class ApiPostController {
 
     //게시판 조회.
     @GetMapping
-    public ResponseEntity<List<Post>> list() {
-        List<Post> posts = postRepository.findAll();
+    public ResponseEntity<List<PostDBDto>> list() {
+//        List<Post> posts = postRepository.findAll();
+        List<PostDBDto> posts = postService.findAllPostDBDto();
+
+
         return ResponseEntity.ok(posts);
     }
 
@@ -55,7 +59,7 @@ public class ApiPostController {
         post.setCreatedDate(LocalDateTime.now());
         post.setAuthor(loginUser.getName());
 
-        Post save = postService.addUser(post, loginUser);
+        Post save = postService.addUser(post, loginUser.getId());
 
 //        post.setUserId(loginUser.getId());
 

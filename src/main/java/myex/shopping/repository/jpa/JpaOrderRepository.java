@@ -38,15 +38,23 @@ public class JpaOrderRepository implements OrderRepository {
     //SELECT * FROM orders WHERE user_id = 3 이런거.
     @Override
     public List<Order> findByUser(User user) {
-        return em.createQuery("select o from Order o where o.user = :user", Order.class)
+        return em.createQuery("select distinct o from Order o " +
+                        "join fetch o.orderItems oi " +
+                        "join fetch oi.item i " +
+                        "where o.user = :user", Order.class)
                 .setParameter("user", user)
                 .getResultList();
     }
 
+
+    //fetch join으로 수정.
     @Override
     public List<Order> findAll() {
 
-        return em.createQuery("select o from Order o", Order.class)
+        return em.createQuery("select distinct o from Order o " +
+                        "join fetch o.user u " +
+                        "join fetch o.orderItems oi " +
+                        "join fetch oi.item i", Order.class)
                 .getResultList();
     }
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Order;
 import myex.shopping.domain.User;
+import myex.shopping.dto.dbdto.OrderDBDto;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
@@ -62,8 +63,10 @@ public class ApiOrderController {
 
 
     @GetMapping("/orderAll")
-    public ResponseEntity<List<Order>> orderAll() {
-        List<Order> orderAll = orderRepository.findAll();
+    public ResponseEntity<List<OrderDBDto>> orderAll() {
+//        List<Order> orderAll = orderRepository.findAll();
+        List<OrderDBDto> orderAll = orderService.findAllOrderDtos();
+
         return ResponseEntity.ok(orderAll);
     }
 
@@ -75,7 +78,7 @@ public class ApiOrderController {
         if (order == null) {
             return ResponseEntity.notFound().build();
         }
-        orderService.orderCancel(order); // 상태 변경 + 재고 복원
+        orderService.orderCancel(id); // 상태 변경 + 재고 복원
 
       return ResponseEntity.ok(order);
     }

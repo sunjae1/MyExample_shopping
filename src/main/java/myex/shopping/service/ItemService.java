@@ -2,21 +2,26 @@ package myex.shopping.service;
 
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
+import myex.shopping.dto.ItemDto;
 import myex.shopping.form.ItemAddForm;
+import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ItemService {
-    private final MemoryItemRepository memoryItemRepository;
+    private final ItemRepository itemRepository;
 
     public Item ImageSave(ItemAddForm form, Item item) throws IOException {
         MultipartFile file = form.getImageFile();
@@ -87,5 +92,62 @@ public class ItemService {
             System.out.println(item.getImageUrl());
         }
         return item;
+    }
+
+    @Transactional
+    public Item update(Long itemId, Item updateParam)
+    {
+        //영속성 컨텍스트가 관리.
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+        item.setItemName(updateParam.getItemName());
+        item.setPrice(updateParam.getPrice());
+        item.setQuantity(updateParam.getQuantity());
+        item.setImageUrl(updateParam.getImageUrl());
+
+        return item;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemDto> findAllToDto() {
+        return itemRepository.findAll()
+                .stream()
+                .map(ItemDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Long createItem(ItemAddForm form) throws IOException {
+        Item item = new Item();
+        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
+
+        ImageSave(form, item); // 이미지 저장.
+        Item savedItem = itemRepository.save(item);
+
+        //맞는지 확인
+        System.out.println(savedItem.getImageUrl());
+        System.out.println(item.getImageUrl());
+
+        return savedItem.getId();
+    }
+
+    @Transactional
+    public Long editItemWithUUID(ItemAddForm form, Long itemId) throws IOException {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
+
+        imageEditSaveByUUID(form, item); // 이미지 저장.
+        Item update = update(itemId, item); //내부 update 메소드 사용.(Dirty Checking 사용)
+
+        //맞는지 확인
+        System.out.println(update.getImageUrl());
+        System.out.println(item.getImageUrl());
+
+        return update.getId();
     }
 }

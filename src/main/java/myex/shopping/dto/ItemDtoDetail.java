@@ -4,16 +4,18 @@ import lombok.Getter;
 import myex.shopping.domain.Item;
 
 @Getter
-public class ItemDto {
+public class ItemDtoDetail {
     private Long id;
-    private String itemName;
+    private String name;
     private int price;
     private int quantity;
+    private String imageUrl;
 
-    public ItemDto(Item item) {
+    public ItemDtoDetail(Item item) {
         this.id = item.getId();
-        this.itemName = item.getItemName();
+        this.name = item.getItemName();
         this.price = item.getPrice();
         this.quantity = item.getQuantity();
+        this.imageUrl = item.getImageUrl();
     }
 }

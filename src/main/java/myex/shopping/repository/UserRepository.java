@@ -10,7 +10,6 @@ public interface UserRepository {
     User save(User user);
     Optional<User> findById(Long id);
     Optional<User> findByEmail(String email);
-    User findByName(String name);
+    List<User> findByName(String name);
     List<User> findAll();
-    void clearStore();
 }

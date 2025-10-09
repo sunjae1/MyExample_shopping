@@ -3,6 +3,9 @@ package myex.shopping.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
+import myex.shopping.dto.ItemDto;
+import myex.shopping.dto.ItemDtoDetail;
+import myex.shopping.dto.ItemEditDto;
 import myex.shopping.form.ItemAddForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
@@ -29,7 +32,10 @@ public class ItemController {
     //전체 아이템 조회
     @GetMapping
     public String items(Model model) {
-        List<Item> items = itemRepository.findAll();
+//        List<Item> items = itemRepository.findAll();
+        //DTO 넘기기.
+        List<ItemDto> items = itemService.findAllToDto();
+
         model.addAttribute("items", items);
         return "items/items";
     }
@@ -45,7 +51,9 @@ public class ItemController {
             return "redirect:/items";
         }
         Item item = itemOpt.get();
-        model.addAttribute("item", item);
+
+        //DTO로 변환.
+        model.addAttribute("item", new ItemDtoDetail(item));
         return "items/item";
 
     }
@@ -75,17 +83,17 @@ public class ItemController {
             return "items/addForm";
         }
 
-        Item item = itemService.ImageSave(form, new Item());
+        Long savedItemId = itemService.createItem(form);
+
+/*        Item item = itemService.ImageSave(form, new Item());
         item.setItemName(form.getItemName());
         item.setPrice(form.getPrice());
         item.setQuantity(form.getQuantity());
+        Item savedItem = itemRepository.save(item);*/
 
-        Item savedItem = itemRepository.save(item);
-        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("itemId", savedItemId);
 
-        //맞는지 확인.
-        System.out.println(savedItem.getImageUrl());
-        System.out.println(item.getImageUrl());
+
         System.out.println("ItemController.addItem : postmapping");;
         return "redirect:/items/{itemId}";
     }
@@ -103,22 +111,33 @@ public class ItemController {
         }
 
         Item findItem = byId.get();
-        model.addAttribute("item", findItem);
+        model.addAttribute("item", new ItemEditDto(findItem));
         return "items/editForm"; //이건 뿌리는 뷰 (서버 html 위치)
     }
 
     @PostMapping("/{itemId}/edit") //이게 URL
     public String edit (@PathVariable Long itemId,
-                        @ModelAttribute("item")ItemAddForm form) throws IOException {
+                        @Valid @ModelAttribute("item")ItemAddForm form,
+                        BindingResult bindingResult) throws IOException {
 
-        Optional<Item> byId = itemRepository.findById(itemId);
-        Item findItem =  byId.get();
-        Item item = itemService.imageEditSaveByUUID(form, findItem);
-        item.setItemName(form.getItemName());
-        item.setPrice(form.getPrice());
-        item.setQuantity(form.getQuantity());
+  /*      Optional<Item> byId = itemRepository.findById(itemId);
+        Item findItem =  byId.get();*/
+        if (bindingResult.hasErrors()) {
+            form.setId(itemId);
+            return "items/editForm";
+        }
 
-        itemRepository.update(itemId, item);
+
+        itemService.editItemWithUUID(form, itemId);
+
+/*      findItem.setItemName(form.getItemName());
+        findItem.setPrice(form.getPrice());
+        findItem.setQuantity(form.getQuantity());
+
+        itemService.imageEditSaveByUUID(form, findItem); //객체 주소 넘기기 때문에 return 안해도 작동.
+
+        itemService.update(itemId, findItem);
+        */
         return "redirect:/items/{itemId}";
         //  {} 치환 순위.
         /*

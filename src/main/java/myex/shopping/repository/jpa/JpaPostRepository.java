@@ -32,9 +32,16 @@ public class JpaPostRepository implements PostRepository {
         return Optional.ofNullable(em.find(Post.class, id));
     }
 
+    //fetch join 으로 수정.
+    //User, Comments 둘 다 한 번의 쿼리로 가져옴.
+    //Comments는 없을 수도 있어서 left join 쓰는게 안전.
+    //Post - Comments : OneToMany 컬렉션 (List)를 조인하면 데이터가 뻥튀기 될 수 있어 Post 중복 조회 방지, distinct 추가.
     @Override
     public List<Post> findAll() {
-        return em.createQuery("select p from Post p", Post.class)
+        return em.createQuery("select distinct p from Post p " +
+                        "join fetch p.user " +
+                        "left join fetch p.comments c " +
+                        "left join fetch c.user cu", Post.class)
                 .getResultList();
     }
 
@@ -44,8 +51,8 @@ public class JpaPostRepository implements PostRepository {
 
     @Override
     public List<Post> findByUser(User user) {
-        return em.createQuery("select p from Post p where p.userId = :user", Post.class)
-                .setParameter("user", user.getId())
+        return em.createQuery("select p from Post p where p.user = :user", Post.class)
+                .setParameter("user", user)
                 .getResultList();
     }
 

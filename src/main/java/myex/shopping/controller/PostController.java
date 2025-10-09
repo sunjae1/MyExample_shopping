@@ -2,20 +2,18 @@ package myex.shopping.controller;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.dto.dbdto.PostDBDto;
 import myex.shopping.form.CommentForm;
 import myex.shopping.form.PostForm;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.repository.UserRepository;
 import myex.shopping.service.PostService;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -39,7 +37,9 @@ public class PostController {
     @GetMapping
     public String list(Model model,
                        HttpSession session) {
-        List<Post> posts = postRepository.findAll();
+
+        List<PostDBDto> posts = postService.findAllPostDBDto();
+
 
         User loginUser = (User) session.getAttribute("loginUser");
 
@@ -80,7 +80,7 @@ public class PostController {
         post.setCreatedDate(LocalDateTime.now());
         post.setAuthor(loginUser.getName());
 
-        Post save = postService.addUser(post, loginUser);
+        Post save = postService.addUser(post, loginUser.getId());
 
         System.out.println("save = " + save);
         return "redirect:/posts";
@@ -96,18 +96,22 @@ public class PostController {
 
         //posts/-1 이런 값 넘길때 요청 안받고 다시 리다이렉트로 보냄. //메소드 위 Validated로 불가능.(컨트롤러 안에서 직접 처리)
         Optional<Post> postOpt = postRepository.findById(id);
+
+
+
         if (postOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorPV","유효하지 않은 게시물입니다.");
             return "redirect:/posts";
         }
 
         Post post = postOpt.get();
+        PostDBDto postDBDto = postService.changeToDto(id); //LazyInitializationException 방지 위해서 DTO로 전환. //뷰에서 LAZY 필드 접근 시 예외 막기 위해.
 
 
         System.out.println("post = " + post);
 
         model.addAttribute("loginUser",loginUser);
-        model.addAttribute("post", post);
+        model.addAttribute("post", postDBDto);
         model.addAttribute("commentForm", new CommentForm());
         return "posts/view";
     }

@@ -2,20 +2,24 @@ package myex.shopping.service;
 
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
+import myex.shopping.dto.dbdto.MyPageOrderDto;
+import myex.shopping.dto.dbdto.OrderDBDto;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderService {
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
 
     //장바구니 --> 주문 으로 전환.
-    @Transactional
     public Order checkout(Order order, Cart cart, User user)
     {
         for (CartItem cartItem : cart.getCartItems()) {
@@ -36,10 +40,28 @@ public class OrderService {
         return order;
     }
 
-    @Transactional
-    public void orderCancel(Order order) {
+    public void orderCancel(Long id) {
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문은 없습니다."));
+
         order.cancel(); // 재고 올리고 상태 CANCELLED 로 바뀜, 주문내역은 사라지지 않음.(기록용)
 
+    }
+
+    public List<MyPageOrderDto> changeToOrderDtoList(User user) {
+        return orderRepository.findByUser(user)
+                .stream()
+                .map(MyPageOrderDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDBDto> findAllOrderDtos() {
+        return orderRepository.findAll()
+                .stream()
+                .map(OrderDBDto::new)
+                .collect(Collectors.toList());
     }
 
 

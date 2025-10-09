@@ -3,6 +3,8 @@ package myex.shopping.controller;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
+import myex.shopping.dto.dbdto.MyPageOrderDto;
+import myex.shopping.dto.dbdto.OrderDBDto;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
@@ -102,7 +104,9 @@ public class OrderController {
     @GetMapping("/orderAll")
     public String orderAll(Model model,
                            HttpSession session) {
-        List<Order> orderAll = orderRepository.findAll();
+//        List<Order> orderAll = orderRepository.findAll();
+        List<OrderDBDto> orderAll = orderService.findAllOrderDtos();
+
         User loginUser = (User) session.getAttribute("loginUser");
         System.out.println("orderAll = " + orderAll);
         model.addAttribute("orders", orderAll);
@@ -114,10 +118,10 @@ public class OrderController {
     @PostMapping("/{id}/cancel")
     public String orderCancel(@PathVariable Long id,
                               @RequestParam(required = false) String redirectInfo) {
-        Order order = orderRepository.findById(id)
-                .orElse(null);
+//        Order order = orderRepository.findById(id)
+//                .orElse(null);
         //
-        orderService.orderCancel(order);
+        orderService.orderCancel(id);
 
 
         if ("mypage".equals(redirectInfo))

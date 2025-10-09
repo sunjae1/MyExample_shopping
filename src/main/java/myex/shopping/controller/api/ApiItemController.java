@@ -104,13 +104,16 @@ public class ApiItemController {
 
         Optional<Item> byId = itemRepository.findById(itemId);
         Item findItem = byId.get();
-        Item item = itemService.imageEditSaveByUUID(form, findItem);
-        item.setItemName(form.getItemName());
-        item.setPrice(form.getPrice());
-        item.setQuantity(form.getQuantity());
 
-        itemRepository.update(itemId, item);
-        return ResponseEntity.ok(item);
+        findItem.setItemName(form.getItemName());
+        findItem.setPrice(form.getPrice());
+        findItem.setQuantity(form.getQuantity());
+
+        itemService.imageEditSaveByUUID(form, findItem);
+        
+        itemService.update(itemId, findItem);
+
+        return ResponseEntity.ok(findItem);
     }
 
 

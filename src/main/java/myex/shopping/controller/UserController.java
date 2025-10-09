@@ -5,11 +5,16 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
+import myex.shopping.dto.dbdto.MyPageOrderDto;
+import myex.shopping.dto.dbdto.MyPagePostDBDto;
+import myex.shopping.dto.dbdto.PostDBDto;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
+import myex.shopping.service.OrderService;
+import myex.shopping.service.PostService;
 import myex.shopping.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,10 +34,13 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
     private final ItemRepository itemRepository; //생성자 주입.
     private final OrderRepository orderRepository;
     private final PostRepository postRepository;
+
+    private final UserService userService;
+    private final OrderService orderService;
+    private final PostService postService;
 
 
 
@@ -141,19 +149,19 @@ public class UserController {
     {
         User loginUser = (User) session.getAttribute("loginUser");
         Cart cart = getOrCreateCart(session);
-        List<Order> orders = orderRepository.findByUser(loginUser);
-        List<Post> posts = postRepository.findByUser(loginUser);
+//        List<Order> orders = orderRepository.findByUser(loginUser);
+        List<MyPageOrderDto> orderDtos = orderService.changeToOrderDtoList(loginUser);
+//        List<Post> posts = postRepository.findByUser(loginUser);
+        List<MyPagePostDBDto> postDtos = postService.changeToDtoList(loginUser);
 
-        System.out.println("orders = " + orders);
+        System.out.println("orders = " + orderDtos);
 
         model.addAttribute("user",loginUser);
-        model.addAttribute("orders", orders);
-        model.addAttribute("posts", posts);
+        model.addAttribute("orders", orderDtos);
+        model.addAttribute("posts", postDtos);
         model.addAttribute("cart",cart);
 
         return "mypage/view";
-
-
 
     }
 

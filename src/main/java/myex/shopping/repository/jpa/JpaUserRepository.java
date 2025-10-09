@@ -45,10 +45,10 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByName(String name) {
+    public List<User> findByName(String name) {
         return em.createQuery("select u from User u where u.name =:name", User.class)
                 .setParameter("name", name)
-                .getSingleResult();
+                .getResultList();
         //getSingleResult() :조회가 하나일때 사용하는 메소드
         //결과가 0건 NoResultException 발생.
         //결과가 2건 이상 NonUniqueResultException 발생.
@@ -61,8 +61,4 @@ public class JpaUserRepository implements UserRepository {
                 .getResultList();
     }
 
-    @Override
-    public void clearStore() {
-
-    }
 }

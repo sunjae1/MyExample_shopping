@@ -40,7 +40,7 @@
                     </p>
 
                     <span th:each="oi: ${order.orderItems}">
-                        <span th:text="'금액 계산식: ' +${oi.printCalculate()}" >계산식</span>
+                        <span th:text="'금액 계산식: ' +${oi.calculation}" >계산식</span>
                         <br>
                     </span>
 
@@ -54,7 +54,7 @@
                 <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">Order Date</td>
                 <td th:text="${order.status}">Status</td>
 <!--                주문이 CANCELLED가 아닐때, 취소하기 버튼 가능. -->
-                <td th:if="${order.orderIsNotCanCelled()}">
+                <td th:if="${order.orderIsNotCanCelled}">
 <!--                    @{|    |} 이렇게 해야  | | 리터럴로 먼저 치환되고 @{} URL 파서가 처리함. 이건 아래 방식                            대로 권장-->
 <!--                    자신만 삭제할 수 있게 조건 추가-->
                     <form th:if="${loginUser !=null && loginUser.id == order.user.id}"

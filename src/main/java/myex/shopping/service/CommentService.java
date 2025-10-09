@@ -31,7 +31,8 @@ public class CommentService {
         comment.setUser(loginUser);
         comment.setContent(form.getContent());
         post.addComment(comment); //연관관계 편의 메소드
-        commentRepository.save(comment); //CASCADE.ALL 아직 없음. (고민중)
+
+//        commentRepository.save(comment); //CASCADE.ALL 아직 없음. (고민중)
 
         return comment;
     }
