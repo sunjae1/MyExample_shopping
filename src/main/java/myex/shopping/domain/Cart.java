@@ -1,10 +1,8 @@
 package myex.shopping.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
@@ -14,14 +12,15 @@ import java.util.Optional;
 
 @Getter
 @ToString
-//@Entity
+@Setter
+@Entity
 public class Cart {
 
 
-//    @Id @GeneratedValue
-//    private Long id;
+    @Id @GeneratedValue
+    private Long id;
 
-//    @OneToMany(mappedBy = "cart") //CarItem.cart 가 필드가 연관관계 주인.
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true) //CarItem.cart 가 필드가 연관관계 주인.
     //mappedBy는 연관관계 주인을 가리킴. (저쪽이 주인이야)
     private List<CartItem> cartItems = new ArrayList<>();
 
@@ -35,13 +34,16 @@ public class Cart {
                 {
                     return false;
                 }
-                cartItem.addQuantity(quantity);
-                return true;
+                else {
+                    cartItem.addQuantity(quantity);
+                    return true;
+                }
             }
         }
 
 
-        cartItems.add(new CartItem(item, quantity));
+//        cartItems.add(new CartItem(item, quantity));
+        addCartItem(new CartItem(item, quantity));
         return true;
 
     }
@@ -65,5 +67,19 @@ public class Cart {
 
     public void cartItemClear() {
         cartItems.clear();
+    }
+
+    //연관관계 편의 메소드
+    public void addCartItem(CartItem cartItem) {
+        cartItems.add(cartItem);
+        cartItem.setCart(this);
+    }
+
+    public void deleteCartItem(CartItem cartItem, Item item) {
+
+
+
+        cartItems.removeIf(ci -> ci.getItem().equals(item));
+        cartItem.setCart(null);
     }
 }

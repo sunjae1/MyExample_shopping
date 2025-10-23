@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class ItemService {
     private final ItemRepository itemRepository;
 
+    //이미지 업로드 파일 --> URL 로 저장.
     public Item ImageSave(ItemAddForm form, Item item) throws IOException {
         MultipartFile file = form.getImageFile();
         if (file !=null && !file.isEmpty())
@@ -97,7 +98,7 @@ public class ItemService {
     @Transactional
     public Item update(Long itemId, Item updateParam)
     {
-        //영속성 컨텍스트가 관리.
+        //영속성 컨텍스트가 관리. (Dirty Checking)
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
         item.setItemName(updateParam.getItemName());
@@ -108,6 +109,7 @@ public class ItemService {
         return item;
     }
 
+    //id itemName, price, quantity (url 없음)
     @Transactional(readOnly = true)
     public List<ItemDto> findAllToDto() {
         return itemRepository.findAll()

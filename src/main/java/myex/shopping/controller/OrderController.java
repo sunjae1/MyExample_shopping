@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.*;
 import myex.shopping.dto.dbdto.MyPageOrderDto;
 import myex.shopping.dto.dbdto.OrderDBDto;
+import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
 import myex.shopping.service.OrderService;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +24,7 @@ public class OrderController {
 //    private final MemoryItemRepository memoryItemRepository;
     private final OrderRepository orderRepository;
     private final OrderService orderService;
+    private final CartRepository cartRepository;
 
 
 /*  장바구니로 감. 여기선, 장바구니 -> 주문으로 전환만.
@@ -83,9 +84,12 @@ public class OrderController {
         User loginUser = (User) session.getAttribute("loginUser");
         Order order = new Order(loginUser);
 
+        Cart findCart = cartRepository.findById(cart.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니 없음"));
+
         //OrderItem 생성 : 장바구니를 주문으로 전환.
         // Cart : CartItem ==> Order : OrderItem 전환.
-        Order checkout = orderService.checkout(order, cart, loginUser);
+        Order checkout = orderService.checkout(order, findCart, loginUser);
 
         System.out.println("checkout = " + checkout);
 
@@ -95,6 +99,7 @@ public class OrderController {
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.
         //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
 //        order.confirmOrder();
+        cartRepository.delete(cart.getId());
         session.removeAttribute("CART");
 
         return "redirect:/main"; //주문 완료 페이지

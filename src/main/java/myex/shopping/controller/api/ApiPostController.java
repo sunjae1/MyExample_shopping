@@ -59,19 +59,20 @@ public class ApiPostController {
         post.setCreatedDate(LocalDateTime.now());
         post.setAuthor(loginUser.getName());
 
-        Post save = postService.addUser(post, loginUser.getId());
+        PostDBDto postDBDto = new PostDBDto(postService.addUser(post, loginUser.getId()));
 
 //        post.setUserId(loginUser.getId());
 
-        System.out.println("save = " + save);
-        return ResponseEntity.status(HttpStatus.CREATED).body(save);
+        System.out.println("save = " + postDBDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postDBDto);
     }
 
     //게시물 한개 보기.
     @GetMapping("/{id}")
-    public ResponseEntity<Post> view(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long id) {
+    public ResponseEntity<PostDBDto> view(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long id) {
 
         return postRepository.findById(id)
+                .map(PostDBDto::new)
                 .map(ResponseEntity::ok)
                 //Post 있으면 post -> ResponseEntity.ok(post) 생성자로 넣어줌.
                 .orElse(ResponseEntity.notFound().build());

@@ -69,7 +69,7 @@ public class Order {
     //주문 확정 시 재고 감소 : 주문 --> 결제 --> 확정(orderItem이 item을 가져야만 decreaseStock() 사용가능.) 앞 사람이 재고를 다 털어가면 Exception 내야함.
     public void confirmOrder() {
         for (OrderItem orderItem : orderItems) {
-
+            //다른 사람이 먼저 주문해서 수량이 없을 시 -> false로 주문 불가 거절.
             orderItem.getItem().decreaseStock(orderItem.getQuantity());
 
         }

@@ -9,11 +9,13 @@ public class ItemDto {
     private String itemName;
     private int price;
     private int quantity;
+    private String imageUrl;
 
     public ItemDto(Item item) {
         this.id = item.getId();
         this.itemName = item.getItemName();
         this.price = item.getPrice();
         this.quantity = item.getQuantity();
+        this.imageUrl = item.getImageUrl();
     }
 }

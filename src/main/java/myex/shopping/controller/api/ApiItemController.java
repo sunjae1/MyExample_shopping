@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
+import myex.shopping.dto.ItemDto;
 import myex.shopping.form.ItemAddForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /*
 Delete return 은 성공했고, 반환값이 없으니까 No Content 204 응답.
@@ -35,19 +37,23 @@ public class ApiItemController {
 
     //전체 아이템 조회
     @GetMapping
-    public ResponseEntity<List<Item>> items() {
-        List<Item> items = itemRepository.findAll();
+    public ResponseEntity<List<ItemDto>> items() {
+        List<ItemDto> items = itemRepository.findAll().stream()
+                .map(ItemDto::new)
+                .collect(Collectors.toList());
+
+
         return ResponseEntity.ok(items);
     }
 
     //개별 아이템 상세 조회
     @GetMapping("/{itemId}")
-    public ResponseEntity<Item> item(@PathVariable @Positive(message = "양수만 입력 가능합니다.") long itemId) {
+    public ResponseEntity<ItemDto> item(@PathVariable @Positive(message = "양수만 입력 가능합니다.") long itemId) {
         Optional<Item> findItemOpt = itemRepository.findById(itemId);
 
         if (findItemOpt.isPresent()) {
-            Item item = findItemOpt.get();
-            return ResponseEntity.ok(item);
+            ItemDto itemDto = new ItemDto(findItemOpt.get());
+            return ResponseEntity.ok(itemDto);
         }
         else
             //바디 없이 상태 코드만 가진 ResponseEntity 반환 가능.
@@ -69,22 +75,17 @@ public class ApiItemController {
     //원래 Form은 url에 key=value로 전송.
     //multipart/form-data는 각 input 파트로 나눠서 전송.(텍스트+파일 가능)
     @PostMapping(value = "/add", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Item> addItem(@Valid @ModelAttribute ItemAddForm form,
+    public ResponseEntity<ItemDto> addItem(@Valid @ModelAttribute ItemAddForm form,
                           RedirectAttributes redirectAttributes) throws IOException {
 
-        Item item = itemService.ImageSave(form, new Item());
-        item.setItemName(form.getItemName());
-        item.setPrice(form.getPrice());
-        item.setQuantity(form.getQuantity());
+        Long savedItemId = itemService.createItem(form);
+//        redirectAttributes.addAttribute("itemId", savedItemId);
+        ItemDto itemDto = itemRepository.findById(savedItemId)
+                .map(ItemDto::new)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이템은 없습니다."));
 
-        Item savedItem = itemRepository.save(item);
-        redirectAttributes.addAttribute("itemId", savedItem.getId());
-
-        //맞는지 확인.
-        System.out.println(savedItem.getImageUrl());
-        System.out.println(item.getImageUrl());
         System.out.println("ItemController.addItem : postmapping");;
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem);
+        return ResponseEntity.status(HttpStatus.CREATED).body(itemDto);
     }
 
     //아이템 수정 :상세 + 수정화면 공용
@@ -99,21 +100,16 @@ public class ApiItemController {
     
     //한개만 수정 : PutMapping
     @PutMapping(value = "/{itemId}/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) //이게 URL
-    public ResponseEntity<Item> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
+    public ResponseEntity<ItemDto> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
                         @Valid @ModelAttribute ItemAddForm form) throws IOException {
 
-        Optional<Item> byId = itemRepository.findById(itemId);
-        Item findItem = byId.get();
+        Long updateItemId = itemService.editItemWithUUID(form, itemId);
+        ItemDto itemDto = itemRepository.findById(updateItemId)
+                .map(ItemDto::new)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이템을 찾을 수 없습니다."));
 
-        findItem.setItemName(form.getItemName());
-        findItem.setPrice(form.getPrice());
-        findItem.setQuantity(form.getQuantity());
 
-        itemService.imageEditSaveByUUID(form, findItem);
-        
-        itemService.update(itemId, findItem);
-
-        return ResponseEntity.ok(findItem);
+        return ResponseEntity.ok(itemDto);
     }
 
 

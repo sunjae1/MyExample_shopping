@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Order;
 import myex.shopping.domain.User;
+import myex.shopping.dto.OrderDto;
 import myex.shopping.dto.dbdto.OrderDBDto;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
@@ -53,12 +54,13 @@ public class ApiOrderController {
         Order order = new Order(loginUser);
         //OrderItem 생성 : 장바구니를 주문으로 전환.
         // Cart : CartItem ==> Order : OrderItem 전환.
-        Order checkout = orderService.checkout(order, cart, loginUser);
+        OrderDto orderDto = new OrderDto(orderService.checkout(order, cart, loginUser));
 
         session.removeAttribute("CART");
 
+
         //생성 완료. /주문 완료된 order 보여줌.
-        return ResponseEntity.status(HttpStatus.CREATED).body(checkout);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderDto);
     }
 
 
@@ -80,10 +82,7 @@ public class ApiOrderController {
         }
         orderService.orderCancel(id); // 상태 변경 + 재고 복원
 
-      return ResponseEntity.ok(order);
+        OrderDto orderDto = new OrderDto(order);
+        return ResponseEntity.ok(orderDto);
     }
-
-
-
-
 }

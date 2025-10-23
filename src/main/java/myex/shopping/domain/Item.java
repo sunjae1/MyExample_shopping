@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Objects;
+
 //재고 입장 아이템.
 //@Data
 @Getter
@@ -63,5 +65,17 @@ public class Item {
                 ", 가격=" + price +
                 ", 수량=" + quantity +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return Objects.equals(getId(), item.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 }

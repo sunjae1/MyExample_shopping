@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.Item;
+import myex.shopping.dto.CartDto;
 import myex.shopping.dto.RemoveCartDto;
 import myex.shopping.form.CartForm;
 import myex.shopping.repository.ItemRepository;
@@ -30,7 +31,7 @@ public class ApiCartController {
 
     //?????? 이상한데 itemId 하거나 CartForm id 쓰거나 한개만 써.  --> itemId로.
     @PostMapping("/{itemId}/cart")
-    public ResponseEntity<Cart> addToCart(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long itemId,
+    public ResponseEntity<CartDto> addToCart(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long itemId,
                                           @Valid @RequestBody CartForm cartForm,
                                           HttpSession session) {
 
@@ -45,24 +46,27 @@ public class ApiCartController {
         Item findItem = findItemOpt.get();
         //아이템과 수량.
         cart.addItem(findItem, cartForm.getQuantity());
-        return ResponseEntity.ok(cart);
+
+        CartDto cartDto = new CartDto(cart);
+        return ResponseEntity.ok(cartDto);
 
     }
 
-    //장바구니 전체 보여주는 뷰.
+    //장바구니 전체 보여주는 뷰. cartItem List를 보내줌.
     @GetMapping("/cartAll")
-    public ResponseEntity<Cart> cartAll(HttpSession session) {
+    public ResponseEntity<CartDto> cartAll(HttpSession session) {
         Cart cart = getOrCreateCart(session);
-        return ResponseEntity.ok(cart);
+        CartDto cartDto = new CartDto(cart);
+        return ResponseEntity.ok(cartDto);
 
     }
 
     //장바구니 아이템 삭제
     //@RequestBody Long id 하면 JSON 에 { "itemId" : "1"} 이거는 객체형 그냥 1 이렇게 보내야함. JSON 으로 보낼 수 있는것들 검색.
     @DeleteMapping("/cart/remove")
-    public ResponseEntity<Cart> cartItemRemove(@Valid @RequestBody RemoveCartDto cartDto,
+    public ResponseEntity<CartDto> cartItemRemove(@Valid @RequestBody RemoveCartDto removeCartDto,
                                                HttpSession session) {
-        Optional<Item> findItemOpt = itemRepository.findById(cartDto.getItemId());
+        Optional<Item> findItemOpt = itemRepository.findById(removeCartDto.getItemId());
         
         if (findItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -71,7 +75,8 @@ public class ApiCartController {
 
         Cart cart = getOrCreateCart(session);
         cart.removeItem(findItem);
-        return ResponseEntity.ok(cart); //삭제 후 전체 장바구니 상태 반환
+        CartDto cartDto = new CartDto(cart);
+        return ResponseEntity.ok(cartDto); //삭제 후 전체 장바구니 상태 반환
     }
 
 

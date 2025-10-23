@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.dto.CommentDto;
+import myex.shopping.form.CommentForm;
 import myex.shopping.repository.CommentRepository;
 import myex.shopping.repository.memory.MemoryCommentRepository;
 import myex.shopping.repository.PostRepository;
@@ -46,14 +48,17 @@ public class ApiCommentController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인이 필요합니다.");
         }
-
+        CommentForm form = new CommentForm();
+        form.setContent(reply_content);
+        CommentDto commentDto = new CommentDto(commentService.addComment(postId, form, session));
+/*
         Comment comment = new Comment();
         comment.setUser(loginUser);
         comment.setContent(reply_content);
         post.addComment(comment);
         commentRepository.save(comment);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(comment);
+*/
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
 
     }
 

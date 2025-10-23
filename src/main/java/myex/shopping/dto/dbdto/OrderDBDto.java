@@ -4,6 +4,7 @@ import lombok.Getter;
 import myex.shopping.domain.Order;
 import myex.shopping.domain.OrderStatus;
 import myex.shopping.domain.User;
+import myex.shopping.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 public class OrderDBDto {
     private Long id;
 //    user 나중에 고민.(마이 페이지라 세션에서 꺼내면 될꺼 같기도)
-    private User user;
+    private UserDto user;
     private Integer totalPrice;//메소드 미리 받아둠.
     private Integer totalQuantity;
     private OrderStatus status;
@@ -25,7 +26,7 @@ public class OrderDBDto {
     public OrderDBDto(Order order) {
         this.id = order.getId();
 
-        this.user = order.getUser();
+        this.user = new UserDto(order.getUser());
 
         this.totalPrice = order.getTotalPrice();
         this.totalQuantity = order.getTotalQuantity();

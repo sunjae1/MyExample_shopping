@@ -2,8 +2,12 @@ package myex.shopping.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+//@Data
+@Getter
+@Setter
 public class LoginRequestDto {
 
     @NotBlank(message = "이메일은 필수 입니다.")

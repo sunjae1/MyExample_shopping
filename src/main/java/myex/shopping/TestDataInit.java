@@ -7,6 +7,7 @@ import myex.shopping.repository.*;
 import myex.shopping.repository.memory.MemoryCommentRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
+import myex.shopping.service.PostService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,8 @@ public class TestDataInit {
     private final OrderRepository orderRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+
+    private final PostService postService;
 
     /**
      * 테스트용 데이터 추가
@@ -57,18 +60,16 @@ public class TestDataInit {
 
         //게시글 등록
         Post post = new Post("첫 글 축하", "테스트용 게시글입니다. 게시글 입니다.\n게시글 게시글 게시글");
-//        post.setUserId(user.getId());
-        post.addUser(user);
-
+//        post.addUser(user);
         post.setAuthor(user.getName());
         post.setCreatedDate(LocalDateTime.now());
-        postRepository.save(post);
+        postService.addUser(post, user.getId());
 
         //댓글 등록
         Comment comment = new Comment();
         comment.setUser(user);
         comment.setContent("테스트용 댓글 입력 중입니다. \n테스트 테스트  테스트 테스트 ");
         post.addComment(comment);
-        commentRepository.save(comment);
+//        commentRepository.save(comment); Cascade 활용.
     }
 }

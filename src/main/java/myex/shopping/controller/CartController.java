@@ -4,10 +4,13 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
+import myex.shopping.domain.CartItem;
 import myex.shopping.domain.Item;
 import myex.shopping.form.CartForm;
+import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
+import myex.shopping.service.CartService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +23,8 @@ import java.util.Optional;
 @RequestMapping("/items")
 public class CartController {
     private final ItemRepository itemRepository;
+    private final CartRepository cartRepository;
+    private final CartService cartService;
 
     //한 상품에 대한 주문 페이지를 보여주고, 장바구니 담기 클릭시 장바구니에 저장.
     //@PathVariable은 itemid로 item 꺼내기 위해서 get에서 뽑아서 뷰에 item 뿌려줌.
@@ -57,12 +62,18 @@ public class CartController {
         if (findItem.getQuantity() < cartForm.getQuantity()) {
             //bindingResult에 직접 에러 추가
             bindingResult.rejectValue("quantity","Exceed","상품 재고 수량을 초과할 수 없습니다.");
+            model.addAttribute("item",findItem);
+            return "cart/cartForm";
         }
 
         Cart cart = getOrCreateCart(session);
+
         System.out.println("cartForm = " + cartForm);
+
+
         //아이템과 수량.
         boolean result = cart.addItem(findItem, cartForm.getQuantity());
+        System.out.println("cart = " + cart);
         if (result == false)
         {
             bindingResult.rejectValue("quantity", "TotalExceed","전체 장바구니 수량이 상품 총 수량을 넘었습니다.");
@@ -72,6 +83,26 @@ public class CartController {
             model.addAttribute("item",findItem);
             return "cart/cartForm";
         }
+
+        if (cart.getId() != null) { //NPE 방지 고민중......
+            System.out.println("CartController.addToCart UPDATE");
+
+            Cart findCart = cartRepository.findById(cart.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 장바구니는 존재 하지 않습니다."));
+
+//            cart = findCart;
+//            CartItem cartItem = new CartItem(findItem, cartForm.getQuantity());
+
+
+            cartService.update(cart.getId(), cart);
+        }
+
+        if (cart.getId() == null)
+        {
+            cartRepository.save(cart);
+        }
+
+        //merge 를 하거나
 
 
         return "redirect:/main";
@@ -83,8 +114,12 @@ public class CartController {
     public String cartAll(Model model,
                           HttpSession session) {
         Cart cart = getOrCreateCart(session);
+        cart.setId(cart.getId()); //하드코딩 중. 나중에 제거.
+        Cart findCart = cartRepository.findById(cart.getId())
+                .orElse(null);
         System.out.println("cart = " + cart);
-        model.addAttribute("cart", cart);
+        System.out.println("findCart = " + findCart);
+        model.addAttribute("cart", findCart);
         return "cart/cart_view";
 
     }
@@ -95,10 +130,13 @@ public class CartController {
                                  HttpSession session) {
         //Hashmap 에서 get, remove 둘 다 없는 값이면 null 반환이라 그렇게 -1 줘도 검증 굳이.
 
-        Optional<Item> byId = itemRepository.findById(itemId);
+   /*     Optional<Item> byId = itemRepository.findById(itemId);
         Item findItem = byId.get();
         Cart cart = getOrCreateCart(session);
-        cart.removeItem(findItem);
+        cart.removeItem(findItem);*/
+
+        cartService.deleteItem(itemId, session);
+
         return "redirect:/items/cartAll";
     }
 
@@ -110,6 +148,7 @@ public class CartController {
         Cart cart = (Cart) session.getAttribute("CART");
         if (cart == null) {
             cart = new Cart();
+
             session.setAttribute("CART", cart);
         }
         return cart;
