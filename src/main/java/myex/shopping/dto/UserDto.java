@@ -14,4 +14,13 @@ public class UserDto {
         this.email = user.getEmail();
         this.username = user.getName();
     }
+
+    @Override
+    public String toString() {
+        return "UserDto{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                '}';
+    }
 }

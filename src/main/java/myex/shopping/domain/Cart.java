@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import myex.shopping.dto.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 
 @Getter
-@ToString
+@ToString(exclude = {"user", "cartItems"})
 @Setter
 @Entity
 public class Cart {
@@ -23,6 +24,10 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true) //CarItem.cart 가 필드가 연관관계 주인.
     //mappedBy는 연관관계 주인을 가리킴. (저쪽이 주인이야)
     private List<CartItem> cartItems = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     //장바구니 아이템 추가
     public boolean addItem(Item item, int quantity) {

@@ -85,6 +85,7 @@ public class UserController {
         return "redirect:/main";
     }
 
+
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         if (session !=null) {

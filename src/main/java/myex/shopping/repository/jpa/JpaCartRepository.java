@@ -3,6 +3,7 @@ package myex.shopping.repository.jpa;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
+import myex.shopping.domain.User;
 import myex.shopping.repository.CartRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,14 @@ public class JpaCartRepository implements CartRepository {
                 .setParameter("id", id)
                 .getResultList();
         return result.stream().findFirst();
+    }
+
+    @Override
+    public Optional<Cart> findByUser(User user) {
+        return em.createQuery("select c from Cart c left join fetch c.cartItems where c.user= :user", Cart.class)
+                .setParameter("user", user)
+                .getResultList()
+                .stream().findFirst();
     }
 
     @Override

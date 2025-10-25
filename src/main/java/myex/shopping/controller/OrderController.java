@@ -7,14 +7,18 @@ import myex.shopping.dto.dbdto.MyPageOrderDto;
 import myex.shopping.dto.dbdto.OrderDBDto;
 import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.OrderRepository;
+import myex.shopping.repository.UserRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
+import myex.shopping.service.CartService;
 import myex.shopping.service.OrderService;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,6 +29,9 @@ public class OrderController {
     private final OrderRepository orderRepository;
     private final OrderService orderService;
     private final CartRepository cartRepository;
+
+    private final UserRepository userRepository;
+    private final CartService cartService;
 
 
 /*  장바구니로 감. 여기선, 장바구니 -> 주문으로 전환만.
@@ -67,13 +74,18 @@ public class OrderController {
     }
 
 */
+//    @Transactional
     @PostMapping("/order")
     public String order_change(Model model,
                         HttpSession session) {
 
         //주문 실패 로직.
         //장바구니가 아무것도 없을때 주문하기 눌르면,
-        Cart cart = (Cart) session.getAttribute("CART");
+//        Cart cart = (Cart) session.getAttribute("CART");
+        User loginUser = (User) session.getAttribute("loginUser");
+        Cart cart = cartService.findOrCreateCartForUser(loginUser);
+
+
         if (cart == null ||  cart.getCartItems().isEmpty()   ) {
             model.addAttribute("empty_cart_error", "주문 불가 : 장바구니에 상품을 담아주세요.");
             return "cart/cart_view";
@@ -81,10 +93,9 @@ public class OrderController {
 
         //주문 성공 로직.
         //Order 생성
-        User loginUser = (User) session.getAttribute("loginUser");
         Order order = new Order(loginUser);
 
-        Cart findCart = cartRepository.findById(cart.getId())
+        Cart findCart = cartRepository.findByUser(loginUser)
                 .orElseThrow(() -> new IllegalArgumentException("해당 장바구니 없음"));
 
         //OrderItem 생성 : 장바구니를 주문으로 전환.
@@ -99,8 +110,31 @@ public class OrderController {
         //재고 감소(주문 체결) + 장바구니 아이템 비우기.
         //Order.status : ORDERED --> PAID /현재는 동시에 바뀜.
 //        order.confirmOrder();
-        cartRepository.delete(cart.getId());
+
+        //카트 삭제 CartService에 만들기 -> Transactional 이동.
+
+        cartService.deleteCart(cart.getId(),loginUser.getId());
+
+//        cartRepository.delete(cart.getId());
         session.removeAttribute("CART");
+
+/*        // User - Carts
+        Optional<User> byId = userRepository.findById(loginUser.getId());
+        User user = byId.get();
+
+        //영속성으로 연관관계 편의 메소드 사용해야함.
+        user.deleteCart(findCart);
+
+*//*
+        //User 리스트 확인중.
+        for (Cart userCart : user.getCarts()) {
+            System.out.println("userCart = " + userCart);
+        }
+*/
+
+        //CasCadeType.ALL 때문에 user.carts List에 남은걸 제거를 안해서 Transactional 끝날때 같이 persist 해버림. 변화한걸 트랜잭션 끝날때 같이 전파 해버림. 연관관계 편의 메소드로 끊어야 됨.없애야됨.
+
+        //
 
         return "redirect:/main"; //주문 완료 페이지
     }

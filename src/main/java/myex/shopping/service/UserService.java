@@ -39,7 +39,6 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .filter(user -> user.getPassword().equals(password))
                 .orElse(null); //여기서 Optional 안에 꺼내서 User로 반환 가능.
-
     }
     public List<User> allUser() {
         return userRepository.findAll();

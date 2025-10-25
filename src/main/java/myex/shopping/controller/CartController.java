@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.CartItem;
 import myex.shopping.domain.Item;
+import myex.shopping.domain.User;
 import myex.shopping.form.CartForm;
 import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
@@ -66,7 +67,10 @@ public class CartController {
             return "cart/cartForm";
         }
 
-        Cart cart = getOrCreateCart(session);
+        User loginUser = (User) session.getAttribute("loginUser");
+
+//        Cart cart = getOrCreateCart(session);
+        Cart cart = cartService.findOrCreateCartForUser(loginUser);
 
         System.out.println("cartForm = " + cartForm);
 
@@ -87,19 +91,22 @@ public class CartController {
         if (cart.getId() != null) { //NPE 방지 고민중......
             System.out.println("CartController.addToCart UPDATE");
 
-            Cart findCart = cartRepository.findById(cart.getId())
+
+            Cart findCart = cartRepository.findByUser(loginUser)
                     .orElseThrow(() -> new IllegalArgumentException("해당 장바구니는 존재 하지 않습니다."));
 
 //            cart = findCart;
 //            CartItem cartItem = new CartItem(findItem, cartForm.getQuantity());
 
 
-            cartService.update(cart.getId(), cart);
+            cartService.update(loginUser, cart);
         }
 
         if (cart.getId() == null)
         {
-            cartRepository.save(cart);
+//            cartRepository.save(cart);
+            cartService.save(cart, session);
+
         }
 
         //merge 를 하거나
@@ -113,13 +120,19 @@ public class CartController {
     @GetMapping("/cartAll")
     public String cartAll(Model model,
                           HttpSession session) {
-        Cart cart = getOrCreateCart(session);
-        cart.setId(cart.getId()); //하드코딩 중. 나중에 제거.
-        Cart findCart = cartRepository.findById(cart.getId())
+
+
+//        Cart cart = getOrCreateCart(session);
+        User loginUser = (User) session.getAttribute("loginUser");
+
+        Cart cart = cartRepository.findByUser(loginUser)
                 .orElse(null);
+
+//        Cart findCart = cartRepository.findById(cart.getId())
+//                .orElse(null);
         System.out.println("cart = " + cart);
-        System.out.println("findCart = " + findCart);
-        model.addAttribute("cart", findCart);
+//        System.out.println("findCart = " + findCart);
+        model.addAttribute("cart", cart);
         return "cart/cart_view";
 
     }
@@ -153,4 +166,6 @@ public class CartController {
         }
         return cart;
     }
+
+
 }

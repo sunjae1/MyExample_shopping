@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.CartItem;
 import myex.shopping.domain.Item;
+import myex.shopping.domain.User;
 import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +20,45 @@ import java.util.Optional;
 public class CartService {
     private final ItemRepository itemRepository;
     private final CartRepository cartRepository;
+    private final UserRepository userRepository;
     private final EntityManager em;
+
+
+
+    @Transactional
+    public void save(Cart cart, HttpSession session) {
+        cartRepository.save(cart);
+        User loginUser = (User) session.getAttribute("loginUser");
+
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
+
+        user.addCart(cart);
+        System.out.println("cartService save 함수 : user.Carts = " + user.getCarts());
+
+    }
+
+    @Transactional
+    public Cart findOrCreateCartForUser(User sessionUser) {
+        User user = userRepository.findById(sessionUser.getId()).get();
+
+        return cartRepository.findByUser(sessionUser)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    user.addCart(newCart);
+                    return newCart;
+                });
+    }
+
     
     @Transactional(readOnly = false)
     public void deleteItem (Long itemId, HttpSession session) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("장바구니에 해당 아이템은 존재 하지 않습니다."));
-        Cart cart = getOrCreateCart(session);
+//        Cart cart = getOrCreateCart(session);
+        User loginUser = (User) session.getAttribute("loginUser");
+        Cart cart = findOrCreateCartForUser(loginUser);
+
         Cart findCart = cartRepository.findById(cart.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 장바구니는 존재 하지 않습니다."));
 
@@ -37,11 +71,22 @@ public class CartService {
         //더티 체킹 - delete쿼리 날아가게.
     }
 
+    @Transactional
+    public void deleteCart(Long cartId, Long userId) {
+
+        Cart cart = cartRepository.findById(cartId).get();
+        User user = userRepository.findById(userId).get();
+        //User CASCADETYPE.ALL 이라서 Cart에도 전파(더티 체킹)
+        user.deleteCart(cart);
+
+    }
+
 
 
    @Transactional
-    public void update(long cartId, Cart cart) {
-        Optional<Cart> byId = cartRepository.findById(cartId);
+    public void update(User user, Cart cart) {
+
+       Optional<Cart> byId = cartRepository.findByUser(user);
         Cart findCart = byId.get();
        System.out.println("DBCart = " + findCart);
        System.out.println("SessionCart = " + cart);
