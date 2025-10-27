@@ -1,5 +1,8 @@
 package myex.shopping.controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -24,6 +27,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@Tag(name = "Comment", description = "댓글 관련 API")
 @Validated
 public class ApiCommentController {
 
@@ -31,9 +35,20 @@ public class ApiCommentController {
     private final CommentRepository commentRepository;
     private final CommentService commentService;
 
+
+
+    @Operation(
+            summary = "댓글 추가",
+            description = "로그인 사용자로 댓글을 추가합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "404", description = "게시물을 찾지 못함"),
+                    @ApiResponse(responseCode = "401", description = "로그인 실패"),
+                    @ApiResponse(responseCode = "201", description = "댓글 생성 성공")
+            }
+    )
     //댓글 추가 : @RequestParam : form-data로 보내기.
     //@RequestBody : Dto 써서, JSON 으로 보내기 가능. (고민중)
-    @Transactional
+//    @Transactional
     @PostMapping("/{postId}/comments")
     public ResponseEntity<?> addComment(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long postId,
                                         @RequestParam @NotBlank(message = "댓글 내용을 입력해주세요") String reply_content,
@@ -62,8 +77,18 @@ public class ApiCommentController {
 
     }
 
+    @Operation(
+            summary = "댓글 삭제",
+            description = "로그인 사용자에 대해 댓글 삭제 요청을 처리합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "401", description = "로그인 실패"),
+                    @ApiResponse(responseCode = "404", description = "댓글이나 게시물을 찾지 못함."),
+                    @ApiResponse(responseCode = "403", description = "삭제 권한 없음(댓글 사용자 본인이 아님)"),
+                    @ApiResponse(responseCode = "204", description = "삭제 완료")
+            }
+    )
     //댓글 삭제
-    @Transactional
+//    @Transactional
     @DeleteMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long postId,
                                            @PathVariable @Positive(message = "양수만 입력가능합니다.") Long commentId,

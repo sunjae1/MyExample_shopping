@@ -18,3 +18,14 @@ spring:
 logging.level:
   org.hibernate.SQL: debug
   org.hibernate.orm.jdbc.bind: trace # ? 에 바인딩 되는 파라미터 값 상세 출력.
+
+
+springdoc:
+  api-docs:
+    enabled: true #자동 생성 비활성화
+  swagger-ui:
+    urls:
+      - name: 자동 생성 API
+        url: /v3/api-docs
+      - name: 수동 작성 문서
+        url: /openapi.yaml

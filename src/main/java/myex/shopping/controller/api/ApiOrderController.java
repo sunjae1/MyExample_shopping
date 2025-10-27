@@ -1,5 +1,8 @@
 package myex.shopping.controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/items")
+@Tag(name = "Order", description = "주문 관련 API")
 @Validated
 public class ApiOrderController {
 
@@ -31,6 +35,15 @@ public class ApiOrderController {
     private final OrderService orderService;
 
 
+    @Operation(
+            summary = "장바구니를 주문으로 전환",
+            description = "장바구니 전체 아이템을 하나의 주문으로 전환합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "주문 생성 완료"),
+                    @ApiResponse(responseCode = "401", description = "로그인 실패"),
+                    @ApiResponse(responseCode = "400", description = "클라이언트 오류")
+            }
+    )
     @PostMapping("/order")
     public ResponseEntity<?> order_change(HttpSession session) {
 
@@ -64,6 +77,14 @@ public class ApiOrderController {
     }
 
 
+    @Operation(
+            summary = "전체 주문 조회",
+            description = "관리자가 전체 주문을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "조회 성공")
+            }
+    )
+    //전체 주문 조회
     @GetMapping("/orderAll")
     public ResponseEntity<List<OrderDBDto>> orderAll() {
 //        List<Order> orderAll = orderRepository.findAll();
@@ -72,6 +93,15 @@ public class ApiOrderController {
         return ResponseEntity.ok(orderAll);
     }
 
+
+    @Operation(
+            summary = "주문 취소",
+            description = "사용자의 주문을 취소합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @ApiResponse(responseCode = "404", description = "주문 조회 실패")
+            }
+    )
     //주문 취소. : items/{id}/cancel
     @DeleteMapping("/{id}/cancel")
     public ResponseEntity<?> orderCancel(@PathVariable @Positive Long id) {
