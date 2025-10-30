@@ -30,6 +30,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
     private LocalDateTime orderDate;
+   @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     //JPA 전용 기본 생성자

@@ -16,14 +16,14 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @JoinColumn(name = "item_id")
     private Item item; //주문 생성시점 주문 확정 시점이 다를 때는 참조하고 있어야 편리 할인/재고 차감 같은 것이 결제 완료 후 처리 로직으로 바로 적용 가능 하니깐.
     private int orderPrice; //주문 당시 가격
     private int quantity;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @JoinColumn(name = "order_id")
     private Order order;
 
     protected OrderItem() {
