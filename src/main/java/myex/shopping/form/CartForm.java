@@ -17,6 +17,7 @@ public class CartForm {
     @NotNull(message = "id는 null 일 수 없습니다.")
     @Schema(description = "상품 ID", example = "1")
     private Long id;
+
     @NotNull(message = "수량을 입력해주세요")
     @Min(value = 1, message = "수량은 1부터 입력 가능합니다.")
     @Schema(description = "장바구니 담을 상품 수량", example = "3")

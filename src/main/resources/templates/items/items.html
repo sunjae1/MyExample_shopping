@@ -7,25 +7,22 @@
 
 </head>
 <body>
-<div>
+<div class="container">
+    <!--        th:text 안에는 타임리프 표현식 또는 변수 참조 넣어야함.
+                단순 문자열은 표현식으로 해석할려함.
+        문자열 그대로 쓸려면 ' ' 로 감싸야 함.-->
     <div>
-<!--        th:text 안에는 타임리프 표현식 또는 변수 참조 넣어야함.
-            단순 문자열은 표현식으로 해석할려함.
-            문자열 그대로 쓸려면 ' ' 로 감싸야 함.-->
-        <h2 th:text="' 관리자용 전체 상품 관리 목록'">상품목록</h2>
+        <h2 th:text="'관리자용 전체 상품 관리 목록'">상품목록</h2>
     </div>
     <p class="field-error" th:if="${errorPV}" th:text="${errorPV}">PathVariable 에러 메시지</p>
 
 
-    <div>
-        <div>
-            <button onclick="location.href='addForm.html'"
-                    th:onclick="|location.href='@{/items/add}'|"
-                    type="button" th:text="'상품 등록'"> 상품등록</button>
-        </div>
+    <div class="btn-container">
+        <button onclick="location.href='addForm.html'"
+                th:onclick="|location.href='@{/items/add}'|"
+                type="button" th:text="'상품 등록'"> 상품등록</button>
     </div>
 
-    <hr>
     <div>
         <table>
             <thead>

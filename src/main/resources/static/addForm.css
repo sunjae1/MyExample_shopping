@@ -129,3 +129,52 @@ body {
     color: red;
     font-size: 12px;
 }
+
+/* Form Section */
+.form-section {
+    margin-bottom: 40px;
+}
+
+.form-section-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+/* Order Summary */
+.order-summary {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.order-summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-row.total {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+}

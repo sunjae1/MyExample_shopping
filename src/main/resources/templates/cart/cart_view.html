@@ -2,72 +2,79 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Order List</title>
-    <link rel="stylesheet" href="/item.css">
+    <title>장바구니</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
-<div>
-    <div>
-        <h2>Cart List</h2>
-    </div>
 
-    <hr>
+<div class="container">
+    <header>
+        <h1>장바구니</h1>
+    </header>
 
-    <div th:if="${empty_cart_error}">
-        <h3 th:text="${empty_cart_error}">장바구니 empty order 메세지</h3>
+    <div class="cart-container" th:if="${cart != null && !#lists.isEmpty(cart.cartItems)}">
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>상품 정보</th>
+                    <th>가격</th>
+                    <th>수량</th>
+                    <th>총 금액</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="cartItem : ${cart.cartItems}">
+                    <td>
+                        <div class="cart-item-info">
+                            <img th:src="${cartItem.item.imageUrl}" alt="상품 이미지">
+                            <div class="cart-item-details">
+                                <h4 th:text="${cartItem.item.itemName}">상품 이름</h4>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(cartItem.item.price, 0, 'COMMA', 0, 'POINT')} + '원'">10,000원</td>
+                    <td class="cart-quantity" th:text="${cartItem.quantity}+ '개'">1</td>
+                    <td th:text="${#numbers.formatDecimal(cartItem.totalItemPrice(), 0, 'COMMA', 0, 'POINT')} + '원'">10,000원</td>
+                    <td class="cart-actions">
+                        <form th:action="@{/items/cart/remove}" method="post">
+                            <input type="hidden" name="itemId" th:value="${cartItem.item.id}">
+                            <button type="submit" class="btn btn-secondary">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
         <hr>
 
+        <div class="cart-summary">
+            <h3>주문 요약</h3>
+            <div class="summary-row">
+                <span>총 상품 금액</span>
+                <span th:text="${#numbers.formatDecimal(cart.allPrice(), 0, 'COMMA', 0, 'POINT')} + '원'">0원</span>
+            </div>
+            <div class="summary-row">
+                <span>배송비</span>
+                <span>0원</span>
+            </div>
+            <div class="summary-row total">
+                <span>총 주문 금액</span>
+                <span th:text="${#numbers.formatDecimal(cart.allPrice(), 0, 'COMMA', 0, 'POINT')} + '원'">0원</span>
+            </div>
+            <form th:action="@{/items/order}" method="post">
+                <button type="submit" class="btn btn-primary">주문하기</button>
+            </form>
+        </div>
     </div>
 
-
-    <div>
-        <table>
-            <thead>
-            <tr>
-                <th>CartItem Item</th>
-                <th>Item Price</th>
-                <th>quantity</th>
-                <th>해당 상품 가격</th>
-                <th>취소하기</th>
-
-            </tr>
-            </thead>
-            <tbody th:if ="${cart !=null && !#lists.isEmpty(cart.cartItems)}">
-<!--            장바구니가 비어있지 않을때 ${cart}랑 동일.(null 체크 해줌) :명시적 표기 위해서-->
-            <tr  th:each="cartItem : ${cart.cartItems}">
-                <td th:text="${cartItem.item}">CartItem ID</td>
-                <td th:text="${cartItem.item.price}">Item Price</td>
-                <td th:text="${cartItem.quantity}">quantity</td>
-                <td th:text="${cartItem.totalItemPrice()}">해당 상품 가격</td>
-                <td>
-                    <form th:action="@{/items/cart/remove}" method="post">
-                        <input type="hidden" name="itemId" th:value="${cartItem.item.id}">
-                        <button type="submit">취소하기</button>
-                    </form>
-
-                </td>
-            </tr>
-
-
-
-            </tbody>
-
-            <!--            장바구니가 없거나 비어있을 때-->
-            <tbody th:if="${cart ==null || #lists.isEmpty(cart.cartItems)}">
-            <tr>
-                <td colspan="4"> 장바구니에 추가된 상품이 없습니다. </td>
-            </tr>
-            </tbody>
-
-        </table>
+    <div class="empty-cart" th:if="${cart == null || #lists.isEmpty(cart.cartItems)}">
+        <h3>장바구니에 담긴 상품이 없습니다.</h3>
+        <p>원하는 상품을 장바구니에 담아보세요.</p>
+        <a th:href="@{/main}" class="btn btn-primary">상품 보러가기</a>
     </div>
-
-    <hr>
-
-    <form th:action="@{/items/order}" method="post">
-        <button type="submit">주문하기 </button>
-    </form>
 
 </div>
+
 </body>
 </html>

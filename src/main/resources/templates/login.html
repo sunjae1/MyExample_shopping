@@ -2,44 +2,61 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-
-    <link rel="stylesheet" href="login.css">
+    <title>Login - My Shopping Mall</title>
+    <link rel="stylesheet" th:href="@{/login.css}">
 </head>
 <body>
-<div class="login-wrapper">
-    <h2>Login</h2>
-
-    <h7 th:text="${errorMessage}"></h7>
+<div class="login-container">
+    <div class="login-image"></div>
+    <div class="login-form-container">
+        <div class="login-wrapper">
+            <h2>Login</h2>
+            <p class="sub-text">이메일과 패스워드를 입력하여 로그인하여 쇼핑을 즐기세요!</p>
+            <div th:if="${errorMessage}" class="field-error" th:text="${errorMessage}"></div>
 
     <form method="post" th:action="@{/login}" action="/login" th:object="${form}" id="login-form">
-        <input type="text" th:field="*{email}" placeholder="Email">
-<!--th:errors 속성은 필드 경로를 넣는 용도 *{email}-->
-<!--        ${#fields.errors('email')} 이건 EL표현식.-->
-        <div class="field-error" th:errors="*{email}">
-            이메일 오류 메시지
+        <div class="input-group">
+            <input type="text" th:field="*{email}" placeholder="Email">
+            <!--th:errors 속성은 필드 경로를 넣는 용도 *{email}-->
+            <!--        ${#fields.errors('email')} 이건 EL표현식.-->
+            <div class="field-error" th:errors="*{email}">이메일 오류 메시지</div>
         </div>
 
-        <input type="password" th:field="*{password}" placeholder="Password">
-        <div class="field-error" th:errors="*{password}">
-            패스워드 오류 메시지
+        <div class="input-group">
+            <input type="password" th:field="*{password}" placeholder="Password">
+            <div class="field-error" th:errors="*{password}">패스워드 오류 메시지</div>
         </div>
 
-        <label for="remember-check">
-            <input type="checkbox" id="remember-check">아이디 저장하기
-        </label>
+        <div class="remember-forget">
+            <label for="remember-check">
+                <input type="checkbox" id="remember-check">아이디 저장하기
+            </label>
+            <a href="#">Forget Password?</a>
+        </div>
+
         <input type="submit" value="Login">
     </form>
+            <div class="register-link">
+                <p>계정을 가지고 있지 않나요?
+                    <a th:href="@{/register}">회원 가입</a>
+                </p>
+             </div>
+
+            <div class="other-links">
+                <a th:href="@{/main}">메인 페이지로</a>
+                <a th:href="@{/allUser}">회원 목록 조회</a>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="register-link">
-    <h2 th:href ="@{/register}"><a th:href ="@{/register}">회원가입 </a></h2>
+
+<!--    <h2 th:href ="@{/register}"><a th:href ="@{/register}">회원가입 </a></h2>
     <h2><a th:href ="@{/allUser}">회원 목록 조회</a></h2>
     <h2><a th:href ="@{/main}">메인 페이지</a></h2>
     <h2><a th:href ="@{/items}">상품 관리 페이지</a></h2>
     <h2><a th:href ="@{/items/orderAll}">주문 관리 페이지</a></h2>
     <h2><a th:href ="@{/items/cartAll}">전체 장바구니 보기</a></h2>
-    <h2><a th:href ="@{/posts}">게시물 보기</a></h2>
-</div>
+    <h2><a th:href ="@{/posts}">게시물 보기</a></h2>-->
 
 </body>
 </html>

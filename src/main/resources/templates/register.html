@@ -2,37 +2,44 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
-
-  <link rel="stylesheet" href="login.css">
+  <title>Sign Up - My Shopping Mall</title>
+  <link rel="stylesheet" th:href="@{/login.css}">
 </head>
 <body>
-<div class="login-wrapper">
-  <h2>Sign Up(회원가입)</h2>
-  <form method="post" th:action id="login-form" th:object="${form}">
+<div class="login-container">
+  <div class="login-image"></div>
+  <div class="login-form-container">
+    <div class="login-wrapper">
+      <h2>Sign Up(회원가입)</h2>
+      <p class="sub-text">시작할 계정을 만드세요.</p>
 
-    <input type="text" name="name" placeholder="Your name">
-    <div class="field-error" th:errors="*{name}">
-      이름 오류 메시지
+      <form method="post" th:action id="login-form" th:object="${form}">
+        <div class="input-group">
+          <input type="text" name="name" placeholder="Your name">
+          <div class="field-error" th:errors="*{name}">
+            이름 오류 메시지
+          </div>
+        </div>
+        <div class="input-group">
+          <input type="text" name="email" placeholder="Email">
+          <div class="field-error" th:errors="*{email}">
+            이메일 오류 메시지
+          </div>
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="Password">
+          <div class="field-error" th:errors="*{password}">
+            패스워드 오류 메시지
+          </div>
+        </div>
+        <input type="submit" value="Sign Up">
+      </form>
+
+      <div class="register-link">
+        <p>이미 계정이 있으신가요? <a th:href="@{/login}">Login</a></p>
+      </div>
     </div>
-    <input type="text" name="email" placeholder="Email">
-
-    <div class="field-error" th:errors="*{email}">
-      이메일 오류 메시지
-    </div>
-
-    <input type="password" name="password" placeholder="Password">
-
-    <div class="field-error" th:errors="*{password}">
-      이메일 오류 메시지
-    </div>
-
-    <label for="remember-check">
-      <input type="checkbox" id="remember-check">아이디 저장하기
-    </label>
-
-    <input type="submit" value="Login">
-  </form>
+  </div>
 </div>
 </body>
 </html>

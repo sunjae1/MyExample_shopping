@@ -130,3 +130,16 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
 }
+
+/* Image container */
+.item-image-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.item-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}

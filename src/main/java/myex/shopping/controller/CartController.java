@@ -56,8 +56,15 @@ public class CartController {
                             HttpSession session) {
 
 
+
+
         Optional<Item> byId = itemRepository.findById(cartForm.getId());
         Item findItem = byId.get();
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("item",findItem);
+            return "cart/cartForm";
+        }
 
         //재고 수량 초과로 장바구니 담을 시
         if (findItem.getQuantity() < cartForm.getQuantity()) {

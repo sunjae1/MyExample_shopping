@@ -7,15 +7,15 @@
 </head>
 <body>
 
-<div>
+<div>  <!-- Keep this outer div -->
 
   <div>
-    <h2>옷 상품 상세</h2>
+    <h2 class="item-title">옷 상품 상세</h2>
   </div>
 
 
-  <div>
-    <img th:src="${item.imageUrl}">
+  <div class="item-image-container">
+    <img th:src="${item.imageUrl}" alt="상품 이미지" class="item-image">
   </div>
 
 
@@ -42,19 +42,19 @@
 
 </div>
 
-<hr>
+<!-- <hr> removed -->
 <div class="button-container">
     <div class="detail-row">
-        <button class="btn"
+        <button class="btn btn-edit"
                 th:onclick="|location.href='@{/items/{itemId}/edit(itemId=${item.id})}'|" type="button">상품 수정</button>
     </div>
 
     <div class="detail-row">
-        <button class="btn"
+        <button class="btn btn-list"
                 th:onclick="|location.href='@{/main}'|" type="button">메인 페이지로</button>
     </div>
     <div class="detail-row">
-        <button class="btn"
+        <button class="btn btn-list"
                 th:onclick="|location.href='@{/items}'|" type="button">상품 관리 목록으로</button>
     </div>
 </div>

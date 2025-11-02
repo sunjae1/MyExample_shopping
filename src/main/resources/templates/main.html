@@ -2,129 +2,100 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Shopping Mall</title>
-    <link rel="stylesheet" href="login.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        nav {
-            display: flex;
-            justify-content: center;
-            background-color: #444;
-            padding: 0.5rem;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-        }
-        nav a:hover {
-            background-color: #555;
-        }
-        .container {
-            padding: 2rem;
-        }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        .product-card {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 1rem;
-            text-align: center;
-        }
-        .product-card img {
-            max-width: 100%;
-            height: auto;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
+    <title>My Shopping Mall</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
-<!--
-/ 기본경로가 resources/static/
-src/main/resources/static/
-src/main/resources/public/
-src/main/resources/resources/
-src/main/resources/META-INF/resources/
-여기 에서만 서빙함.-->
-    <header>
-        <h1>My Shopping Mall</h1>
-    </header>
-    <nav>
-        <a href="#">Home</a>
-        <a href="#">Shop</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
-        <a th:href="@{/}">Login</a>
-        <a th:href="@{/register}">Register</a>
-    </nav>
 
-<p class="field-error" th:if="${errorPV}" th:text="${errorPV}">PathVariable 에러 메시지</p>
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
 
-    <div class="container">
-        <h2>Featured Products</h2>
-        <div class="product-grid">
-            <!-- Product 1 -->
-            <div class="product-card"
-                     th:each = "item : ${items}">
-                <a href="item.html" th:href="@{|/items/${item.id}|}">
-                    <img th:src ="@{${item.imageUrl}}" alt ="Product"></a>
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/posts}">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
 
-                <h3><a href="item.html" th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">상품명</a></h3>
-                <p th:text="'가격 : ' +${item.price}+'원'">10000</p>
-                <p th:text="'남은 재고 : '+${item.quantity}+'개'">10</p>
+<div class="container">
+    <p class="field-error" th:if="${errorPV}" th:text="${errorPV}"></p>
 
-                <button> Add To Cart</button>
-                <td><a th:href="@{|/items/${item.id}/cart|}">장바구니에 담기</a></td>
-            </div>
+    <h2 class="text-center mt-20">Featured Products</h2>
 
-            <!-- Product 3 -->
-            <div class="product-card">
-                <img  th:src="@{/img/3.webp}" src="/static/img/3.webp" alt="Product 3">
-                <h3>Product 3</h3>
-                <p>$39.99</p>
-                <button>Add to Cart</button>
-
-            </div>
-            <!-- Add more products as needed -->
+    <div class="product-grid">
+        <!-- Dynamically loaded products -->
+        <div class="product-card" th:each="item : ${items}">
+            <a th:href="@{|/items/${item.id}|}">
+                <img th:src="@{${item.imageUrl}}" alt="Product Image">
+                <div class="product-card-info">
+                    <h3 th:text="${item.itemName}">Product Name</h3>
+                    <p th:text="|${item.price}원|">Price</p>
+                    <p th:text="|남은 수량 :${item.quantity}개|">Quantity</p>
+                </div>
+            </a>
+            <a th:href="@{|/items/${item.id}/cart|}" class="btn btn-primary">장바구니에 담기</a>
         </div>
-<!--        -->
-        <div>
-            <h2><a th:href="@{/}">로그인 페이지로</a></h2>
 
-            <form th:action="@{/logout}" method="post">
-                <h2><a><button type="submit"> 로그아웃 </button></a></h2>
-            </form>
+        <!-- Example Product 1 -->
+        <div class="product-card">
+            <a href="#">
+                <img th:src="@{/img/1.webp}" alt="Product Example 1">
+                <div class="product-card-info">
+                    <h3>Classic Trench Coat</h3>
+                    <p>159,000원</p>
+                    <p>남은 수량 : 99개</p>
+                </div>
+            </a>
+            <a href="#" class="btn btn-primary">장바구니에 담기</a>
+        </div>
 
+        <!-- Example Product 2 -->
+        <div class="product-card">
+            <a href="#">
+                <img th:src="@{/img/2.webp}" alt="Product Example 2">
+                <div class="product-card-info">
+                    <h3>Urban Sneakers</h3>
+                    <p>89,000원</p>
+                    <p>남은 수량 : 99개</p>
+                </div>
+            </a>
+            <a href="#" class="btn btn-primary">장바구니에 담기</a>
+        </div>
 
-            <h2><a th:href ="@{/items/cartAll}">전체 장바구니 보기</a></h2>
-            <h2><a th:href ="@{/items/orderAll}">주문 관리 페이지</a></h2>
-            <h2><a th:href ="@{/posts}">게시판 보기</a></h2>
-            <h2><a th:href ="@{/mypage}">마이 페이지</a></h2>
+        <!-- Example Product 3 -->
+        <div class="product-card">
+            <a href="#">
+                <img th:src="@{/img/3.webp}" alt="Product Example 3">
+                <div class="product-card-info">
+                    <h3>Stylish Hat</h3>
+                    <p>45,000원</p>
+                    <p>남은 수량 : 99개</p>
+                </div>
+            </a>
+            <a href="#" class="btn btn-primary">장바구니에 담기</a>
         </div>
     </div>
-    <footer>
-        <p>&copy; 2025 My Shopping Mall</p>
-    </footer>
+
+    <div class="text-center mt-20">
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-secondary">Logout</button>
+        </form>
+        <div style="text-align: center;">
+            <a class="btn btn-secondary" th:href ="@{/items/cartAll}">전체 장바구니 보기</a>
+            <a class="btn btn-secondary" th:href ="@{/items/orderAll}">주문 관리 페이지</a>
+            <a class="btn btn-secondary" th:href ="@{/posts}">게시판 보기</a>
+            <a class="btn btn-secondary" th:href ="@{/mypage}">마이 페이지</a>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
+
 </body>
 </html>
