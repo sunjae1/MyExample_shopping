@@ -7,6 +7,8 @@ import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
@@ -16,6 +18,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
+@SQLDelete(sql = "UPDATE item SET deleted = true WHERE id = ?")
+//@Where(clause = "deleted = false")
 public class Item {
 
     @Id
@@ -28,6 +32,8 @@ public class Item {
     @Transient //JPA가 컬럼으로 만들지 않음 :업로드 파일은 서버에 저장/DB에는 경로만 저장. 지금은 Form -> url로 저장함.
     private MultipartFile imageFile; //업로드 파일
     private String imageUrl; //이미지 경로
+
+    private boolean deleted = false; // 초기값 false.(주문내역 있을 시 상태 바꿈으로 아이템 숨김 처리)
 
 
     public Item() {
