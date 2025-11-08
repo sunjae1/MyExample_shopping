@@ -11,13 +11,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-@Schema(description = "상품추가 FORM")
-public class ItemAddForm {
+@Schema(description = "상품수정 FORM")
+public class ItemEditForm {
 
     //editForm 취소 위해서.
     @Schema(description = "상품 ID", example = "1")
     private Long id;
-
 
     @NotBlank(message = "아이템 이름을 입력하세요.")
     @Schema(description = "상품 이름", example = "아이템A")
@@ -35,7 +34,17 @@ public class ItemAddForm {
     @Schema(description = "상품 이미지 파일(바이너리)")
     private MultipartFile imageFile;
 
+    @Schema(description = "상품 이미지 파일 경로 URL")
+    private String imageUrl;
 
-
-
+    @Override
+    public String toString() {
+        return "ItemEditForm{" +
+                "id=" + id +
+                ", itemName='" + itemName + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", imageUrl='" + imageUrl + '\'' +
+                '}';
+    }
 }

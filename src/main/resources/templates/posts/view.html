@@ -1,53 +1,91 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title></title>
-  <link rel="stylesheet" href="/item.css">
+    <meta charset="UTF-8">
+    <title th:text="${post.title}">Post Title</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <style>
+
+    </style>
 </head>
 <body>
-<h2 th:text="${post.title}">제목</h2>
-<p>작성자 : <span th:text="${post.authorName}">작성자</span></p>
-<h5>게시물 내용</h5>
-<p th:text="${post.content}" style="white-space: pre-wrap;">내용</p>
-<p th:text="${'작성날짜 : '+ #temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">작성일</p>
-<a th:href="@{/posts}">목록으로</a>
+
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
+
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/posts}" style="color: var(--primary-text);">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
+
+<div class="container post-view-container">
+
+    <!-- Post Content -->
+    <div class="post-card">
+        <div class="post-header">
+            <h2 class="post-title" th:text="${post.title}">Post Title</h2>
+            <div class="post-meta">
+                <span class="author">By <strong th:text="${post.authorName}">Author</strong></span>
+                <span class="date" th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">Date</span>
+            </div>
+        </div>
+        <div class="post-content" th:text="${post.content}">
+            Post content goes here...
+        </div>
+        <div class="post-actions">
+            <a th:href="@{/posts}" class="btn btn-secondary">목록으로</a>
+            <form th:if="${loginUser != null and loginUser.name.equals(post.authorName)}"
+                  th:action="@{|/posts/${post.id}/delete|}" method="post">
+                <button type="submit" class="btn btn-danger">삭제</button> <!-- Assuming a .btn-danger class exists or can be added -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3 class="comments-title">Comments</h3>
+
+        <!-- List of Comments -->
+        <div th:if="${post.comments.isEmpty()}">
+            <p>No comments yet. Be the first to comment!</p>
+        </div>
+        <div th:each="comment : ${post.comments}" class="comment">
+            <div class="comment-meta">
+                <span class="comment-author" th:text="${comment.username}">Comment Author</span>
+                <span class="comment-date" th:text="${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">Date</span>
+            </div>
+            <p class="comment-content" th:text="${comment.content}">Comment content.</p>
+            <form class="comment-delete-form" th:if="${loginUser != null and loginUser.name.equals(comment.username)}"
+                  th:action="@{|/posts/${post.id}/comments/${comment.id}|}" method="post">
+                <button type="submit" class="btn btn-secondary btn-sm">삭제</button>
+            </form>
+        </div>
+
+        <!-- New Comment Form -->
+        <div class="comment-form-container">
+            <h4 class="comments-title" style="font-size: 1.2rem; margin-bottom: 20px;">Leave a Comment</h4>
+            <form th:action="@{|/posts/${post.id}/comments|}" method="post" th:object="${commentForm}">
+                <div>
+                    <textarea th:field="*{content}" placeholder="Write your comment here..."></textarea>
+                    <div class="field-error" th:errors="*{content}"></div>
+                </div>
+                <div class="button-container">
+                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
 
 </body>
-
-<!-- 댓글 작성 -->
-<!--"@{|/posts/${post.id}|}"-->
-
-<h3>댓글</h3>
-<!--애초에 null 이면 each 루프 돌지 않음.-->
-<div th:each="comment : ${post.comments}">
-  <hr>
-  <div>작성자 :
-    <b th:text="${comment.username}">작성자</b>
-    <br>
-    <span th:text="${comment.content}" style="white-space: pre-wrap;">댓글 내용</span>
-    <br>
-    <small th:text="'작성 날짜 : ' + ${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">작성 날짜</small>
-
-    <!-- 댓글 삭제 버튼(작성자 본인만 보이도록 조건 처리)-->
-    <form th:if="${loginUser !=null && loginUser.name.equals(comment.username)}"
-            th:action="@{|/posts/${post.id}/comments/${comment.id}|}"
-            method="post">
-      <button type="submit">댓글 삭제</button>
-    </form>
-
-  </div>
-  <hr>
-</div>
-<!--/* */-->
-<form th:action="@{|/posts/${post.id}/comments|}" method="post" th:object="${commentForm}">
-  <div>
-  <textarea th:field="*{content}" placeholder="댓글을 입력하세요"></textarea>
-  </div>
-  <div class="field-error" th:errors="*{content}"> 댓글 내용 에러 메시지
-  </div>
-
-  <button type="submit">댓글 작성</button>
-</form>
-
 </html>

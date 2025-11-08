@@ -26,4 +26,13 @@ public class CartForm {
     //price (장바구니 BindingResult 뿌리기 위해서)
     @Schema(description = "장바구니 담을 시 가격", example = "2000")
     private Integer price;
+
+    @Override
+    public String toString() {
+        return "CartForm{" +
+                "id=" + id +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                '}';
+    }
 }

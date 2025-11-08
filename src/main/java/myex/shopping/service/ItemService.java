@@ -3,7 +3,9 @@ package myex.shopping.service;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.dto.ItemDto;
+import myex.shopping.dto.ItemEditDto;
 import myex.shopping.form.ItemAddForm;
+import myex.shopping.form.ItemEditForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import org.springframework.stereotype.Service;
@@ -62,7 +64,7 @@ public class ItemService {
 
 
     //UUID로 이미지 업로드 - 업로드 폴더에서 가져와도 이름이 달라서 "같은 경로 + 다른 이름" 이라 다르게 취급.
-    public Item imageEditSaveByUUID(ItemAddForm form, Item item) throws IOException {
+    public Item imageEditSaveByUUID(ItemEditForm form, Item item) throws IOException {
         MultipartFile file = form.getImageFile();
         if (file !=null && !file.isEmpty())
         {
@@ -136,7 +138,7 @@ public class ItemService {
     }
 
     @Transactional
-    public Long editItemWithUUID(ItemAddForm form, Long itemId) throws IOException {
+    public Long editItemWithUUID(ItemEditForm form, Long itemId) throws IOException {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
         item.setItemName(form.getItemName());

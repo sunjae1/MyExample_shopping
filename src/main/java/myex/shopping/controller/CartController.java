@@ -36,7 +36,6 @@ public class CartController {
                            @ModelAttribute CartForm cartForm) {
         //빈 객체 보내고 post에서 받는거. (이건 @Valid 하면 안됨.)
 
-        System.out.println("cartForm = " + cartForm);
 
         Optional<Item> byId = itemRepository.findById(itemId);
         Item findItem = byId.get();
@@ -56,8 +55,7 @@ public class CartController {
                             HttpSession session) {
 
 
-
-
+        System.out.println("cartForm = " + cartForm);
         Optional<Item> byId = itemRepository.findById(cartForm.getId());
         Item findItem = byId.get();
 

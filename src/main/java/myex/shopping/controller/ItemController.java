@@ -7,6 +7,7 @@ import myex.shopping.dto.ItemDto;
 import myex.shopping.dto.ItemDtoDetail;
 import myex.shopping.dto.ItemEditDto;
 import myex.shopping.form.ItemAddForm;
+import myex.shopping.form.ItemEditForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.service.ItemService;
@@ -117,8 +118,10 @@ public class ItemController {
 
     @PostMapping("/{itemId}/edit") //이게 URL
     public String edit (@PathVariable Long itemId,
-                        @Valid @ModelAttribute("item")ItemAddForm form,
+                        @Valid @ModelAttribute("item")ItemEditForm form,
                         BindingResult bindingResult) throws IOException {
+
+        System.out.println("ItemEditForm form = " + form);
 
   /*      Optional<Item> byId = itemRepository.findById(itemId);
         Item findItem =  byId.get();*/

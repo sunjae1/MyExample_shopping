@@ -1,147 +1,131 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-  <link rel="stylesheet" href="/item.css">
+    <meta charset="UTF-8">
+    <title>My Page</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 
 </head>
 <body>
-<!--마이페이지 보내는거 : user, orders, posts, cart-->
-<div>
-  <h1>마이페이지</h1>
-  <hr>
 
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
 
-<!--  계정 정보-->
-  <section>
-    <h2>계정 정보</h2>
-    <p><strong>아이디 : </strong> <span th:text="${user.id}"></span></p>
-    <p><strong>이름 : </strong> <span th:text="${user.name}"></span></p>
-    <p><strong>이메일 : </strong> <span th:text="${user.email}"></span></p>
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/posts}">게시판</a>
+    <a th:href="@{/mypage}" style="color: var(--primary-text);">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
 
-  </section>
-  <hr>
+<div class="container mypage-container">
 
-<!--  주문 내역-->
-  <section>
-    <h2>나의 주문 내역</h2>
-    <table border="1">
-      <thead>
-      <tr>
-        <th>주문번호</th>
-        <th>주문 상품명</th>
-        <th>주문 상품 총 수량 </th>
-        <th>주문 계산 식</th>
+    <!-- Account Information -->
+    <section class="section-card account-info">
+        <h2 class="section-title" th:text="|환영합니다, ${user.name}님!|">Welcome, User!</h2>
+        <p><strong>아이디:</strong> <span th:text="${user.id}"></span></p>
+        <p><strong>이름:</strong> <span th:text="${user.name}"></span></p>
+        <p><strong>이메일:</strong> <span th:text="${user.email}"></span></p>
+    </section>
 
-        <th>총 금액</th>
-        <th>주문일자</th>
-        <th>상태</th>
-        <th>주문 취소</th>
+    <!-- My Orders -->
+    <section class="section-card">
+        <h2 class="section-title">나의 주문 내역</h2>
+        <div th:if="${orders == null or orders.isEmpty()}" class="empty-section">
+            <p>주문 내역이 없습니다.</p>
+        </div>
+        <div th:if="${orders != null and !orders.isEmpty()}" class="table-responsive">
+            <table class="order-table">
+                <thead>
+                <tr>
+                    <th>주문번호</th>
+                    <th>주문 상품</th>
+                    <th>총 수량</th>
+                    <th>총 금액</th>
+                    <th>주문일자</th>
+                    <th>상태</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}">1</td>
+                    <td>
+                        <ul class="order-item-details">
+                            <li th:each="oi : ${order.orderItems}" th:text="|${oi.itemName} (${oi.orderPrice}원 x ${oi.quantity})|">
+                                Product Name (Price x Count)
+                            </li>
+                        </ul>
+                    </td>
+                    <td th:text="${order.getTotalQuantity()}">Total Quantity</td>
+                    <td th:text="|${order.getTotalPrice()}원|">Total Price</td>
+                    <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}">Order Date</td>
+                    <td><span class="order-status" th:classappend="|order-status-${order.status}|" th:text="${order.status}">Status</span></td>
+                    <td th:if="${order.orderIsNotCanCelled}">
+                        <form th:action="@{|/items/${order.id}/cancel|}" method="post">
+                            <input type="hidden" name="redirectInfo" value="mypage">
+                            <button type="submit" class="btn btn-secondary btn-sm">주문 취소</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-      </tr>
-      </thead>
+    <!-- My Posts -->
+    <section class="section-card">
+        <h2 class="section-title">내 게시글</h2>
+        <div th:if="${posts == null or posts.isEmpty()}" class="empty-section">
+            <p>작성한 게시글이 없습니다.</p>
+        </div>
+        <div th:if="${posts != null and !posts.isEmpty()}" class="table-responsive">
+            <table class="order-table">
+                <thead>
+                <tr>
+                    <th>제목</th>
+                    <th>작성일</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${posts}">
+                    <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">Post Title</a></td>
+                    <td th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">Created Date</td>
+                    <td>
+                        <form th:action="@{|/posts/${post.id}/delete|}" method="post">
+                            <input type="hidden" name="redirectInfo" value="mypage">
+                            <button type="submit" class="btn btn-secondary btn-sm">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-<!--      orders가 null 이면 루프 자체가 안돌아감.-->
-      <tbody th:each="order : ${orders}">
-      <tr th:if="${!#lists.isEmpty(order.orderItems)}">
-        <td th:text="${order.id}">1</td>
-
-        <td>
-          <p th:each="orderItem : ${order.orderItems}"
-              th:text="${orderItem.itemName +'('+orderItem.orderPrice+'원)'}">주문 상품명들</p>
-        </td>
-        <td>
-          <p th:text="${order.getTotalQuantity()}">주문 상품 총 수량</p>
-        </td>
-
-        <td>
-          <p th:each="orderItem : ${order.orderItems}"
-              th:text="${orderItem.calculation}">주문 계산식</p>
-        </td>
-
-
-
-        <td th:text="${order.getTotalPrice()}">주문당 총 가격</td>
-        <td th:text="${order.orderDate}">주문 날짜</td>
-        <td th:text="${order.status}">주문 상태</td>
-        <td th:if="${order.orderIsNotCanCelled}">
-
-          <form th:action="@{|/items/${order.id}/cancel|}" method="post">
-            <input type="hidden" name="redirectInfo" value="mypage">
-            <button type="submit">주문 취소</button>
-          </form>
-
-        </td>
-
-      </tr>
-      </tbody>
-      <tbody th:if="${orders == null ||orders.isEmpty()}">
-      <tr>
-        <td colspan="4">주문 내역이 없습니다.</td>
-      </tr>
-      </tbody>
-    </table>
-  </section>
-  <hr>
-
-<!--  내가 쓴 게시글-->
-  <section>
-    <h2>내 게시글</h2>
-    <table border="1">
-      <thead>
-      <tr>
-        <th>제목</th>
-        <th>작성일</th>
-        <th>삭제하기</th>
-      </tr>
-      </thead>
-      <tbody th:if="${posts !=null && !#lists.isEmpty(posts)}"
-              th:each="post : ${posts}">
-      <tr>
-        <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">제목</a> </td>
-        <td th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">작성일</td>
-        <td>
-          <form th:action="@{|/posts/${post.id}/delete|}" method="post">
-            <input type="hidden" name="redirectInfo" value="mypage">
-            <button type="submit"> 글 삭제</button>
-
-          </form>
-
-        </td>
-      </tr>
-      </tbody>
-      <tbody th:if="${posts == null || posts.isEmpty()}">
-      <tr>
-        <td colspan="2">작성한 게시글이 없습니다.</td>
-      </tr>
-      </tbody>
-    </table>
-  </section>
-  <hr>
-
-
-<!--  장바구니 요약-->
-  <section>
-    <h2>장바구니 요약</h2>
-    <div th:if="${cart != null && !#lists.isEmpty(cart.cartItems)}">
-      <p>장바구니 선택 상품 개수: <span th:text="${cart.cartItems.size()}">상품 장바구니 개수 List</span></p>
-      <p>총 금액: <span th:text="${cart.allPrice()}">cartItems 총 금액</span>원</p>
-      <a th:href="@{/items/cartAll}">장바구니 바로가기</a>
-    </div>
-    <div th:if="${cart == null ||#lists.isEmpty(cart.cartItems)}">
-      <p>장바구니가 비어 있습니다.</p>
-    </div>
-  </section>
-
+    <!-- Cart Summary -->
+    <section class="section-card cart-summary-card">
+        <div class="cart-summary-text">
+            <h2 class="section-title" style="border: none; margin: 0; padding: 0;">장바구니</h2>
+            <div th:if="${cart != null and !#lists.isEmpty(cart.cartItems)}">
+                <p>총 <span th:text="${cart.cartItems.size()}"></span>개의 상품이 담겨 있습니다.</p>
+            </div>
+            <div th:if="${cart == null or #lists.isEmpty(cart.cartItems)}">
+                <p>장바구니가 비어 있습니다.</p>
+            </div>
+        </div>
+        <a th:href="@{/items/cartAll}" class="btn btn-primary">장바구니 보기</a>
+    </section>
 
 </div>
 
-<div>
-  <h2><a th:href ="@{/main}">메인 페이지로 돌아가기</a></h2>
-</div>
-
-
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
 
 </body>
 </html>

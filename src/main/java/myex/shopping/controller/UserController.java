@@ -13,6 +13,7 @@ import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import myex.shopping.repository.PostRepository;
+import myex.shopping.service.CartService;
 import myex.shopping.service.OrderService;
 import myex.shopping.service.PostService;
 import myex.shopping.service.UserService;
@@ -41,6 +42,7 @@ public class UserController {
     private final UserService userService;
     private final OrderService orderService;
     private final PostService postService;
+    private final CartService cartService;
 
 
 
@@ -149,7 +151,10 @@ public class UserController {
                          Model model)
     {
         User loginUser = (User) session.getAttribute("loginUser");
-        Cart cart = getOrCreateCart(session);
+//        Cart cart = getOrCreateCart(session); 세션 기반 --> DB 저장 으로 변환.
+        Cart cart = cartService.findOrCreateCartForUser(loginUser);
+
+
 //        List<Order> orders = orderRepository.findByUser(loginUser);
         List<MyPageOrderDto> orderDtos = orderService.changeToOrderDtoList(loginUser);
 //        List<Post> posts = postRepository.findByUser(loginUser);

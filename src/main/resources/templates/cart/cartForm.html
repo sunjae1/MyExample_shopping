@@ -2,52 +2,221 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" th:href="@{/addForm.css}">
+    <title>Add to Cart</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <style>
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            margin-bottom: 40px;
+        }
+        .breadcrumbs a {
+            color: var(--secondary-text);
+            text-decoration: none;
+        }
+        .breadcrumbs a:hover {
+            color: var(--primary-text);
+        }
+        .cart-form-container {
+            display: flex;
+            gap: 50px;
+            align-items: flex-start;
+        }
+        .item-image-container {
+            flex: 1;
+            max-width: 450px;
+        }
+        .item-image-container img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .form-section {
+            flex: 1.2;
+        }
+        .item-name {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .item-price {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--secondary-text);
+            margin-bottom: 20px;
+        }
+        .stock-info {
+            font-size: 0.9rem;
+            color: #28a745;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .quantity-selector label {
+            font-weight: 500;
+            margin-right: 20px;
+        }
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid var(--border-color);
+            background-color: var(--light-gray-bg);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .quantity-input {
+            width: 60px;
+            height: 35px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-right: none;
+            font-size: 1rem;
+            -moz-appearance: textfield; /* Firefox */
+        }
+        .quantity-input::-webkit-outer-spin-button,
+        .quantity-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .total-price-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .total-price-value {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+        }
+        .button-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+    </style>
 </head>
 <body>
 
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
 
-<div class="form-container">
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/posts}">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
 
-    <div>
-        <h2 class="form-title"> 상품 장바구니 폼</h2>
+<div class="container">
+
+    <div class="breadcrumbs">
+        <a th:href="@{/main}">홈</a> &gt;
+        <a th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">Item Name</a> &gt;
+        <span>장바구니 추가</span>
     </div>
 
-    <form action="item.html" th:action th:object="${cartForm}" method="post">
-
-        <input type="hidden" th:field="${item.id}">
-
-
-        <div class="form-group">
-            <label for="quantity" class="form-label">수량</label>
-            <input type="text" id="quantity" th:field="*{quantity}" placeholder="수량을 입력하세요" class="form-input image-path">
+    <div class="cart-form-container">
+        <div class="item-image-container">
+            <img th:src="@{${item.imageUrl}}" alt="Item Image">
         </div>
 
-        <div class="field-error" th:errors="*{quantity}">
-            수량 오류 메시지
+        <div class="form-section">
+            <h2 class="item-name" th:text="${item.itemName}">Item Name</h2>
+            <p class="item-price" th:text="|${item.price}원|">Price</p>
+            <p class="stock-info" th:text="|남은 재고: ${item.quantity}개 주문가능|">Stock Info</p>
+
+            <form th:action="@{|/items/${item.id}/cart|}" method="post">
+                <input type="hidden" name="id" th:value="${item.id}">
+                <input type="hidden" name="price" th:value="${item.price}">
+
+                <div class="quantity-selector">
+                    <label for="quantity">주문 수량</label>
+                    <button type="button" class="quantity-btn" id="btn-minus">-</button>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" th:max="${item.quantity}" class="quantity-input">
+                    <button type="button" class="quantity-btn" id="btn-plus">+</button>
+                </div>
+                <div class="field-error" th:if="${#fields.hasErrors('${cartForm.quantity}')}" th:errors="${cartForm.quantity}"></div>
+
+
+                <div class="total-price-section">
+                    <span>총 가격</span>
+                    <span id="total-price" class="total-price-value"></span>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">장바구니에 담기</button>
+                </div>
+                 <div style="text-align: center; margin-top: 15px;">
+                    <a th:href="@{/main}" class="btn btn-secondary">취소</a>
+                </div>
+            </form>
         </div>
-
-
-        <div class="form-group">
-            <label for="price" class="form-label">가격</label>
-            <input type="text" id="price" th:value="${item.price}" placeholder="가격을 입력하세요" readonly class="form-input image-path">
-        </div>
-
-        <hr>
-
-        <div class="button-container">
-            <div>
-                <button type="submit" class="btn btn-submit">저장</button>
-            </div>
-            <div>
-                <button th:onclick="|location.href='@{/main}'|" type="button" class="btn btn-cancel">취소</button>
-            </div>
-        </div>
-
-
-    </form>
+    </div>
 </div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const quantityInput = document.getElementById('quantity');
+    const btnPlus = document.getElementById('btn-plus');
+    const btnMinus = document.getElementById('btn-minus');
+    const totalPriceEl = document.getElementById('total-price');
+
+    const itemPrice = /*[[${item.price}]]*/ 0;
+    const maxQuantity = /*[[${item.quantity}]]*/ 1;
+
+    function updateTotal() {
+        let quantity = parseInt(quantityInput.value, 10);
+
+        if (isNaN(quantity) || quantity < 1) {
+            quantity = 1;
+            quantityInput.value = 1;
+        }
+        if (quantity > maxQuantity) {
+            quantity = maxQuantity;
+            quantityInput.value = maxQuantity;
+        }
+
+        const totalPrice = itemPrice * quantity;
+        totalPriceEl.textContent = new Intl.NumberFormat('ko-KR').format(totalPrice) + '원';
+    }
+
+    btnPlus.addEventListener('click', () => {
+        let currentVal = parseInt(quantityInput.value, 10);
+        if (currentVal < maxQuantity) {
+            quantityInput.value = currentVal + 1;
+            updateTotal();
+        }
+    });
+
+    btnMinus.addEventListener('click', () => {
+        let currentVal = parseInt(quantityInput.value, 10);
+        if (currentVal > 1) {
+            quantityInput.value = currentVal - 1;
+            updateTotal();
+        }
+    });
+
+    quantityInput.addEventListener('input', updateTotal);
+
+    // Initial calculation
+    updateTotal();
+    /*]]>*/
+</script>
 
 </body>
 </html>

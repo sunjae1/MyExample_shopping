@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Item;
 import myex.shopping.dto.ItemDto;
 import myex.shopping.form.ItemAddForm;
+import myex.shopping.form.ItemEditForm;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.service.ItemService;
@@ -134,7 +135,7 @@ public class ApiItemController {
     //한개만 수정 : PutMapping
     @PutMapping(value = "/{itemId}/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) //이게 URL
     public ResponseEntity<ItemDto> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
-                        @Valid @ModelAttribute ItemAddForm form) throws IOException {
+                        @Valid @ModelAttribute ItemEditForm form) throws IOException {
 
         Long updateItemId = itemService.editItemWithUUID(form, itemId);
         ItemDto itemDto = itemRepository.findById(updateItemId)

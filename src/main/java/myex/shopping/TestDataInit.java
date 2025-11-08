@@ -41,9 +41,9 @@ public class TestDataInit {
 
         //전부 save -> em.persist 되어서, 자바 객체 인스턴스 자체가 영속성으로 관리되어 @Transactional 안붙여도 의도대로 동작함.
 
-        Item itemA = new Item("아이템A", 2000, 10,"/img/1.webp");
+        Item itemA = new Item("아이템A", 2000, 10,"/image/1.webp");
         itemRepository.save(itemA);
-        itemRepository.save(new Item("아이템B", 4000,20, "/img/2.webp"));
+        itemRepository.save(new Item("아이템B", 4000,20, "/image/2.webp"));
 
         User user = new User("test@na.com","테스터","test!");
         userRepository.save(user);

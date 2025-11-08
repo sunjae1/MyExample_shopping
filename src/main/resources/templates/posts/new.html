@@ -1,34 +1,62 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Order List</title>
-  <link rel="stylesheet" href="/item.css">
+    <meta charset="UTF-8">
+    <title>Write New Post</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <style>
+
+    </style>
 </head>
 <body>
-<h2> 새 글 작성 </h2>
 
-<!--post : title, content, /userId-->
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
 
-<form th:action="@{/posts/new}" th:object="${post}" method="post">
-  <p>제목 : <input type="text" th:field="*{title}"></p>
-<!--  <p>작성자 : <input type="text" th:field="*{author}"></p>-->
-<!--  작성자 는 session 에서 꺼내서 userid 넣기.-->
-<!--  placeholder는 value 없을때 사용됨. value 속성 제일 우선.-->
-  <div class="field-error" th:errors="*{title}">
-    제목 오류 메시지
-  </div>
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/posts}" style="color: var(--primary-text);">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
 
-  <p>작성자 : <span th:text="${user.name}"></span></p>
-              <input type="hidden" name="userId" th:value="${user.id}">
-  <p>내용 : <textarea th:field="*{content}"></textarea></p>
+<div class="container">
+    <div class="form-container">
+        <h2 class="form-title">새로운 게시물 등록</h2>
 
-  <div class="field-error" th:errors="*{content}">
-    제목 오류 메시지
-  </div>
+        <form th:action="@{/posts/new}" th:object="${post}" method="post">
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" id="title" th:field="*{title}" class="form-input" placeholder="게시물 제목을 입력해주세요.">
+                <div class="field-error" th:errors="*{title}"></div>
+            </div>
 
-  <button type="submit">작성</button>
-</form>
+            <div class="form-group author-info">
+                <label>작성자</label>
+                <strong th:text="${user.name}">User Name</strong>
+                <input type="hidden" name="userId" th:value="${user.id}">
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea id="content" th:field="*{content}" class="form-textarea" placeholder="게시물 내용을 입력해주세요"></textarea>
+                <div class="field-error" th:errors="*{content}"></div>
+            </div>
+
+            <div class="button-container">
+                <button th:onclick="|location.href='@{/posts}'|" type="button" class="btn btn-secondary">취소</button>
+                <button type="submit" class="btn btn-primary">게시물 등록</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
 
 </body>
 </html>

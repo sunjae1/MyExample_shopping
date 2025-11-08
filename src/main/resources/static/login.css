@@ -18,7 +18,7 @@ body {
 
 .login-image {
     flex: 1;
-    background: url('/img/shopping.png') no-repeat center center;
+    background: url('/image/shopping.png') no-repeat center center;
     background-size: cover;
 }
 

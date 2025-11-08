@@ -2,65 +2,156 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-  <link th:href="@{/item_detail.css}"  rel="stylesheet">
+    <title th:text="${item.name} + ' - Product Details'">Product Details</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+        }
+        .breadcrumbs a {
+            color: var(--secondary-text);
+            text-decoration: none;
+        }
+        .breadcrumbs a:hover {
+            color: var(--primary-text);
+        }
+        .product-detail-card {
+            display: flex;
+            gap: 50px;
+            margin-top: 20px;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .product-image-main {
+            flex: 1;
+            max-width: 450px;
+        }
+        .product-image-main img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .product-info-main {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-name {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .product-id {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            margin-bottom: 25px;
+        }
+        .product-id .badge {
+            background-color: var(--light-gray-bg);
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .info-section {
+            margin-bottom: 25px;
+        }
+        .info-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .info-section p {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        .info-section .price {
+             color: var(--accent-color);
+        }
+        .admin-actions {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+    </style>
 </head>
 <body>
 
-<div>  <!-- Keep this outer div -->
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
 
-  <div>
-    <h2 class="item-title">옷 상품 상세</h2>
-  </div>
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}" style="color: var(--primary-text);">상품 관리 페이지</a>
+    <a th:href="@{/posts}">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
 
+<div class="container">
 
-  <div class="item-image-container">
-    <img th:src="${item.imageUrl}" alt="상품 이미지" class="item-image">
-  </div>
-
-
-<div class="item-container">
-     <div class="item-details">
-     <div class="detail-row">
-       <label for="itemId" class="detail-label" >상품 ID</label>
-       <input type="text" id="itemId" name="itemId" value="1" th:value="${item.id}"
-       readonly class="detail-value">
-     </div>
-     <div class="detail-row">
-       <label for ="itemName" class="detail-label">상품명</label>
-       <input type ="text" id="itemName" name="itemName" value="상품A" th:value="${item.name}" readonly class="detail-value">
-     </div>
-     <div class="detail-row">
-       <label for ="price" class="detail-label">가격</label>
-       <input type="text" id="price" name="price" value="10000" th:value="${item.price}" readonly class="detail-value">
-     </div>
-     <div class="detail-row">
-       <label for="quantity" class="detail-label">수량</label>
-       <input type="text" id="quantity" name="quantity" value="10" th:value="${item.quantity}" readonly class="detail-value">
-     </div>
-     </div>
-
-</div>
-
-<!-- <hr> removed -->
-<div class="button-container">
-    <div class="detail-row">
-        <button class="btn btn-edit"
-                th:onclick="|location.href='@{/items/{itemId}/edit(itemId=${item.id})}'|" type="button">상품 수정</button>
+    <div class="page-header">
+        <div class="breadcrumbs">
+            <a th:href="@{/items}">Product Management</a> &gt;
+            <span th:text="${item.name}">Product Name</span>
+        </div>
     </div>
 
-    <div class="detail-row">
-        <button class="btn btn-list"
-                th:onclick="|location.href='@{/main}'|" type="button">메인 페이지로</button>
-    </div>
-    <div class="detail-row">
-        <button class="btn btn-list"
-                th:onclick="|location.href='@{/items}'|" type="button">상품 관리 목록으로</button>
+    <div class="product-detail-card">
+        <!-- Left Column: Image -->
+        <div class="product-image-main">
+            <img th:src="@{${item.imageUrl}}" alt="Product Image">
+        </div>
+
+        <!-- Right Column: Details -->
+        <div class="product-info-main">
+            <div>
+                <h2 class="product-name" th:text="${item.name}">Product Name</h2>
+                <p class="product-id">
+                    상품 ID: <span class="badge" th:text="${item.id}">1</span>
+                </p>
+
+                <div class="info-section">
+                    <h3>가격</h3>
+                    <p class="price" th:text="|${item.price}원|">100,000원</p>
+                </div>
+
+                <div class="info-section">
+                    <h3>재고</h3>
+                    <p th:text="${item.quantity} + ' 개'">10 units</p>
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <a th:href="@{/items}" class="btn btn-secondary">목록으로</a>
+                <a th:href="@{|/items/${item.id}/edit|}" class="btn btn-secondary">상품 수정</a>
+                <form th:action="@{|/items/${item.id}/delete|}" method="post" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                    <button type="submit" class="btn btn-danger">상품 삭제</button> <!-- .btn-danger for destructive actions -->
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
-</div>
-
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
 
 </body>
 </html>

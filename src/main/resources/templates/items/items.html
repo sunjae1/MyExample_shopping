@@ -2,64 +2,116 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="/item.css">
-
+    <title>Product Management</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
+<style>
+    .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            margin-bottom: 25px;
+        }
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .item-image-thumbnail {
+            width: 60px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .item-name a {
+            color: var(--primary-text);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .item-name a:hover {
+            color: var(--accent-color);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+</style>
 <body>
+
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
+
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}" style="color: var(--primary-text);">상품 관리 페이지</a>
+    <a th:href="@{/posts}">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
+
 <div class="container">
-    <!--        th:text 안에는 타임리프 표현식 또는 변수 참조 넣어야함.
-                단순 문자열은 표현식으로 해석할려함.
-        문자열 그대로 쓸려면 ' ' 로 감싸야 함.-->
-    <div>
-        <h2 th:text="'관리자용 전체 상품 관리 목록'">상품목록</h2>
-    </div>
-    <p class="field-error" th:if="${errorPV}" th:text="${errorPV}">PathVariable 에러 메시지</p>
 
-
-    <div class="btn-container">
-        <button onclick="location.href='addForm.html'"
-                th:onclick="|location.href='@{/items/add}'|"
-                type="button" th:text="'상품 등록'"> 상품등록</button>
+    <div class="page-header">
+        <h2 class="page-title">Product Management</h2>
+        <a th:href="@{/items/add}" class="btn btn-primary">Add New Item</a>
     </div>
 
-    <div>
-        <table>
-            <thead>
-            <tr>
-                <th th:text ="'상품 ID'">ID</th>
-                <th th:text ="'상품명'">이름</th>
-                <th th:text ="'상품 가격'">가격</th>
-                <th th:text ="'상품 수량'">수량</th>
-<!--                <th th:text="'상품 주문'">주문</th>-->
-                <th>삭제하기</th>
+    <p class="field-error" th:if="${errorPV}" th:text="${errorPV}"></p>
 
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each = "item : ${items}">
-                <td><a href="item.html" th:href="@{/items/{itemId}(itemId=${item.id})}" th:text="${item.id}">상품 ID</a> </td>
-
-                <td><a href="item.html" th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">상품명</a></td>
-
-                <td th:text="${item.price}">10000</td>
-                <td th:text="${item.quantity}">10</td>
-<!--                장바구니 담기로 바꾸거나 삭제하거나-->
-<!--                <td><a th:href="@{|/items/${item.id}/order|}">주문하기</a></td>-->
-                <td>
-                    <form th:action="@{|/items/${item.id}/delete|}" method="post">
-                        <button type="submit">상품 삭제</button>
-                    </form>
-                </td>
-
-            </tr>
-            </tbody>
-        </table>
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="order-table">
+                <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${items}">
+                    <td>
+                        <img th:src="@{${item.imageUrl}}" alt="Item Image" class="item-image-thumbnail">
+                    </td>
+                    <td th:text="${item.id}">1</td>
+                    <td class="item-name">
+                        <a th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">Item Name</a>
+                    </td>
+                    <td th:text="|${item.price}원|">10000</td>
+                    <td th:text="${item.quantity}">10</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{|/items/${item.id}/edit|}" class="btn btn-secondary btn-sm">Edit</a>
+                            <form th:action="@{|/items/${item.id}/delete|}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-secondary btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-
 
 </div>
 
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
 
 </body>
 </html>
