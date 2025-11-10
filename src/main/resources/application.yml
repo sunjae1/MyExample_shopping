@@ -1,9 +1,14 @@
 spring:
-  datasource: #띄어쓰기 2칸
-    url: jdbc:h2:tcp://localhost/~/myshopping #4칸
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+#  datasource: #띄어쓰기 2칸
+#    url: jdbc:h2:tcp://localhost/~/myshopping #4칸
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+  datasource:
+    url: jdbc:mysql://localhost:3306/myshopping?serverTimezone=Asia/Seoul
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     open-in-view: false #false 하면 LazyinitializationException 많이 터짐.
@@ -11,6 +16,7 @@ spring:
       ddl-auto: create #띄어쓰기 6칸
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
 #        show_sql: true #띄어쓰기 8칸
         format_sql: true
 
