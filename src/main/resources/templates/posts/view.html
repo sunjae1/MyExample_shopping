@@ -30,7 +30,7 @@
         <div class="post-header">
             <h2 class="post-title" th:text="${post.title}">Post Title</h2>
             <div class="post-meta">
-                <span class="author">By <strong th:text="${post.authorName}">Author</strong></span>
+                <span class="author">작성자 | <strong th:text="${post.authorName}">Author</strong></span>
                 <span class="date" th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">Date</span>
             </div>
         </div>
@@ -48,11 +48,11 @@
 
     <!-- Comments Section -->
     <div class="comments-section">
-        <h3 class="comments-title">Comments</h3>
+        <h3 class="comments-title">댓글</h3>
 
         <!-- List of Comments -->
         <div th:if="${post.comments.isEmpty()}">
-            <p>No comments yet. Be the first to comment!</p>
+            <p>아직 댓글이 없습니다. 첫 댓글을 남겨주세요!</p>
         </div>
         <div th:each="comment : ${post.comments}" class="comment">
             <div class="comment-meta">
@@ -68,14 +68,14 @@
 
         <!-- New Comment Form -->
         <div class="comment-form-container">
-            <h4 class="comments-title" style="font-size: 1.2rem; margin-bottom: 20px;">Leave a Comment</h4>
+            <h4 class="comments-title" style="font-size: 1.2rem; margin-bottom: 20px;">댓글 등록하기</h4>
             <form th:action="@{|/posts/${post.id}/comments|}" method="post" th:object="${commentForm}">
                 <div>
-                    <textarea th:field="*{content}" placeholder="Write your comment here..."></textarea>
                     <div class="field-error" th:errors="*{content}"></div>
+                    <textarea th:field="*{content}" placeholder="댓글 내용을 여기에 입력해주세요."></textarea>
                 </div>
                 <div class="button-container">
-                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                    <button type="submit" class="btn btn-primary">댓글 등록하기</button>
                 </div>
             </form>
         </div>

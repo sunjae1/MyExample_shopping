@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.dto.dbdto.PostDBDto;
 import myex.shopping.form.CommentForm;
 import myex.shopping.repository.CommentRepository;
 import myex.shopping.repository.memory.MemoryCommentRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.CommentService;
+import myex.shopping.service.PostService;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -25,6 +27,7 @@ public class CommentController {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentService commentService;
+    private final PostService postService;
 
     //댓글 추가
     @PostMapping("/{postId}/comments")
@@ -47,7 +50,8 @@ public class CommentController {
         System.out.println("form = " + form);
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("post", post);
+            PostDBDto postDBDto = postService.changeToDto(postId);
+            model.addAttribute("post", postDBDto);
             model.addAttribute("loginUser",loginUser);
             return "posts/view";
         }

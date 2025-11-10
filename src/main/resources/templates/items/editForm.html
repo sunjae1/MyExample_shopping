@@ -22,30 +22,30 @@
 
 <div class="container">
     <div class="form-container">
-        <h2 class="form-title">Edit Item</h2>
+        <h2 class="form-title">상품 수정</h2>
 
         <form th:action th:object="${item}" method="post" enctype="multipart/form-data">
 
             <div class="form-group">
-                <label for="itemName">Item Name</label>
+                <label for="itemName">상품 이름</label>
                 <input type="text" id="itemName" th:field="*{itemName}" class="form-input">
                 <div class="field-error" th:errors="*{itemName}"></div>
             </div>
 
             <div class="form-group">
-                <label for="price">Price</label>
+                <label for="price">상품 가격</label>
                 <input type="number" id="price" th:field="*{price}" class="form-input">
                 <div class="field-error" th:errors="*{price}"></div>
             </div>
 
             <div class="form-group">
-                <label for="quantity">Quantity</label>
+                <label for="quantity">상품 재고</label>
                 <input type="number" id="quantity" th:field="*{quantity}" class="form-input">
                 <div class="field-error" th:errors="*{quantity}"></div>
             </div>
 
             <div class="form-group">
-                <label>Current Image</label>
+                <label>현재 상품 사진</label>
                 <div class="current-image-preview">
                     <img th:src="@{${item.imageUrl}}" alt="Current item image">
                   <input type="hidden" th:field="*{imageUrl}">
@@ -53,14 +53,14 @@
             </div>
 
             <div class="form-group">
-                <label for="imageFile">New Image (Optional)</label>
+                <label for="imageFile">새로운 상품 사진(Optional)</label>
                 <input type="file" id="imageFile" th:field="*{imageFile}" class="form-input">
                 <div class="field-error" th:errors="*{imageFile}"></div>
             </div>
 
             <div class="button-container">
-                <button th:onclick="|location.href='@{/items/{itemId}(itemId=${item.id})}'|" type="button" class="btn btn-secondary">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button th:onclick="|location.href='@{/items/{itemId}(itemId=${item.id})}'|" type="button" class="btn btn-secondary">취소</button>
+                <button type="submit" class="btn btn-primary">변경 내용 저장</button>
             </div>
         </form>
     </div>

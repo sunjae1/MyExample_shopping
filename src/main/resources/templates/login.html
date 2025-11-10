@@ -26,6 +26,7 @@
             <input type="password" th:field="*{password}" placeholder="Password">
             <div class="field-error" th:errors="*{password}">패스워드 오류 메시지</div>
         </div>
+<!--
 
         <div class="remember-forget">
             <label for="remember-check">
@@ -33,8 +34,10 @@
             </label>
             <a href="#">Forget Password?</a>
         </div>
+-->
 
         <input type="submit" value="Login">
+            <div class="field-error" th:if="${LoginMessage}" th:text="${LoginMessage}">로그인 필요 메시지</div>
     </form>
             <div class="register-link">
                 <p>계정을 가지고 있지 않나요?

@@ -49,8 +49,16 @@ public class UserController {
 
     //로그인 페이지로 보내기.
     @GetMapping("/")
-    public String start(Model model) {
+    public String start(Model model,
+                        HttpSession session) {
         model.addAttribute("form", new LoginForm());
+        //인터셉터 -> 로그인 페이지 리다이렉트 시(로그인 필요 메시지 출력)
+        String LoginMessage = (String) session.getAttribute("needLoginMessage");
+        if (LoginMessage != null) {
+            model.addAttribute("LoginMessage", LoginMessage);
+            session.removeAttribute("needLoginMessage"); //한 번만 보여주기
+        }
+        
         return "login";
 
     }
@@ -93,6 +101,7 @@ public class UserController {
         if (session !=null) {
             session.invalidate();
         }
+        System.out.println("UserController.logout 성공");
         return "redirect:/";
     }
 

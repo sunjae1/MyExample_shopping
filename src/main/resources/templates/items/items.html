@@ -63,8 +63,8 @@
 <div class="container">
 
     <div class="page-header">
-        <h2 class="page-title">Product Management</h2>
-        <a th:href="@{/items/add}" class="btn btn-primary">Add New Item</a>
+        <h2 class="page-title">관리자용 상품 관리 페이지</h2>
+        <a th:href="@{/items/add}" class="btn btn-primary">새 상품 등록</a>
     </div>
 
     <p class="field-error" th:if="${errorPV}" th:text="${errorPV}"></p>
@@ -74,12 +74,12 @@
             <table class="order-table">
                 <thead>
                 <tr>
-                    <th>Image</th>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Actions</th>
+                    <th>상품 사진</th>
+                    <th>상품 ID</th>
+                    <th>상품 이름</th>
+                    <th>상품 가격</th>
+                    <th>상품 재고</th>
+                    <th>수정/삭제</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -95,9 +95,9 @@
                     <td th:text="${item.quantity}">10</td>
                     <td>
                         <div class="action-buttons">
-                            <a th:href="@{|/items/${item.id}/edit|}" class="btn btn-secondary btn-sm">Edit</a>
+                            <a th:href="@{|/items/${item.id}/edit|}" class="btn btn-secondary btn-sm">수정</a>
                             <form th:action="@{|/items/${item.id}/delete|}" method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-secondary btn-sm">Delete</button>
+                                <button type="submit" class="btn btn-secondary btn-sm">삭제</button>
                             </form>
                         </div>
                     </td>
