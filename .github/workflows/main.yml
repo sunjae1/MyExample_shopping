@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Zero-Downtime Deploy (Blue-Green Toggle)
 
 on:
   push:
@@ -10,30 +10,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. 코드 체크아웃
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v3
-    #2.0. Gradlew 실행 권한 부여
-    - name: Make Gradlew executable
-      run: chmod +x ./gradlew
 
-    # 2. Gradle 빌드
-    - name: Build Spring Boot JAR
-      run: ./gradlew clean build -x test
+    - name: Build JAR
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean build -x test
 
-    # 3. SSH 키 설정
-    - name: Set up SSH key
+    - name: Set SSH Key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-    # 4. SSH 연결 테스트
-    - name: Test SSH connection
-      run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@3.39.147.146 "echo Connected!"
-
-    # 5. JAR 파일 EC2로 전송 및 실행
-    - name: Deploy Spring Boot JAR
+    - name: Upload JAR
       run: |
-        scp -i ~/.ssh/id_rsa build/libs/shopping-0.0.1-SNAPSHOT.jar ubuntu@3.39.147.146:/home/ubuntu/
-        ssh -i ~/.ssh/id_rsa ubuntu@3.39.147.146 "nohup java -jar /home/ubuntu/shopping-0.0.1-SNAPSHOT.jar > /home/ubuntu/app.log 2>&1 &"
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa \
+          build/libs/*.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app_new.jar
+
+    - name: Run & Switch
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
+          CURRENT_PORT=\$(grep -o '808[0-1]' /etc/nginx/sites-available/myapp | head -1)
+
+          if [ \"\$CURRENT_PORT\" = \"8080\" ]; then
+            NEW_PORT=8081
+          else
+            NEW_PORT=8080
+          fi
+
+          echo \"현재 서비스 포트: \$CURRENT_PORT → 새 포트: \$NEW_PORT\"
+
+          PID=\$(lsof -t -i:\$NEW_PORT)
+          if [ ! -z \"\$PID\" ]; then kill -9 \$PID; fi
+
+          nohup java -jar /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > app_\$NEW_PORT.log 2>&1 &
+
+          sleep 3
+
+          sudo sed -i \"s/8080/8081/;t;s/8081/8080/\" /etc/nginx/sites-available/myapp
+          sudo systemctl reload nginx
+
+          OLD_PID=\$(lsof -t -i:\$CURRENT_PORT)
+          if [ ! -z \"\$OLD_PID\" ]; then kill -9 \$OLD_PID; fi
+
+          echo \"배포 완료! 현재 서비스는 \$NEW_PORT 에서 제공 중\"
+        "
