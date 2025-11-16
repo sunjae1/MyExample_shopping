@@ -38,13 +38,13 @@ jobs:
           build/libs/shopping-0.0.1-SNAPSHOT.jar \
           ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app_new.jar
 
-    # 6️⃣ 무중단 배포 + 포트 스위칭
+    # 6️⃣ Blue-Green 무중단 배포
     - name: Deploy with Blue-Green Toggle
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
-          # 현재 Nginx에서 서비스 중인 포트 확인
-          CURRENT_PORT=\$(grep -o '127\.0\.0\.1:[0-9]\+' /etc/nginx/sites-available/myapp | grep -o '[0-9]\+')
-          
+          # 1. 현재 Nginx에서 서비스 중인 포트 확인
+          CURRENT_PORT=\$(grep -o '127\.0\.0\.1:808[0-1]' /etc/nginx/sites-available/myapp.template | head -1 | grep -o '808[0-1]')
+
           if [ \"\$CURRENT_PORT\" = \"8080\" ]; then
             NEW_PORT=8081
           else
@@ -53,20 +53,20 @@ jobs:
 
           echo \"배포: \$CURRENT_PORT -> \$NEW_PORT\"
 
-          # 새 포트에 프로세스 있으면 종료
+          # 2. 새 포트에 혹시 프로세스 있으면 종료
           NEW_PID=\$(lsof -t -i:\$NEW_PORT)
           if [ ! -z \"\$NEW_PID\" ]; then kill -9 \$NEW_PID; fi
 
-          # 새 JAR 실행
+          # 3. 새 JAR 실행
           nohup java -jar /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > /home/ubuntu/app_\$NEW_PORT.log 2>&1 &
 
           sleep 10
 
-          # Nginx template에서 포트 치환
+          # 4. Nginx upstream 포트 업데이트
           sudo sed \"s/PORT_NUMBER/\$NEW_PORT/\" /etc/nginx/sites-available/myapp.template | sudo tee /etc/nginx/sites-available/myapp > /dev/null
           sudo nginx -t && sudo systemctl reload nginx
 
-          # 이전 포트 프로세스 종료
+          # 5. 이전 포트 종료
           OLD_PID=\$(lsof -t -i:\$CURRENT_PORT)
           if [ ! -z \"\$OLD_PID\" ]; then kill -9 \$OLD_PID; fi
 
