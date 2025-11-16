@@ -13,6 +13,9 @@ jobs:
     # 1. 코드 체크아웃
     - name: Checkout code
       uses: actions/checkout@v3
+    #2.0. Gradlew 실행 권한 부여
+    - name: Make Gradlew executable
+      run: chmod +x ./gradlew
 
     # 2. Gradle 빌드
     - name: Build Spring Boot JAR
