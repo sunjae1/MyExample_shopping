@@ -1,0 +1,36 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 코드 체크아웃
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Gradle 빌드
+    - name: Build Spring Boot JAR
+      run: ./gradlew clean build -x test
+
+    # 3. SSH 키 설정
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    # 4. SSH 연결 테스트
+    - name: Test SSH connection
+      run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@3.39.147.146 "echo Connected!"
+
+    # 5. JAR 파일 EC2로 전송 및 실행
+    - name: Deploy Spring Boot JAR
+      run: |
+        scp -i ~/.ssh/id_rsa build/libs/shopping-0.0.1-SNAPSHOT.jar ubuntu@3.39.147.146:/home/ubuntu/
+        ssh -i ~/.ssh/id_rsa ubuntu@3.39.147.146 "nohup java -jar /home/ubuntu/shopping-0.0.1-SNAPSHOT.jar > /home/ubuntu/app.log 2>&1 &"
