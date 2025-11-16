@@ -1,4 +1,4 @@
-name: Zero-Downtime Deploy (Blue-Green Toggle)
+name: Zero-Downtime Deploy to EC2
 
 on:
   push:
@@ -10,50 +10,65 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1️⃣ 코드 체크아웃
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Build JAR
+    # 2️⃣ Gradle 빌드 (테스트 제외)
+    - name: Build Spring Boot JAR
       run: |
         chmod +x ./gradlew
         ./gradlew clean build -x test
 
-    - name: Set SSH Key
+    # 3️⃣ SSH 키 설정
+    - name: Set up SSH Key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-    - name: Upload JAR
+    # 4️⃣ SSH 연결 테스트
+    - name: Test SSH connection
+      run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "echo Connected!"
+
+    # 5️⃣ JAR 업로드
+    - name: Upload JAR to EC2
       run: |
         scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa \
-          build/libs/*.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app_new.jar
+          build/libs/shopping-0.0.1-SNAPSHOT.jar \
+          ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app_new.jar
 
-    - name: Run & Switch
+    # 6️⃣ 무중단 배포 + 포트 스위칭
+    - name: Deploy with Blue-Green Toggle
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
+          # 현재 Nginx에서 서비스 중인 포트 확인
           CURRENT_PORT=\$(grep -o '808[0-1]' /etc/nginx/sites-available/myapp | head -1)
-
+          
           if [ \"\$CURRENT_PORT\" = \"8080\" ]; then
             NEW_PORT=8081
           else
             NEW_PORT=8080
           fi
 
-          echo \"현재 서비스 포트: \$CURRENT_PORT → 새 포트: \$NEW_PORT\"
+          echo \"배포: \$CURRENT_PORT -> \$NEW_PORT\"
 
-          PID=\$(lsof -t -i:\$NEW_PORT)
-          if [ ! -z \"\$PID\" ]; then kill -9 \$PID; fi
+          # 새 포트에 혹시 프로세스 있으면 종료
+          NEW_PID=\$(lsof -t -i:\$NEW_PORT)
+          if [ ! -z \"\$NEW_PID\" ]; then kill -9 \$NEW_PID; fi
 
-          nohup java -jar /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > app_\$NEW_PORT.log 2>&1 &
+          # 새 JAR 실행
+          nohup java -jar /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > /home/ubuntu/app_\$NEW_PORT.log 2>&1 &
 
-          sleep 3
+          sleep 5
 
-          sudo sed -i \"s/8080/8081/;t;s/8081/8080/\" /etc/nginx/sites-available/myapp
+          # Nginx 설정에서 포트 스위칭
+          sudo sed -i \"s/listen \$CURRENT_PORT;/listen \$NEW_PORT;/\" /etc/nginx/sites-available/myapp
           sudo systemctl reload nginx
 
+          # 이전 포트 프로세스 종료
           OLD_PID=\$(lsof -t -i:\$CURRENT_PORT)
           if [ ! -z \"\$OLD_PID\" ]; then kill -9 \$OLD_PID; fi
 
-          echo \"배포 완료! 현재 서비스는 \$NEW_PORT 에서 제공 중\"
+          echo \"배포 완료: 서비스 \$NEW_PORT\"
         "
