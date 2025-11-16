@@ -42,12 +42,9 @@ jobs:
     - name: Deploy with Blue-Green Toggle
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
-          # 현재 Nginx에서 서비스 중인 포트 확인 (없으면 기본 8080)
-          CURRENT_PORT=\$(grep -o '808[0-1]' /etc/nginx/sites-available/myapp | head -1)
-          if [ -z \"\$CURRENT_PORT\" ]; then
-            CURRENT_PORT=8080
-          fi
-
+          # 현재 Nginx에서 서비스 중인 포트 확인
+          CURRENT_PORT=\$(grep -o '127\.0\.0\.1:[0-9]\+' /etc/nginx/sites-available/myapp | grep -o '[0-9]\+')
+          
           if [ \"\$CURRENT_PORT\" = \"8080\" ]; then
             NEW_PORT=8081
           else
@@ -63,13 +60,10 @@ jobs:
           # 새 JAR 실행
           nohup java -jar /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > /home/ubuntu/app_\$NEW_PORT.log 2>&1 &
 
-          sleep 15
+          sleep 10
 
-          # Nginx 설정 업데이트 (template + envsubst)
-          export PORT=\$NEW_PORT
-          sudo envsubst '\$PORT' < /etc/nginx/sites-available/myapp.template | sudo tee /etc/nginx/sites-available/myapp > /dev/null
-
-          # 설정 테스트 & 재시작
+          # Nginx template에서 포트 치환
+          sudo sed \"s/PORT_NUMBER/\$NEW_PORT/\" /etc/nginx/sites-available/myapp.template | sudo tee /etc/nginx/sites-available/myapp > /dev/null
           sudo nginx -t && sudo systemctl reload nginx
 
           # 이전 포트 프로세스 종료
