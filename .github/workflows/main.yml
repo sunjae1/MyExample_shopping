@@ -65,8 +65,13 @@ jobs:
           # Nginx 설정에서 포트 스위칭
           #sudo sed -i \"s/listen \$CURRENT_PORT;/listen \$NEW_PORT;/\" /etc/nginx/sites-available/myapp
           #sudo sed -i 's/server 127.0.0.1:808[0-1];/server 127.0.0.1:'"$NEW_PORT"';/' /etc/nginx/sites-available/myapp
-          sudo sed -i 's/server 127\.0\.0\.1:808[0-1];/server 127.0.0.1:'"$NEW_PORT"';/' /etc/nginx/sites-available/myapp
-          sudo systemctl reload nginx
+          #sudo sed -i 's/server 127\.0\.0\.1:808[0-1];/server 127.0.0.1:'"$NEW_PORT"';/' /etc/nginx/sites-available/myapp (포트 치환 에러)
+          # sudo sed -i "s/server 127\.0\.0\.1:808[0-1];/server 127.0.0.1:${NEW_PORT};/" /etc/nginx/sites-available/myapp
+          export PORT=$NEW_PORT
+          envsubst '${PORT}' < /etc/nginx/sites-available/myapp.template > /etc/nginx/sites-available/myapp
+          sudo nginx -t && sudo systemctl reload nginx
+
+          # sudo systemctl reload nginx
 
           # 이전 포트 프로세스 종료
           OLD_PID=\$(lsof -t -i:\$CURRENT_PORT)
