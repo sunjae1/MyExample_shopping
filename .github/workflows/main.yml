@@ -60,10 +60,11 @@ jobs:
           # 새 JAR 실행
           nohup java -jar /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > /home/ubuntu/app_\$NEW_PORT.log 2>&1 &
 
-          sleep 5
+          sleep 15
 
           # Nginx 설정에서 포트 스위칭
-          sudo sed -i \"s/listen \$CURRENT_PORT;/listen \$NEW_PORT;/\" /etc/nginx/sites-available/myapp
+          #sudo sed -i \"s/listen \$CURRENT_PORT;/listen \$NEW_PORT;/\" /etc/nginx/sites-available/myapp
+          sudo sed -i "s/server 127.0.0.1:808[0-1];/server 127.0.0.1:$NEW_PORT;/" /etc/nginx/sites-available/myapp
           sudo systemctl reload nginx
 
           # 이전 포트 프로세스 종료
