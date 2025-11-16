@@ -19,7 +19,7 @@ import java.util.Objects;
 //엔티티 클래스명 : User, JPQL 쿼리는 User로.
 public class User {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotEmpty(message = "이메일을 입력해주세요")

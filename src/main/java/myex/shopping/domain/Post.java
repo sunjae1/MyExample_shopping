@@ -18,7 +18,7 @@ public class Post {
 
     //게시판 : DB id, 제목, 내용, 글쓴이
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotEmpty(message = "제목을 입력해주세요.")

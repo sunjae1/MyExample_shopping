@@ -18,7 +18,7 @@ import java.util.Optional;
 public class Cart {
 
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true) //CarItem.cart 가 필드가 연관관계 주인.

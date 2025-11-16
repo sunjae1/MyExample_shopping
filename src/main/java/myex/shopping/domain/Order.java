@@ -16,7 +16,7 @@ import java.util.List;
 @Table(name = "orders") //ORDER BY 같은 예약어 때문에 충돌.
 //프로퍼티 접근법 Thymeleaf 에서 쓰임.
 public class Order {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

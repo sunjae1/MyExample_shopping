@@ -1,9 +1,6 @@
 package myex.shopping.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +20,7 @@ import java.util.Objects;
 public class Item {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String itemName;
     private Integer price; //가격

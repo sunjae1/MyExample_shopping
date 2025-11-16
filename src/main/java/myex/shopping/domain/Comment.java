@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Comment {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -13,7 +13,7 @@ import lombok.ToString;
 @ToString(exclude = "cart")
 public class CartItem {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     //아이템과 수량만 기록
