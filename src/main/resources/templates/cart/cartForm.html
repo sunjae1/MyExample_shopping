@@ -133,8 +133,8 @@
 
         <div class="form-section">
             <h2 class="item-name" th:text="${item.itemName}">Item Name</h2>
-            <p class="item-price" th:text="|${item.price}원|">Price</p>
-            <p class="stock-info" th:text="|남은 재고: ${item.quantity}개 주문가능|">Stock Info</p>
+            <p class="item-price" th:text="${#numbers.formatInteger(item.price, 0, 'COMMA')}+ '원'">Price</p>
+            <p class="stock-info" th:text="'남은 재고: '+ ${#numbers.formatInteger(item.quantity, 0, 'COMMA')}+ '개 주문가능'">Stock Info</p>
 
             <form th:action="@{|/items/${item.id}/cart|}" method="post">
                 <input type="hidden" name="id" th:value="${item.id}">

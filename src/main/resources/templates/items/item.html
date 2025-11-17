@@ -129,12 +129,12 @@
 
                 <div class="info-section">
                     <h3>가격</h3>
-                    <p class="price" th:text="|${item.price}원|">100,000원</p>
+                    <p class="price" th:text="${#numbers.formatInteger(item.price, 0, 'COMMA')}+ '원'">100,000원</p>
                 </div>
 
                 <div class="info-section">
                     <h3>재고</h3>
-                    <p th:text="${item.quantity} + ' 개'">10 units</p>
+                    <p th:text="${#numbers.formatInteger(item.quantity, 0, 'COMMA')}+ '개'">10 units</p>
                 </div>
             </div>
 

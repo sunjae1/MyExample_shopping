@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.format.annotation.NumberFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
@@ -27,6 +28,7 @@ public class ItemAddForm {
     @NotNull(message = "가격을 입력해주세요")
     @Range(min = 10, max = 999999999, message = "최소 10원, 최대 9억99,999,999 까지 입력 가능합니다.")
     @Schema(description = "상품 가격", example = "2000")
+    @NumberFormat(pattern = "#,###")
     private Integer price;
     @NotNull(message = "수량을 입력해주세요")
     @Max(value = 9999, message = "최대 수량은 9999개 입니다.")

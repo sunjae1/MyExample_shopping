@@ -91,8 +91,8 @@
                     <td class="item-name">
                         <a th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">Item Name</a>
                     </td>
-                    <td th:text="|${item.price}원|">10000</td>
-                    <td th:text="${item.quantity}">10</td>
+                    <td th:text="${#numbers.formatInteger(item.price, 0, 'COMMA')}+ '원'">10000</td>
+                    <td th:text="${#numbers.formatInteger(item.quantity, 0, 'COMMA')}+ '개'">10</td>
                     <td>
                         <div class="action-buttons">
                             <a th:href="@{|/items/${item.id}/edit|}" class="btn btn-secondary btn-sm">수정</a>

@@ -114,8 +114,8 @@
                             </li>
                         </ul>
                     </td>
-                    <td th:text="${order.getTotalQuantity()}">Total Quantity</td>
-                    <td th:text="|${order.getTotalPrice()}원|">Total Price</td>
+                    <td th:text="${order.getTotalQuantity()} + '개'">Total Quantity</td>
+                    <td th:text="${#numbers.formatInteger(order.getTotalPrice(), 0, 'COMMA')}+ '원'">Total Price</td>
                     <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}">Order Date</td>
                     <td><span class="order-status"
                               th:classappend="${order.status.name() == 'PAID' ? 'order-status-ORDER' : 'order-status-CANCEL'}"

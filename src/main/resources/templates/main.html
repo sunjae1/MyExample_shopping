@@ -28,54 +28,15 @@
     <div class="product-grid">
         <!-- Dynamically loaded products -->
         <div class="product-card" th:each="item : ${items}">
-            <a th:href="@{|/items/${item.id}|}">
+            <a th:href="@{|/items/${item.id}/cart|}">
                 <img th:src="@{${item.imageUrl}}" alt="Product Image">
                 <div class="product-card-info">
                     <h3 th:text="${item.itemName}">Product Name</h3>
-                    <p th:text="|${item.price}원|">Price</p>
-                    <p th:text="|남은 수량 :${item.quantity}개|">Quantity</p>
+                    <p th:text="${#numbers.formatInteger(item.price, 0, 'COMMA')}+ '원'">Price</p>
+                    <p th:text="'남은 수량 :'+ ${#numbers.formatInteger(item.quantity, 0, 'COMMA')}+ '개'">Quantity</p>
                 </div>
             </a>
             <a th:href="@{|/items/${item.id}/cart|}" class="btn btn-primary">장바구니에 담기</a>
-        </div>
-
-        <!-- Example Product 1 -->
-        <div class="product-card">
-            <a href="#">
-                <img th:src="@{/image/1.webp}" alt="Product Example 1">
-                <div class="product-card-info">
-                    <h3>Classic Trench Coat</h3>
-                    <p>159,000원</p>
-                    <p>남은 수량 : 99개</p>
-                </div>
-            </a>
-            <a href="#" class="btn btn-primary">장바구니에 담기</a>
-        </div>
-
-        <!-- Example Product 2 -->
-        <div class="product-card">
-            <a href="#">
-                <img th:src="@{/image/2.webp}" alt="Product Example 2">
-                <div class="product-card-info">
-                    <h3>Urban Sneakers</h3>
-                    <p>89,000원</p>
-                    <p>남은 수량 : 99개</p>
-                </div>
-            </a>
-            <a href="#" class="btn btn-primary">장바구니에 담기</a>
-        </div>
-
-        <!-- Example Product 3 -->
-        <div class="product-card">
-            <a href="#">
-                <img th:src="@{/image/3.webp}" alt="Product Example 3">
-                <div class="product-card-info">
-                    <h3>Stylish Hat</h3>
-                    <p>45,000원</p>
-                    <p>남은 수량 : 99개</p>
-                </div>
-            </a>
-            <a href="#" class="btn btn-primary">장바구니에 담기</a>
         </div>
     </div>
 

@@ -31,19 +31,24 @@ public class TestDataInit {
      * 테스트용 데이터 추가
      */
     /*
-    프록시로 감싸지고 트랜잭션을 시작/종료하는데,
-    @PostConstruct는 프록시로 감싸지지기 전 원본 객체에서 호출 될 수 있다. -> 트랜잭션 적용 안됨. -> save(itemA) 는 한줄만 Repository 에서 트랜잭션 적용되고, 다시 여기 코드에선 준영속으로 됨.(Transactional이 없기 때문에 대출 된 책은 준영속)
-    --Spring Application 완전히 초기화 되고, 모든 Bean, Proxy 준비 된 후에 데이터 초기화 시킬려면 @PostConstruct --> @ApplicationReadyEvent 써야함. --
+    프록시로 감싸지고 트랜잭션을 시작/종료.
+    @PostConstruct는 프록시로 감싸지지기 전 원본 객체에서 호출 될 수 있다. -> 트랜잭션 적용이 되지 않음. -> save(itemA)는 Repository 에서 트랜잭션 적용되고, 다시 여기 코드에 준영속으로 된다.(Transactional이 없기 때문에, 예) 대출 된 책은 준영속)
+    --Spring Application이 완전히 초기화 되고, 모든 Bean, Proxy 준비 된 후에 데이터 초기화 시킬려면 @ApplicationReadyEvent를 써야함. --
     @PostConstruct //스프링 빈이 생성되고, 의존성 주입이 끝난 뒤 호출되는 메서드 (빈이 다 준비되면 자동으로 메소드 실행*/
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
 
-        //전부 save -> em.persist 되어서, 자바 객체 인스턴스 자체가 영속성으로 관리되어 @Transactional 안붙여도 의도대로 동작함.
+        //save -> em.persist 되어서, Repository 안 @Transactional 되어, 영속성 컨텍스트로 관리.
 
-        Item itemA = new Item("아이템A", 2000, 10,"/image/1.webp");
+        Item itemA = new Item("남성 스투시 반팔 상의", 2000, 10,"/image/1.webp");
         itemRepository.save(itemA);
-        itemRepository.save(new Item("아이템B", 4000,20, "/image/2.webp"));
+        itemRepository.save(new Item("남성 블루종 레더 자켓 블랙", 4000,20, "/image/2.webp"));
+
+        itemRepository.save(new Item("여성 더블페이스 울 롱 코트", 100000,30, "/image/women_coat1.jpeg"));
+        itemRepository.save(new Item("여성 머플러하프코트", 50000,50, "/image/women_coat2.webp"));
+        itemRepository.save(new Item("남성 코듀로이 셔츠 브라운", 50000,50, "/image/man_shirt.webp"));
+
 
         User user = new User("test@na.com","테스터","test!");
         userRepository.save(user);
