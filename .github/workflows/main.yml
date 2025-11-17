@@ -43,7 +43,8 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
           # 1. 현재 Nginx에서 서비스 중인 포트 확인
-          CURRENT_PORT=\$(grep -o '127\.0\.0\.1:808[0-1]' /etc/nginx/sites-available/myapp.template | head -1 | grep -o '808[0-1]')
+          #CURRENT_PORT=\$(grep -o '127\.0\.0\.1:808[0-1]' /etc/nginx/sites-available/myapp.template | head -1 | grep -o '808[0-1]')
+          CURRENT_PORT=$(grep -o '808[0-1]' /etc/nginx/sites-available/myapp | head -1)
 
           if [ \"\$CURRENT_PORT\" = \"8080\" ]; then
             NEW_PORT=8081
