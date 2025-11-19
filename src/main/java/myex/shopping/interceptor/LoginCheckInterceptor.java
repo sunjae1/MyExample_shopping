@@ -3,6 +3,7 @@ package myex.shopping.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.User;
 import myex.shopping.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
+@Slf4j
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
     @Autowired
@@ -23,6 +25,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         // /posts 관련 처리
         if (uri.matches("/posts/\\d+")) {
+            log.info("posts/{id} 로그인 없이 통과 로직");
             // 게시물 리스트, 단일 게시물: 로그인 없이 접근
             // /posts/{id} 검사 없이 통과 (로그인 X)
             return true;

@@ -12,7 +12,7 @@ import java.util.Optional;
 //단위 테스트 목적. DI로 스프링 애플리케이션이 넣는게 아니라,(@SpringTest, 통합) 직접 자바 코드로 직접 주입하고 직접 다 해보는거. 스프링 없이.
 class UserServiceTest {
 
-    private final UserRepository userRepository = new MemoryUserRepository();
+    private final MemoryUserRepository userRepository = new MemoryUserRepository();
     UserService userService = new UserService(userRepository);
 
     //테스트 하나 끝나고 DB 초기화.

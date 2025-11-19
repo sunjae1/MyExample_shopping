@@ -60,7 +60,7 @@ jobs:
           if [ ! -z \"\$NEW_PID\" ]; then kill -9 \$NEW_PID; fi
 
           # 3. 새 JAR 실행
-          nohup java -jar /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > /home/ubuntu/app_\$NEW_PORT.log 2>&1 &
+          nohup java -jar -Dspring.profiles.active=prod /home/ubuntu/app_new.jar --server.port=$NEW_PORT > /home/ubuntu/app_$NEW_PORT.log 2>&1 &
 
           sleep 10
 

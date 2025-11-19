@@ -27,23 +27,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 //API 컨트롤러 에서는 뷰를 리턴하지 않고, JSON + 상태 코드만 리턴함.
-//어디로 이동해야 할지는 서버가 아닌 클라이언트(React, Vue, Angular, 모바일 앱 등)가 결정해야한다.
+//어디로 이동해야 할지는 서버가 아닌 클라이언트(React, Vue, Angular, 모바일 앱 등)가 결정.
 
-//GET(단순 조회)는 200 OK 고정이라 --> DTO만 반환하는 경우 많다.
 //POST/PUT/PATCH/DELETE(등록, 수정, 삭제) : 성공/실패 여부 따라
-//201 CREATED, 204 NO CONTENT, 400 BAD REQUEST, 404 NOT FOUND 등 다양한 상태 코드 필요. --> ResponseEntity<DTO> 반환.
+//201 CREATED, 204 NO CONTENT, 400 BAD REQUEST, 404 NOT FOUND 등
+//다양한 상태 코드 필요. --> ResponseEntity<DTO> 반환.
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "User", description = "사용자 관련 API")
+@Tag(name = "User", description = "사용자 관련 API") //Open API Spec 설명.
 @Validated // 선택 사항 : @RequestParam, @PathVariable 검증 시 필요.
-//DTO는 그냥 @Valid 만 매개변수 앞에 붙여도 검증 가능.
+//DTO는 @Valid만 매개변수 앞에 붙여도 검증 가능.
 public class ApiUserController {
 
-    //Api 에서는 프론트엔드에서 뷰를 뿌리고, 프론트에서 오는 정보를 서버를 거쳐 처리하고 다시 JSON 으로 반환. (뷰 필요없어서 GetMapping 거의 다 사라짐.)
+    //프론트엔드에서 뷰를 뿌리고 Api 에서는, 프론트에서 오는 정보를 서버에 거쳐 처리하고 다시 JSON 으로 반환. (뷰 필요없어서 GetMapping 거의 다 제거됨.)
 
-    private final ItemRepository itemRepository; //생성자 주입.
+    //생성자 주입.
+    private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
     private final PostRepository postRepository;
 
@@ -61,8 +62,7 @@ public class ApiUserController {
     )
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
-                                        HttpSession session) {
+    public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto, HttpSession session) {
 
 
         User loginUser = userService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
@@ -70,7 +70,7 @@ public class ApiUserController {
         if (loginUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); //로그인 실패, 인증 실패
         }
-        //로그인 성공 로직 (UUID 해서 있으면 그냥 반환, 아니면 신규 세션 생성.
+        //로그인 성공 로직 (UUID 사용하여 있으면 반환, 아니면 신규 세션 생성)
         session.setAttribute("loginUser", loginUser);
         return ResponseEntity.ok(new UserDto(loginUser)); //200 OK
     }
@@ -138,14 +138,14 @@ public class ApiUserController {
                     @ApiResponse(responseCode = "200", description = "조회 성공")
             }
     )
-    //마이페이지 보내는거 : user, orders, posts, cart : 아직 오류남.
+    //마이페이지 보내는거 : user, orders, posts, cart
     @GetMapping("/myPage")
     public ResponseEntity<MyPageDto> myPage(HttpSession session)
     {
         User loginUser = (User) session.getAttribute("loginUser");
 
         if (loginUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); //로그인 안됨.
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); //401 로그인 실패
         }
 
         List<OrderDto> orders = orderRepository.findByUser(loginUser).stream()
@@ -157,8 +157,9 @@ public class ApiUserController {
                 .collect(Collectors.toList());
 
         //브라우저 세션이랑 포스트맨 세션이랑 다름.
-        //브라우저에서 카트에 넣어도, 포스트맨에서 cart가 세션이라 못받음.
+        //브라우저에서 카트에 넣어도, 포스트맨에서 cart가 세션이라 공유 불가.
 //        Cart cart = getOrCreateCart(session);
+        //Cart : 세션 -> DB로 교체.
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
 
         System.out.println("orders = " + orders);

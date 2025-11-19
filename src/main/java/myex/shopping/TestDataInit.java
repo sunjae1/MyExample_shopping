@@ -9,12 +9,14 @@ import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.repository.memory.MemoryOrderRepository;
 import myex.shopping.service.PostService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Profile("dev")
 @Component //클래스 레벨에서 스프링 빈으로 등록
 @RequiredArgsConstructor
 public class TestDataInit {

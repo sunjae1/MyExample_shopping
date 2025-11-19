@@ -26,8 +26,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /*
-Delete return 은 성공했고, 반환값이 없으니까 No Content 204 응답.
-Put, Patch는 클라이언트가 이미 성공값을 가지고 요청을 한거기 때문에, 서버는 "수정 완료" 만 보내면 되기 때문에, (성공했고, 반환값이 없다) No Content 204 응답 사용 가능.
+Delete return 은 성공했고, 반환값이 없으니까 No Content 204 응답.(삭제 완료)
+Put, Patch는 클라이언트가 이미 성공값을 가지고 요청을 한거기 때문에, 서버는 "수정 완료" 만 보내면 된다.
+(성공했고, 반환값이 없다) No Content 204 응답 사용 가능.
  */
 @RequiredArgsConstructor
 @RestController
@@ -82,10 +83,9 @@ public class ApiItemController {
     //아이템 추가
     @GetMapping("/add")
     public String addForm(Model model) {
-        model.addAttribute("item", new ItemAddForm()); //th:object 쓸려고 빈 객체 넣음.
+        model.addAttribute("item", new ItemAddForm()); //th:object 사용 위해 빈 객체 넣음.
         return "items/addForm";
     }
-
     */
 
     @Operation(
@@ -95,10 +95,9 @@ public class ApiItemController {
                     @ApiResponse(responseCode = "201", description = "등록 성공")
             }
     )
-
     //아이템 추가 로직
     //AddForm, 프론트에서 imageFile, itemName, price, quantity 넘어옴.
-    //JSON + File => Postman Body form-data(multipart/form-data)
+    //JSON + File => Postman - Body : form-data(multipart/form-data)
     //원래 Form은 url에 key=value로 전송.
     //multipart/form-data는 각 input 파트로 나눠서 전송.(텍스트+파일 가능)
     @PostMapping(value = "/add", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -106,7 +105,6 @@ public class ApiItemController {
                           RedirectAttributes redirectAttributes) throws IOException {
 
         Long savedItemId = itemService.createItem(form);
-//        redirectAttributes.addAttribute("itemId", savedItemId);
         ItemDto itemDto = itemRepository.findById(savedItemId)
                 .map(ItemDto::new)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이템은 없습니다."));
