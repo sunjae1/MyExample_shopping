@@ -1,5 +1,4 @@
 name: Zero-Downtime Deploy to EC2
-
 on:
   push:
     branches:
@@ -8,69 +7,93 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    # 1️⃣ 코드 체크아웃
+    # 1️⃣ AWS 자격 증명 설정 (EC2 켜기 위해 필요)
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2 # 본인 리전
+
+    # 2️⃣ EC2 깨우기 및 대기 (핵심 추가!!)
+    - name: Start EC2 Instance
+      run: |
+        echo "EC2 인스턴스 상태 확인 중..."
+        STATE=$(aws ec2 describe-instances --instance-ids ${{ secrets.EC2_INSTANCE_ID }} --query "Reservations[0].Instances[0].State.Name" --output text)
+        if [ "$STATE" != "running" ]; then
+          echo "인스턴스가 꺼져있습니다. 시작합니다..."
+          aws ec2 start-instances --instance-ids ${{ secrets.EC2_INSTANCE_ID }}
+          aws ec2 wait instance-running --instance-ids ${{ secrets.EC2_INSTANCE_ID }}
+          echo "인스턴스 부팅 완료! SSH 접속 대기 중..."
+          sleep 30 # SSH 데몬이 뜰 때까지 조금 더 대기
+        else
+          echo "인스턴스가 이미 실행 중입니다."
+        fi
+
+    # 3️⃣ 코드 체크아웃
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # 2️⃣ Gradle 빌드 (테스트 제외)
+    # 4️⃣ Gradle 빌드
     - name: Build Spring Boot JAR
       run: |
         chmod +x ./gradlew
         ./gradlew clean build -x test
 
-    # 3️⃣ SSH 키 설정
+    # 5️⃣ SSH 키 설정
     - name: Set up SSH Key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-    # 4️⃣ SSH 연결 테스트
-    - name: Test SSH connection
-      run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "echo Connected!"
-
-    # 5️⃣ JAR 업로드
+    # 6️⃣ JAR 업로드
     - name: Upload JAR to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa \
-          build/libs/shopping-0.0.1-SNAPSHOT.jar \
-          ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app_new.jar
+        scp -i ~/.ssh/id_rsa build/libs/shopping-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app_new.jar
 
-    # 6️⃣ Blue-Green 무중단 배포
+    # 7️⃣ Blue-Green 무중단 배포 + 부팅 파일 갱신
     - name: Deploy with Blue-Green Toggle
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
-          # 1. 현재 Nginx에서 서비스 중인 포트 확인
-          #CURRENT_PORT=\$(grep -o '127\.0\.0\.1:808[0-1]' /etc/nginx/sites-available/myapp.template | head -1 | grep -o '808[0-1]')
-          CURRENT_PORT=\$(grep -o '808[0-1]' /etc/nginx/sites-available/myapp | head -1)
+        ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} "
+          # [중요] Systemd가 실행 중이라면 잠시 멈춤 (Blue/Green과 충돌 방지)
+          sudo systemctl stop portfolio.service || true
 
+          # 1. 현재 포트 확인
+          CURRENT_PORT=\$(grep -o '808[0-1]' /etc/nginx/sites-available/myapp | head -1)
+          if [ -z \"\$CURRENT_PORT\" ]; then CURRENT_PORT=8080; fi
 
           if [ \"\$CURRENT_PORT\" = \"8080\" ]; then
             NEW_PORT=8081
           else
             NEW_PORT=8080
           fi
-
           echo \"배포: \$CURRENT_PORT -> \$NEW_PORT\"
 
-          # 2. 새 포트에 혹시 프로세스 있으면 종료
+          # 2. 새 포트 프로세스 정리
           NEW_PID=\$(lsof -t -i:\$NEW_PORT)
           if [ ! -z \"\$NEW_PID\" ]; then kill -9 \$NEW_PID; fi
 
-          # 3. 새 JAR 실행
-          nohup java -jar -Dspring.profiles.active=prod /home/ubuntu/app_new.jar --server.port=$NEW_PORT > /home/ubuntu/app_$NEW_PORT.log 2>&1 &
+          # 3. 새 JAR 실행 (Blue/Green 용)
+          nohup java -jar -Dspring.profiles.active=prod /home/ubuntu/app_new.jar --server.port=\$NEW_PORT > /home/ubuntu/app.log 2>&1 &
+          
+          # 4. 헬스 체크 (10초 대기)
+          echo \"서버 시작 대기 중...\"
+          sleep 15
 
-          sleep 10
-
-          # 4. Nginx upstream 포트 업데이트
+          # 5. Nginx 포트 변경
+          # (myapp.template 파일이 /etc/nginx/sites-available/ 에 있어야 함)
           sudo sed \"s/PORT_NUMBER/\$NEW_PORT/\" /etc/nginx/sites-available/myapp.template | sudo tee /etc/nginx/sites-available/myapp > /dev/null
           sudo nginx -t && sudo systemctl reload nginx
 
-          # 5. 이전 포트 종료
+          # 6. 이전 포트 정리
           OLD_PID=\$(lsof -t -i:\$CURRENT_PORT)
           if [ ! -z \"\$OLD_PID\" ]; then kill -9 \$OLD_PID; fi
 
-          echo \"배포 완료: 서비스 \$NEW_PORT\"
+          # [핵심 추가] 다음번 '재부팅'을 위해 최신 JAR를 덮어쓰기
+          cp /home/ubuntu/app_new.jar /home/ubuntu/app_boot.jar
+          
+          echo \"배포 완료: 현재 서비스 포트 \$NEW_PORT\"
         "
