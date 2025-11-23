@@ -67,7 +67,8 @@ public class Post {
         this.user = user;
         //부모(User)의 컬렉션에 나(Post)를 추가 (객체 그래프 일관성 유지)
 
-        //detached된 준영속 상태 User loginUser 에서 OneToMany 이기 때문에 기본 LAZY 라서, user(준영속).getPosts() 를 하면 (지연 로딩으로 설정된 연관 데이터를 가져오려고 시도하면 LazyInitializationException 이 발생.)
+        //detached된 준영속 상태 User loginUser 에서 OneToMany 이기 때문에 기본 LAZY 라서, user(준영속).getPosts() 를 하면
+        // (지연 로딩으로 설정된 연관 데이터를 가져오려고 시도하면 LazyInitializationException 이 발생.)
         user.getPosts().add(this);
     }
 

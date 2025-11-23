@@ -7,23 +7,23 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
-import myex.shopping.dto.CommentDto;
+import myex.shopping.dto.commentdto.CommentDto;
 import myex.shopping.form.CommentForm;
 import myex.shopping.repository.CommentRepository;
-import myex.shopping.repository.memory.MemoryCommentRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -46,9 +46,9 @@ public class ApiCommentController {
                     @ApiResponse(responseCode = "201", description = "댓글 생성 성공")
             }
     )
-    //댓글 추가 : @RequestParam : form-data로 보내기.
+    //댓글 추가 :
+    //@RequestParam : form-data로 보내기.
     //@RequestBody : Dto 써서, JSON 으로 보내기 가능. (고민중)
-//    @Transactional
     @PostMapping("/{postId}/comments")
     public ResponseEntity<?> addComment(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long postId,
                                         @RequestParam @NotBlank(message = "댓글 내용을 입력해주세요") String reply_content,
@@ -60,19 +60,13 @@ public class ApiCommentController {
         Post post =  postOpt.get();
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
+            log.info("로그인 실패");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인이 필요합니다.");
         }
         CommentForm form = new CommentForm();
         form.setContent(reply_content);
         CommentDto commentDto = new CommentDto(commentService.addComment(postId, form, session));
-/*
-        Comment comment = new Comment();
-        comment.setUser(loginUser);
-        comment.setContent(reply_content);
-        post.addComment(comment);
-        commentRepository.save(comment);
-*/
         return ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
 
     }
@@ -88,13 +82,13 @@ public class ApiCommentController {
             }
     )
     //댓글 삭제
-//    @Transactional
     @DeleteMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long postId,
                                            @PathVariable @Positive(message = "양수만 입력가능합니다.") Long commentId,
                                            HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
+            log.info("로그인 실패");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인이 필요합니다.");
         }
@@ -115,10 +109,7 @@ public class ApiCommentController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("댓글 작성자만 삭제할 수 있습니다.");
         }
-
         commentService.deleteComment(postId, commentId);
-
-        //삭제 성공/실패와 상관없이 다시 게시글 상세 페이지로
         return ResponseEntity.noContent().build(); //204 No Content
     }
 

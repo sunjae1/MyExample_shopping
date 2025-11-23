@@ -1,18 +1,25 @@
 package myex.shopping.service;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
-import myex.shopping.dto.dbdto.MyPagePostDBDto;
-import myex.shopping.dto.dbdto.PostDBDto;
+import myex.shopping.dto.mypagedto.MyPagePostDBDto;
+import myex.shopping.dto.postdto.PostDBDto;
+import myex.shopping.exception.ResourceNotFoundException;
+import myex.shopping.form.PostForm;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -21,18 +28,35 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    //게시물 저장.
+    public Post createPost(PostForm form,
+                           HttpSession session) {
+
+        User loginUser = (User) session.getAttribute("loginUser");
+
+        Post post = new Post();
+        post.setTitle(form.getTitle());
+        post.setContent(form.getContent());
+        post.setCreatedDate(LocalDateTime.now());
+        post.setAuthor(loginUser.getName());
+        addUser(post, loginUser.getId());
+        log.info("post 저장 후");
+        return post;
+    }
+
     public Post addUser(Post post,Long userId) {
 
         User persistUser = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
 
         post.addUser(persistUser);
-        postRepository.save(post);
+        log.info("addUser 연관관계 설정 후");
         return post;
     }
+
     public PostDBDto changeToDto(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시물은 존재 하지 않습니다."));
+                .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
         return new PostDBDto(post); //트랜잭션 내 user, comments 접근
     }
 
@@ -47,11 +71,16 @@ public class PostService {
     public List<PostDBDto> findAllPostDBDto() {
         //1. fetch join으로 최적화 된 finAll()호출(쿼리 1번, Post - User, Comments)
         List<Post> posts = postRepository.findAll();
-
         return posts.stream()
                 .map(PostDBDto::new) //post -> new PostDBDto(post) 동일.
                 .collect(Collectors.toList());
-
     }
 
+    public Post updatePost(Long id, @Valid PostForm form) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
+        post.setTitle(form.getTitle());
+        post.setContent(form.getContent());
+        return post;
+    }
 }

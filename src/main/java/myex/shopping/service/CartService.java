@@ -3,10 +3,12 @@ package myex.shopping.service;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Cart;
 import myex.shopping.domain.CartItem;
 import myex.shopping.domain.Item;
 import myex.shopping.domain.User;
+import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.UserRepository;
@@ -15,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CartService {
     private final ItemRepository itemRepository;
     private final CartRepository cartRepository;
@@ -25,27 +29,29 @@ public class CartService {
 
 
 
-    @Transactional
+    @Transactional(readOnly = false)
     public void save(Cart cart, HttpSession session) {
         cartRepository.save(cart);
+        log.info("cart 저장 후 cart 정보: {}", cart);
         User loginUser = (User) session.getAttribute("loginUser");
-
         User user = userRepository.findById(loginUser.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
-
         user.addCart(cart);
-        System.out.println("cartService save 함수 : user.Carts = " + user.getCarts());
-
+        log.info("cartService.save: user.Carts = {}",user.getCarts());
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public Cart findOrCreateCartForUser(User sessionUser) {
-        User user = userRepository.findById(sessionUser.getId()).get();
+        User user = userRepository.findById(sessionUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
 
+        //사용자별 장바구니 찾거나 새로 만들어서 사용자와 연결 후 반환.
         return cartRepository.findByUser(sessionUser)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
+                    //더티체킹.
                     user.addCart(newCart);
+                    log.info("findOrCreateCartForUser 메소드 끝"); //더티 체킹 : 메소드 끝나는 commit 시점에 INSERT 문 실행.
                     return newCart;
                 });
     }
@@ -54,71 +60,56 @@ public class CartService {
     @Transactional(readOnly = false)
     public void deleteItem (Long itemId, HttpSession session) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니에 해당 아이템은 존재 하지 않습니다."));
-//        Cart cart = getOrCreateCart(session);
+                .orElseThrow(() -> new ResourceNotFoundException("cart not found"));
         User loginUser = (User) session.getAttribute("loginUser");
         Cart cart = findOrCreateCartForUser(loginUser);
-
-        Cart findCart = cartRepository.findById(cart.getId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니는 존재 하지 않습니다."));
-
-
-
-        findCart.removeItem(item); //DB 더디 체킹으로 없애고.
-
-        //객체도 세션이라 같이 없앰.
         cart.removeItem(item);
-        //더티 체킹 - delete쿼리 날아가게.
+        //더티 체킹 - Commit 시점에 delete 쿼리 실행됨.
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public void deleteCart(Long cartId, Long userId) {
-
+        log.info("cart 조회 전");
         Cart cart = cartRepository.findById(cartId).get();
+        log.info("cart 조회 후");
+        log.info("user 조회 전");
         User user = userRepository.findById(userId).get();
+        log.info("user 조회 후");
         //User CASCADETYPE.ALL 이라서 Cart에도 전파(더티 체킹)
         user.deleteCart(cart);
-
+        log.info("deleteCart 후");
     }
 
 
-
-   @Transactional
+   @Transactional(readOnly = false)
     public void update(User user, Cart cart) {
+        log.info("준영속 객체 Cart : {}",cart);
 
-       Optional<Cart> byId = cartRepository.findByUser(user);
-        Cart findCart = byId.get();
-       System.out.println("DBCart = " + findCart);
-       System.out.println("SessionCart = " + cart);
+        Cart managedCart = em.merge(cart); //update문 예약.
+        log.info("em.flush(); 전");
+        em.flush(); //id는 hibernate가 merge()호출 중에 IdentifierGenerator 로 바로 ID 생성. 
+       // (다음 줄에 바로 Native Query가 나가지 않는 이상 지금 상태에선 필요 없음)
+        log.info("em.flush() 후");
 
+       //세션과 영속 객체 같게 맞춤. --> cart: DB에서 꺼낸 준영속, managedCart : 영속 상태\
+        log.info("DB에서 꺼낸 준영속 Cart.getId : {}", cart.getId());
+        log.info("em.merge 후 영속 상태 manaedCart.getId : {}", managedCart.getId());
+//        cart.setId(managedCart.getId());
+//        cart.getCartItems().clear();
 
-//        findCart.setCartItems(cart.getCartItems());
-       Cart managedCart = em.merge(cart);//cart 상태 managedCart.getId 이런걸로 최신 상태로 만들어야함.
-       em.flush(); //id는 hibernate가 merge()호출 중에 IdentifierGenerator 로 바로 ID 생성함. (다음 줄에 바로 Native Query가 나가지 않는 이상 지금 상태에선 필요 없음)
-
-       //세션과 영속 객체 같게 맞춤.
-      cart.setId(managedCart.getId());
-      cart.getCartItems().clear();
-
+ /*      //DB-> 세션과 동기화.
        for (CartItem managedCI : managedCart.getCartItems()) {
            CartItem sessionCI = new CartItem();
            sessionCI.setId(managedCI.getId());
            sessionCI.setItem(managedCI.getItem());
            sessionCI.setQuantity(managedCI.getQuantity());
 
-           //연관관계 주의 : cart는 위에 기존 세션 cart로 설정
+           //양방향 연관관계
            sessionCI.setCart(cart);
            cart.getCartItems().add(sessionCI);
        }
-
-
-
-       System.out.println("managedCart = " + managedCart);
-       System.out.println("SessionCart = " + cart);
-
+*/
     }
-
-
     //메소드
     private Cart getOrCreateCart(HttpSession session) {
         Cart cart = (Cart) session.getAttribute("CART");

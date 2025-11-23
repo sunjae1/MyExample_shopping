@@ -7,22 +7,22 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
-import myex.shopping.dto.dbdto.PostDBDto;
+import myex.shopping.dto.postdto.PostDBDto;
 import myex.shopping.form.PostForm;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/posts")
@@ -31,25 +31,19 @@ import java.util.List;
 public class ApiPostController {
     private final PostRepository postRepository;
     private final PostService postService;
-
-
     @Operation(
             summary = "전체 게시물 조회",
             description = "전체 게시물을 조회합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공")
             }
-
     )
     //게시판 조회.
     @GetMapping
     public ResponseEntity<List<PostDBDto>> list() {
-//        List<Post> posts = postRepository.findAll();
         List<PostDBDto> posts = postService.findAllPostDBDto();
         return ResponseEntity.ok(posts);
     }
-
-
     @Operation(
             summary = "게시물 등록",
             description = "게시물을 등록합니다.",
@@ -65,23 +59,18 @@ public class ApiPostController {
     public ResponseEntity<?> create(@Valid @RequestBody PostForm form,
                                     HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
-
         if (loginUser == null) {
+            log.info("로그인 실패");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인이 필요합니다.");
         }
-
         Post post = new Post();
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
         post.setCreatedDate(LocalDateTime.now());
         post.setAuthor(loginUser.getName());
-
         PostDBDto postDBDto = new PostDBDto(postService.addUser(post, loginUser.getId()));
-
-//        post.setUserId(loginUser.getId());
-
-        System.out.println("save = " + postDBDto);
+        log.info("저장된 postDTO : {}",postDBDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(postDBDto);
     }
 
@@ -100,11 +89,9 @@ public class ApiPostController {
         return postRepository.findById(id)
                 .map(PostDBDto::new)
                 .map(ResponseEntity::ok)
-                //Post 있으면 post -> ResponseEntity.ok(post) 생성자로 넣어줌.
                 .orElse(ResponseEntity.notFound().build());
 
     }
-
     @Operation(
             summary = "게시물 삭제",
             description = "한 게시물을 삭제합니다.",

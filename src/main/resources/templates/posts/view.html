@@ -5,7 +5,45 @@
     <title th:text="${post.title}">Post Title</title>
     <link rel="stylesheet" th:href="@{/style.css}">
     <style>
+        .comment-edit-form {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #e9ecef;
+        }
 
+        .comment-edit-form .edit-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .comment-edit-form .edit-textarea:focus {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .comment-edit-form .comment-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .comment-actions .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.2rem;
+        }
     </style>
 </head>
 <body>
@@ -39,10 +77,12 @@
         </div>
         <div class="post-actions">
             <a th:href="@{/posts}" class="btn btn-secondary">목록으로</a>
-            <form th:if="${loginUser != null and loginUser.name.equals(post.authorName)}"
-                  th:action="@{|/posts/${post.id}/delete|}" method="post">
-                <button type="submit" class="btn btn-danger">삭제</button> <!-- Assuming a .btn-danger class exists or can be added -->
-            </form>
+            <div th:if="${loginUser != null and loginUser.name.equals(post.authorName)}" style="display: inline-block;">
+                <a th:href="@{|/posts/${post.id}/update|}" class="btn btn-primary">수정</a>
+                <form th:action="@{|/posts/${post.id}/delete|}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">삭제</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -54,16 +94,34 @@
         <div th:if="${post.comments.isEmpty()}">
             <p>아직 댓글이 없습니다. 첫 댓글을 남겨주세요!</p>
         </div>
-        <div th:each="comment : ${post.comments}" class="comment">
+        <div th:each="comment, iterStat : ${post.comments}" class="comment" th:id="'comment-' + ${iterStat.count}">
             <div class="comment-meta">
                 <span class="comment-author" th:text="${comment.username}">Comment Author</span>
                 <span class="comment-date" th:text="${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">Date</span>
             </div>
-            <p class="comment-content" th:text="${comment.content}">Comment content.</p>
-            <form class="comment-delete-form" th:if="${loginUser != null and loginUser.name.equals(comment.username)}"
-                  th:action="@{|/posts/${post.id}/comments/${comment.id}|}" method="post">
-                <button type="submit" class="btn btn-secondary btn-sm">삭제</button>
-            </form>
+
+            <!-- Display Comment -->
+            <div class="comment-display">
+                <p class="comment-content" th:text="${comment.content}">Comment content.</p>
+                <div class="comment-actions" th:if="${loginUser != null and loginUser.name.equals(comment.username)}">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEditForm(this)">수정</button>
+                    <form class="comment-delete-form" th:action="@{|/posts/${post.id}/comments/${comment.id}|}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm">삭제</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Comment Form (hidden by default) -->
+            <div class="comment-edit-form" style="display: none;">
+                <form th:action="@{|/posts/${post.id}/comments/${comment.id}/update|}" method="post" th:object="${commentForm}">
+                    <input type="hidden" name="content" /> <!-- This will be populated by JS -->
+                    <textarea class="edit-textarea" th:text="${comment.content}"></textarea>
+                    <div class="comment-actions">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="submitEditForm(this)">저장</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEditForm(this)">취소</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- New Comment Form -->
@@ -86,6 +144,26 @@
 <footer>
     <p>&copy; 2025 My Shopping Mall</p>
 </footer>
+
+<script>
+    function toggleEditForm(button) {
+        const commentDiv = button.closest('.comment');
+        const displayDiv = commentDiv.querySelector('.comment-display');
+        const editDiv = commentDiv.querySelector('.comment-edit-form');
+
+        displayDiv.style.display = displayDiv.style.display === 'none' ? 'block' : 'none';
+        editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function submitEditForm(button) {
+        const form = button.closest('form');
+        const textarea = form.querySelector('.edit-textarea');
+        // Find the hidden input and set its value
+        const hiddenInput = form.querySelector('input[name="content"]');
+        hiddenInput.value = textarea.value;
+        form.submit();
+    }
+</script>
 
 </body>
 </html>

@@ -33,7 +33,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         //로그인된 사용자 확인
         if (session == null || session.getAttribute("loginUser") == null) {
-            session.setAttribute("needLoginMessage", "로그인이 필요한 작업입니다.");
+            //request.getSession(false) : 기존 세션 있으면 return, 없으면 null
+            //request.getSession(true) : 기존 세션 있으면 return, 없으면 새 세션 생성하여 반환.
+            HttpSession validSession = request.getSession(true);
+            validSession.setAttribute("needLoginMessage", "로그인이 필요한 작업입니다.");
             response.sendRedirect("/");
             return false;
         }

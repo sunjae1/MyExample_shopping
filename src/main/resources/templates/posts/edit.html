@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시물 수정</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        .field-error {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .button-group {
+            text-align: right;
+            margin-top: 30px;
+        }
+        .button-group button, .button-group a {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            margin-left: 10px;
+            display: inline-block;
+        }
+        .button-group .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .button-group .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .button-group .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .button-group .btn-secondary:hover {
+            background-color: #545b62;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
+
+<nav>
+    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/posts}" style="color: var(--primary-text);">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
+
+<div class="container">
+    <div class="form-container">
+        <h2>게시물 수정</h2>
+        <form th:action="@{|/posts/${post.id}/update|}" method="post" th:object="${post}">
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" id="title" th:field="*{title}" th:errorclass="field-error">
+                <div class="field-error" th:errors="*{title}"></div>
+            </div>
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea id="content" th:field="*{content}" th:errorclass="field-error"></textarea>
+                <div class="field-error" th:errors="*{content}"></div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">수정</button>
+                <a th:href="@{|/posts/${post.id}|}" class="btn-secondary">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
+
+</body>
+</html>

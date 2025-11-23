@@ -23,12 +23,12 @@ public class CartItem {
     1 Cart 1 CartItem 1Item(사과)
     2 Cart 2 CartItem 1Item(사과)
     */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id") //FK "다" 에 저장.
     private Item item;
     private int quantity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
     private Cart cart;
 

@@ -1,51 +1,122 @@
 package myex.shopping.service;
 
 import myex.shopping.domain.User;
-import myex.shopping.repository.memory.MemoryUserRepository;
+import myex.shopping.dto.userdto.UserEditDto;
+import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.repository.UserRepository;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-//단위 테스트 목적. DI로 스프링 애플리케이션이 넣는게 아니라,(@SpringTest, 통합) 직접 자바 코드로 직접 주입하고 직접 다 해보는거. 스프링 없이.
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    private final MemoryUserRepository userRepository = new MemoryUserRepository();
-    UserService userService = new UserService(userRepository);
+    @Mock
+    private UserRepository userRepository;
 
-    //테스트 하나 끝나고 DB 초기화.
-    @AfterEach
-    public void afterEach() {
-        userRepository.clearStore();
-    }
-
+    @InjectMocks
+    private UserService userService;
 
     @Test
-    void findByEmailTest () {
-        userRepository.save(new User("aa@na.com","홍길동","aaa"));
-        userRepository.save(new User("bb@na.com","전우치","aaa"));
+    @DisplayName("사용자를 저장한다")
+    void save() {
+        // given
+        User user = new User("test@test.com", "Tester", "password");
+        user.setId(1L);
+        when(userRepository.save(any(User.class))).thenReturn(user);
 
-        Optional<User> findUser = userRepository.findByEmail("aa@na.com");
-        if (findUser.isPresent())
-        {
-            User user = findUser.get();
-            String email = user.getEmail();
-            Assertions.assertThat(email).isEqualTo("aa@na.com");
+        // when
+        Long savedId = userService.save(user);
 
-        }
-
+        // then
+        assertThat(savedId).isEqualTo(1L);
     }
 
     @Test
-    void login() {
-        userRepository.save(new User("aa@na.com","길동홍","aa"));
-        userRepository.save(new User("bb@na.com","길홍","bb"));
-        User loginUser = userService.login("aa@na.com", "aa");
+    @DisplayName("로그인에 성공한다")
+    void login_Success() {
+        // given
+        User user = new User("test@test.com", "Tester", "password");
+        when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
 
-        System.out.println("로그인이 성공했습니다."+ loginUser);
+        // when
+        User loginUser = userService.login("test@test.com", "password");
 
+        // then
+        assertThat(loginUser).isEqualTo(user);
     }
 
+    @Test
+    @DisplayName("잘못된 비밀번호로 로그인에 실패한다")
+    void login_Fail_WrongPassword() {
+        // given
+        User user = new User("test@test.com", "Tester", "password");
+        when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
+
+        // when & then
+        assertThatThrownBy(() -> userService.login("test@test.com", "wrongpassword"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("user not found");
+    }
+    
+    @Test
+    @DisplayName("존재하지 않는 이메일로 로그인에 실패한다")
+    void login_Fail_WrongEmail() {
+        // given
+        when(userRepository.findByEmail("wrong@test.com")).thenReturn(Optional.empty());
+
+        // when
+        User loginUser = userService.login("wrong@test.com", "password");
+
+        // then
+        assertThat(loginUser).isNull();
+    }
+
+    @Test
+    @DisplayName("모든 사용자를 조회한다")
+    void allUser() {
+        // given
+        User user1 = new User("test1@test.com", "Tester1", "pw1");
+        User user2 = new User("test2@test.com", "Tester2", "pw2");
+        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+
+        // when
+        List<User> users = userService.allUser();
+
+        // then
+        assertThat(users).hasSize(2);
+        assertThat(users).contains(user1, user2);
+    }
+
+    @Test
+    @DisplayName("사용자 정보를 수정한다")
+    void updateUser() {
+        // given
+        Long userId = 1L;
+        User existingUser = new User("old@test.com", "OldName", "password");
+        UserEditDto updateDto = new UserEditDto();
+        updateDto.setUsername("NewName");
+        updateDto.setEmail("new@test.com");
+        
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+
+        // when
+        User updatedUser = userService.updateUser(userId, updateDto);
+
+        // then
+        assertThat(updatedUser.getName()).isEqualTo("NewName");
+        assertThat(updatedUser.getEmail()).isEqualTo("new@test.com");
+    }
 }

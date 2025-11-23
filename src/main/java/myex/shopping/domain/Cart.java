@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import myex.shopping.dto.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Getter
@@ -25,7 +23,7 @@ public class Cart {
     //mappedBy는 연관관계 주인을 가리킴. (저쪽이 주인이야)
     private List<CartItem> cartItems = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -45,9 +43,7 @@ public class Cart {
                 }
             }
         }
-
-
-//        cartItems.add(new CartItem(item, quantity));
+        //연관관계 설정.
         addCartItem(new CartItem(item, quantity));
         return true;
 
@@ -81,9 +77,6 @@ public class Cart {
     }
 
     public void deleteCartItem(CartItem cartItem, Item item) {
-
-
-
         cartItems.removeIf(ci -> ci.getItem().equals(item));
         cartItem.setCart(null);
     }

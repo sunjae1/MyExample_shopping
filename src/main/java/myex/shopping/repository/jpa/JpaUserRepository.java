@@ -2,6 +2,7 @@ package myex.shopping.repository.jpa;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.User;
 import myex.shopping.repository.UserRepository;
 import org.springframework.context.annotation.Primary;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Primary
 @Repository
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class JpaUserRepository implements UserRepository {
     @Override
     @Transactional(readOnly = false)
     public User save(User user) {
-        em.persist(user); //지금 insert문 X, commit 시 insert문 O
+        em.persist(user); //GenerationType.IDENTITY -> INSERT 문 바로 실행.
         return user;
     }
 

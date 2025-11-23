@@ -1,0 +1,112 @@
+package myex.shopping.controller.web;
+
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import myex.shopping.domain.Comment;
+import myex.shopping.domain.Post;
+import myex.shopping.domain.User;
+import myex.shopping.dto.postdto.PostDBDto;
+import myex.shopping.exception.ResourceNotFoundException;
+import myex.shopping.form.CommentForm;
+import myex.shopping.repository.CommentRepository;
+import myex.shopping.repository.PostRepository;
+import myex.shopping.service.CommentService;
+import myex.shopping.service.PostService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@Controller
+@RequestMapping("/posts")
+@RequiredArgsConstructor
+public class CommentController {
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final CommentService commentService;
+    private final PostService postService;
+
+    //댓글 추가
+    @PostMapping("/{postId}/comments")
+    public String addComment(@PathVariable Long postId,
+                             @Valid @ModelAttribute CommentForm form,
+                             BindingResult bindingResult,
+                             HttpSession session,
+                             Model model) {
+        //컨트롤러로 반환시 준영속 상태로 바뀜.(Transactional 없을 시)
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
+        User loginUser = (User)session.getAttribute("loginUser");
+        //ModelAttribute는 {postId} 경로변수도 객체 멤버변수에 있으면 바인딩 가능.
+        log.info("로그인 유저 : {}", loginUser);
+        log.info("CommentForm  정보 : {}",form);
+
+        if (bindingResult.hasErrors()) {
+            log.info("댓글 폼 검증 오류 : {}",bindingResult);
+            PostDBDto postDBDto = postService.changeToDto(postId);
+            model.addAttribute("post", postDBDto);
+            model.addAttribute("loginUser",loginUser);
+            return "posts/view";
+        }
+        commentService.addComment(postId, form, session);
+        return "redirect:/posts/"+postId;
+    }
+
+    //댓글 수정
+    @PostMapping("/{postId}/comments/{commentId}/update")
+    public String updateComment(@PathVariable Long postId,
+                                @PathVariable Long commentId,
+                                @Valid @ModelAttribute CommentForm form,
+                                BindingResult bindingResult,
+                                HttpSession session,
+                                Model model) {
+
+        //폼 바인딩 확인
+        log.info("CommentForm 정보: {}",form);
+
+        //로그인 확인
+        User loginUser = (User) session.getAttribute("loginUser");
+
+        //검증 로직
+        if (bindingResult.hasErrors()) {
+            log.info("댓글 수정 폼 검증 오류 : {}",bindingResult);
+            PostDBDto postDBDto = postService.changeToDto(postId);
+            model.addAttribute("post", postDBDto);
+            model.addAttribute("loginUser", loginUser);
+        }
+        //작성자 본인만 수정 가능.
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment Not Found"));
+        if (loginUser != null && comment.getUser().getId().equals(loginUser.getId()))
+        {
+            commentService.updateComment(commentId, form, loginUser.getId());
+            log.info("댓글 수정 메소드 후 commentService.updateComment 후");
+        }
+        return "redirect:/posts/" + postId;
+    }
+
+    //댓글 삭제
+    @PostMapping("/{postId}/comments/{commentId}")
+    public String deleteComment(@PathVariable Long postId,
+                                @PathVariable Long commentId,
+                                HttpSession session,
+                                Model model) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment Not Found"));
+        model.addAttribute("loginUser",loginUser);
+/*        //없는 댓글이면 게시글 보기 페이지로 리다이렉트(잘못된 url 요청)
+        if (comment == null) {
+            return "redirect:/posts/{postId}";
+        }*/
+        //작성자 본인만 삭제 가능
+        if (loginUser != null && comment.getUser().getId().equals(loginUser.getId())) {
+            commentService.deleteComment(postId, commentId);
+        }
+        //삭제 성공&실패와 상관없이 다시 게시글 상세 페이지로
+        return "redirect:/posts/{postId}";
+    }
+}

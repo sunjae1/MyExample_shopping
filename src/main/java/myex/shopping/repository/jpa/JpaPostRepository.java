@@ -45,13 +45,14 @@ public class JpaPostRepository implements PostRepository {
                 .getResultList();
     }
 
-    //나중에 Post --> User @ManyToOne 관계로 바꾸기.
     //JPQL :파라미터명(:와 파라미터명은 무조건 붙여야 됨.)
-    //=: 파리머터명 (띄어쓰기 오류)
-
+    //=: 파라미터명 (띄어쓰기 오류)
     @Override
     public List<Post> findByUser(User user) {
-        return em.createQuery("select p from Post p where p.user = :user", Post.class)
+        return em.createQuery("select distinct p from Post p " +
+                        "left join fetch p.comments c " +
+                        "left join fetch c.user " +
+                        "where p.user = :user", Post.class)
                 .setParameter("user", user)
                 .getResultList();
     }

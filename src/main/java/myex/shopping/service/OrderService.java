@@ -1,9 +1,10 @@
 package myex.shopping.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.*;
-import myex.shopping.dto.dbdto.MyPageOrderDto;
-import myex.shopping.dto.dbdto.OrderDBDto;
+import myex.shopping.dto.mypagedto.MyPageOrderDto;
+import myex.shopping.dto.orderdto.OrderDBDto;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -31,12 +33,13 @@ public class OrderService {
             order.addOrderItem(new OrderItem(persistentItem,cartItem.getItem().getPrice(), cartItem.getQuantity()));
         }
 
-        orderRepository.save(order); //order-orderItem CASCADE.ALL 이여서 save시 같이 INSERT 문 날라가고, 같이 영속성 컨텍스트로 관리됨.
-        
+
         //재고 감소 : 더티체킹 UPDATE 쿼리.
         order.confirmOrder();
-
-
+        log.info("order.confirmOrder() 재고 감소 후");
+        //order-orderItem CASCADE.ALL 이여서 save시 같이 INSERT 문 날라가고, 같이 영속성 컨텍스트로 관리됨.
+        orderRepository.save(order); //GenerationType.IDENTITY 이므로, save() 호출 즉시 INSERT 쿼리 나감.
+        log.info("checkout 메소드 save(order) 후");
         return order;
     }
 

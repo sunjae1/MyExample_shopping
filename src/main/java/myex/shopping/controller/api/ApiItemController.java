@@ -6,12 +6,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Item;
-import myex.shopping.dto.ItemDto;
+import myex.shopping.dto.itemdto.ItemDto;
 import myex.shopping.form.ItemAddForm;
 import myex.shopping.form.ItemEditForm;
 import myex.shopping.repository.ItemRepository;
-import myex.shopping.repository.memory.MemoryItemRepository;
 import myex.shopping.service.ItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,10 +26,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /*
-Delete return 은 성공했고, 반환값이 없으니까 No Content 204 응답.(삭제 완료)
 Put, Patch는 클라이언트가 이미 성공값을 가지고 요청을 한거기 때문에, 서버는 "수정 완료" 만 보내면 된다.
 (성공했고, 반환값이 없다) No Content 204 응답 사용 가능.
  */
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/items")
@@ -53,8 +53,6 @@ public class ApiItemController {
         List<ItemDto> items = itemRepository.findAll().stream()
                 .map(ItemDto::new)
                 .collect(Collectors.toList());
-
-
         return ResponseEntity.ok(items);
     }
 
@@ -76,17 +74,8 @@ public class ApiItemController {
             return ResponseEntity.ok(itemDto);
         }
         else
-            //바디 없이 상태 코드만 가진 ResponseEntity 반환 가능.
             return ResponseEntity.notFound().build();
     }
-/*  Form 뷰를 호출 -> 프론트엔드.
-    //아이템 추가
-    @GetMapping("/add")
-    public String addForm(Model model) {
-        model.addAttribute("item", new ItemAddForm()); //th:object 사용 위해 빈 객체 넣음.
-        return "items/addForm";
-    }
-    */
 
     @Operation(
             summary = "상품 추가 등록",
@@ -97,7 +86,7 @@ public class ApiItemController {
     )
     //아이템 추가 로직
     //AddForm, 프론트에서 imageFile, itemName, price, quantity 넘어옴.
-    //JSON + File => Postman - Body : form-data(multipart/form-data)
+    //JSON + File => form-data(multipart/form-data)
     //원래 Form은 url에 key=value로 전송.
     //multipart/form-data는 각 input 파트로 나눠서 전송.(텍스트+파일 가능)
     @PostMapping(value = "/add", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -109,15 +98,15 @@ public class ApiItemController {
                 .map(ItemDto::new)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이템은 없습니다."));
 
-        System.out.println("ItemController.addItem : postmapping");;
-        return ResponseEntity.status(HttpStatus.CREATED).body(itemDto);
+        log.info("ItemController AddItem : PostMapping");
+        return ResponseEntity.status(HttpStatus.CREATED).body(itemDto); //201
     }
 
     //아이템 수정 :상세 + 수정화면 공용
     //수정 화면이 필요하면 GET /items/{itemId} 에서 현재 상태를 가져와서 수정 폼에 채움.
 
     /*
-    보통 이렇게 설계.
+    실무 설계.
     GET /items -> 전체 목록 조회
     GET /items/{itemId} -> 단일 아이템 조회 
     PUT /items/{itemId} -> 수정 요청
@@ -131,16 +120,13 @@ public class ApiItemController {
             }
     )
     //한개만 수정 : PutMapping
-    @PutMapping(value = "/{itemId}/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}) //이게 URL
+    @PutMapping(value = "/{itemId}/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ItemDto> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
                         @Valid @ModelAttribute ItemEditForm form) throws IOException {
-
         Long updateItemId = itemService.editItemWithUUID(form, itemId);
         ItemDto itemDto = itemRepository.findById(updateItemId)
                 .map(ItemDto::new)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이템을 찾을 수 없습니다."));
-
-
         return ResponseEntity.ok(itemDto);
     }
 
@@ -155,11 +141,8 @@ public class ApiItemController {
     )
     @DeleteMapping("/{itemId}/delete")
     public ResponseEntity<?> deleteItem(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long itemId) {
-
         Optional<Item> findItemOpt = itemRepository.findById(itemId);
         if (findItemOpt.isPresent()) {
-
-            Item findItem = findItemOpt.get();
             itemRepository.deleteItem(itemId);
             return ResponseEntity.noContent().build(); //204 No Content
         }
