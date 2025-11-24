@@ -30,6 +30,10 @@ public class Item {
     private MultipartFile imageFile; //업로드 파일
     private String imageUrl; //이미지 경로
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     private boolean deleted = false; // 초기값 false.(주문내역 있을 시 상태 바꿈으로 아이템 숨김 처리)
 
 

@@ -31,10 +31,19 @@ public class ItemController {
     private final ItemRepository itemRepository; //생성자 주입.
     private final ItemService itemService;
 
-    //전체 아이템 조회
+    //전체 아이템 조회 (+검색 추가)
     @GetMapping
-    public String items(Model model) {
-        List<ItemDto> items = itemService.findAllToDto();
+    public String items(Model model,
+                        @RequestParam(required = false) String keyword) {
+        List<ItemDto> items;
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            items = itemService.findAllToDto();
+        }
+        else {
+            items = itemService.findSearchByNameDto(keyword);
+        }
+
         model.addAttribute("items", items);
         return "items/items";
     }

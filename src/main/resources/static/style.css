@@ -874,3 +874,34 @@ footer {
             font-size: 0.9rem;
             color: var(--secondary-text);
         }
+
+/* Search Form Styles */
+.search-form-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end; /* Align to the right */
+}
+.search-form {
+    display: flex;
+    gap: 10px;
+}
+.search-form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    width: 200px;
+}
+.btn-search {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+.btn-search:hover {
+    background-color: var(--accent-hover-color);
+}

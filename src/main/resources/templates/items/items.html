@@ -5,46 +5,6 @@
     <title>Product Management</title>
     <link rel="stylesheet" th:href="@{/style.css}">
 </head>
-<style>
-    .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-            margin-bottom: 25px;
-        }
-        .page-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-        .table-container {
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .item-image-thumbnail {
-            width: 60px;
-            height: 75px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .item-name a {
-            color: var(--primary-text);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .item-name a:hover {
-            color: var(--accent-color);
-        }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-</style>
 <body>
 
 <header>
@@ -66,6 +26,15 @@
         <h2 class="page-title">관리자용 상품 관리 페이지</h2>
         <a th:href="@{/items/add}" class="btn btn-primary">새 상품 등록</a>
     </div>
+
+    <!-- 검색 폼 추가 시작 -->
+    <div class="search-form-container">
+        <form th:action="@{/items}" method="get" class="search-form">
+            <input type="text" name="keyword" th:value="${param.keyword}" placeholder="상품 이름 검색">
+            <button type="submit" class="btn btn-search">검색</button>
+        </form>
+    </div>
+    <!-- 검색 폼 추가 끝 -->
 
     <p class="field-error" th:if="${errorPV}" th:text="${errorPV}"></p>
 

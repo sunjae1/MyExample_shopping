@@ -6,15 +6,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.*;
+import myex.shopping.dto.itemdto.ItemDto;
 import myex.shopping.dto.mypagedto.MyPageOrderDto;
 import myex.shopping.dto.mypagedto.MyPagePostDBDto;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
-import myex.shopping.service.CartService;
-import myex.shopping.service.OrderService;
-import myex.shopping.service.PostService;
-import myex.shopping.service.UserService;
+import myex.shopping.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,11 +24,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
-    private final ItemRepository itemRepository; //생성자 주입.
-    private final UserService userService;
+    private final UserService userService; //생성자
     private final OrderService orderService;
     private final PostService postService;
     private final CartService cartService;
+    private final ItemService itemService;
 
     //로그인 페이지로 보내기.
     @GetMapping("/")
@@ -104,14 +102,23 @@ public class UserController {
         model.addAttribute("users", users);
         return "allUser";
     }
-    //메인 페이지 요청 : Item, User
+    //메인 페이지 요청 : Item, User (+검색 추가)
     @GetMapping("/main")
     public String mainPage(Model model,
-                           HttpSession session) {
-        List<Item> items = itemRepository.findAll();
+                           HttpSession session,
+                           @RequestParam(required = false) String keyword) {
+        List<ItemDto> items;
         User loginUser = (User) session.getAttribute("loginUser");
+        if (keyword ==null || keyword.trim().isEmpty()){
+            items = itemService.findAllToDto();
+//            items = itemRepository.findAll();
+        }
+        else {
+            items = itemService.findSearchByNameDto(keyword);
+        }
         model.addAttribute("items", items);
         model.addAttribute("user",loginUser);
+
         return "main";
     }
     //마이페이지 보내는거 : user, orders, posts, cart

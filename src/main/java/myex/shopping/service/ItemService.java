@@ -8,6 +8,7 @@ import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.ItemAddForm;
 import myex.shopping.form.ItemEditForm;
 import myex.shopping.repository.ItemRepository;
+import myex.shopping.repository.jpa.JpaItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemService {
-    private final ItemRepository itemRepository;
+    private final JpaItemRepository itemRepository; //인터페이스-> 구현체
 
     //이미지 업로드 파일(File) --> 이미지 경로(URL) 로 저장.
     public Item ImageSave(ItemAddForm form, Item item) throws IOException {
@@ -133,5 +134,13 @@ public class ItemService {
         log.info("update.getImageURL : {}", update.getImageUrl());
         log.info("item.getImageURL : {}", item.getImageUrl());
         return update.getId();
+    }
+
+    public List<ItemDto> findSearchByNameDto(String keyword) {
+        return itemRepository.searchByName(keyword)
+                .stream()
+                .map(ItemDto::new)
+                .collect(Collectors.toList());
+
     }
 }

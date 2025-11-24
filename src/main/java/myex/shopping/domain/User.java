@@ -36,9 +36,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cart> carts;
 
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments;
 
     //JPA 전용 기본 생성자 - 없을 시 InstantiationException,
     //JPA 구현체 Hibernate 는 데베에서 조회한 데이터로 엔티티 객체 만들 때, 먼저 기본 생성자를 호출하여 텅 빈 객체 생성 후, 객체 필드에 데이터 값을 채워 넣는 방식으로 동작.
+
     public User() {
     }
 
@@ -48,9 +51,6 @@ public class User {
         this.name = name;
         this.password = password;
     }
-
-    @OneToMany(mappedBy = "user")
-    private List<Comment> comment;
 
 
     @Override
@@ -72,16 +72,6 @@ public class User {
         return Objects.hashCode(getId());
     }
 
-/*    //연관관계 편의 메소드
-    public void addPost(Post post) {
-        posts.add(post);
-        post.setUser(this);
-    }
-
-    public void deletePost(Post post) {
-        posts.remove(post);
-        post.setUser(null);
-    }*/
 
     //연관관계 편의 메소드
     public void addCart(Cart cart) {

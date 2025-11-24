@@ -84,4 +84,11 @@ public class JpaItemRepository implements ItemRepository {
             em.merge(item);
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<Item> searchByName(String name) {
+        return em.createQuery("SELECT i FROM Item i where i.itemName like :name", Item.class)
+                .setParameter("name", "%" + name + "%")    //중요 : 검색어 앞뒤에 %를 직접 붙여줘야 함
+                .getResultList();
+    }
 }
