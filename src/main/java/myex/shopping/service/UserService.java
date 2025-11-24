@@ -39,9 +39,11 @@ public class UserService {
     //로그인 로직.
     public User login(String email, String password) {
         //반환이 Optional : 1개 담는 컨테이너이기 때문에, 여러 값(컬렉션)을 처리하는 Stream 안쓰고 바로 .filter 가능.
+        //현재 : 로그인 실패 시 -> NotFound 404 반환
+        // 다시 로그인 페이지로 변경.
         return userRepository.findByEmail(email)
                 .filter(user -> user.getPassword().equals(password))
-                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
+                .orElse(null);
     }
     //전체 사용자 조회
     public List<User> allUser() {
