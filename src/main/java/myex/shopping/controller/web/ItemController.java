@@ -36,14 +36,14 @@ public class ItemController {
     public String items(Model model,
                         @RequestParam(required = false) String keyword) {
         List<ItemDto> items;
-
+        //검색 없을 때,
         if (keyword == null || keyword.trim().isEmpty()) {
             items = itemService.findAllToDto();
         }
+        //검색 있을 때,
         else {
             items = itemService.findSearchByNameDto(keyword);
         }
-
         model.addAttribute("items", items);
         return "items/items";
     }
@@ -63,23 +63,19 @@ public class ItemController {
         model.addAttribute("item", new ItemDtoDetail(item));
         return "items/item";
     }
-
     //아이템 추가 폼.
     @GetMapping("/add")
     public String addForm(Model model) {
-        //th:object 쓰기 위해 빈 객체 전달.
+        //th:object 위해 빈 객체 전달.
         model.addAttribute("item", new ItemAddForm());
         return "items/addForm";
     }
-    
     //아이템 추가 요청
     @PostMapping("/add")
     public String addItem(@Valid @ModelAttribute("item")ItemAddForm form,
                           BindingResult bindingResult,
                           RedirectAttributes redirectAttributes) throws IOException {
-
         //업로드 시 UploadFolder 에 있는 사진 업로드 시도 하면, "같은 경로 + 같은 파일명" 이라 같다고 판단해 move 불가능.(오류 발생. -> UUID로 바꿀시, "같은 경로 + 다른 파일명" 이라 다른 파일이라 판단하고 업로드 가능.
-
         //"다른 경로 + 같은 파일명" : 덮어쓰기.
         if (bindingResult.hasErrors()) {
             log.info("상품 폼 검증 실패 : {}",bindingResult);
@@ -95,7 +91,6 @@ public class ItemController {
     public String editForm (@PathVariable("itemId") Long itemId,
                             Model model,
                             RedirectAttributes redirectAttributes) {
-        //후에 404로 변경 예정.
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("item not found"));
 
@@ -125,7 +120,7 @@ public class ItemController {
         /*
           1. RedirectAttributes.addAttribute("itemId",...)
           2. @PathVariable, @RequestParam 같은 요청
-             메서드 파라미터 이름 Long itemId 랑 매칭됨.
+             메서드 파라미터 이름 Long itemId 랑 매칭 가능.
         */
     }
 

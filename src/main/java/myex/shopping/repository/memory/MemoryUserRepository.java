@@ -79,6 +79,11 @@ public class MemoryUserRepository implements UserRepository {
         return new ArrayList<>(map.values());
     }
 
+    @Override
+    public List<User> findAllByActiveTrue() {
+        return List.of();
+    }
+
     //보통 테스트에서 사용.
     //JPA에선 @Transactional 안에 @Test 작성시 자동으로 Rollback 해줌.(clearStore는 Memory 에서만 필요)
     public void clearStore() {

@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
+import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.repository.PostRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
@@ -59,8 +60,13 @@ public class JpaPostRepository implements PostRepository {
 
     @Override
     @Transactional(readOnly = false)
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         Post post = em.find(Post.class, id);
-        em.remove(post);
+        if (post != null) {
+            em.remove(post);
+        }
+        else {
+            throw new ResourceNotFoundException("Post not found");
+        }
     }
 }

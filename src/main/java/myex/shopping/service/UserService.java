@@ -32,6 +32,7 @@ public class UserService {
     //email, name, password 입력.
     @Transactional(readOnly = false)
     public Long save(User user) {
+        user.setActive(true);
         User savedUser = userRepository.save(user);
         log.info("{}가 저장되었습니다.",savedUser);
         return savedUser.getId();
@@ -50,7 +51,13 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    //활성화된 전체 사용자 조회
+    public List<User> allUserByActive() {
+        return userRepository.findAllByActiveTrue();
+    }
+
     //회원 정보 수정 (name, email)
+    //더티 체킹
     @Transactional(readOnly = false)
     public User updateUser(Long id, UserEditDto updateDTO) {
         User user = userRepository.findById(id)
@@ -66,6 +73,8 @@ public class UserService {
 
     //사용자 삭제. -> active로 구분.(soft-delete)
     public void deleteUser(Long id) {
-
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setActive(false);
     }
 }

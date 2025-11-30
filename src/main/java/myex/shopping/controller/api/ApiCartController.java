@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Optional;
 
@@ -55,6 +56,12 @@ public class ApiCartController {
     public ResponseEntity<CartDto> addToCart(@PathVariable @Positive(message = "양수만 입력가능합니다.") Long itemId,
                                           @Valid @RequestBody CartForm cartForm,
                                           HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            log.info("로그인 실패");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();//401
+        }
+        //많은 작업 -> 변수 추출 /Stream() -> 더 복잡.
         Optional<Item> findItemOpt = itemRepository.findById(itemId);
         if (findItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build(); //없는 상품을 추가 시 404
@@ -65,17 +72,9 @@ public class ApiCartController {
             log.info("재고 수량 초과로 장바구니 담을 시");
             return ResponseEntity.badRequest().build(); //클라이언트 오류 400
         }
-
-        User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser == null) {
-            log.info("로그인 실패");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();//401
-        }
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
-
         //아이템과 수량.
         boolean result = cart.addItem(findItem, cartForm.getQuantity());
-
         //전체 장바구니 수량이 총 수량을 넘었을 때
         if (result == false) {
             log.info("전체 장바구니 수량이 총 수량을 넘었을 때");
@@ -83,7 +82,6 @@ public class ApiCartController {
         }
         CartDto cartDto = new CartDto(cart);
         return ResponseEntity.ok(cartDto); //200
-
     }
 
     @Operation(
@@ -113,21 +111,20 @@ public class ApiCartController {
             }
     )
     //장바구니 아이템 삭제
-    @DeleteMapping("/cart/remove")
-    public ResponseEntity<CartDto> cartItemRemove(@Valid @RequestBody RemoveCartDto removeCartDto,
+    @DeleteMapping("/{itemId}/cart")
+    public ResponseEntity<?> cartItemRemove(@PathVariable @Positive Long itemId,
                                                HttpSession session) {
-        Optional<Item> findItemOpt = itemRepository.findById(removeCartDto.getItemId());
-        
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<Item> findItemOpt = itemRepository.findById(itemId);
         if (findItemOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Item findItem = findItemOpt.get();
-        cartService.deleteItem(findItem.getId(), session);
-        
-        User loginUser = (User) session.getAttribute("loginUser");
-        return cartRepository.findByUser(loginUser)
-                .map(cart -> ResponseEntity.ok(new CartDto(cart)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Cart cart = cartService.deleteItem(findItem.getId(), session);
+        return ResponseEntity.ok(new CartDto(cart));
     }
     //메소드
     private Cart getOrCreateCart(HttpSession session) {

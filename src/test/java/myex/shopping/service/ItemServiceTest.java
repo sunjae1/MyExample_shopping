@@ -8,6 +8,7 @@ import myex.shopping.repository.ItemRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,9 +19,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
+import jakarta.persistence.EntityManager;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.spy;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
@@ -28,16 +34,29 @@ class ItemServiceTest {
     @Mock
     private ItemRepository itemRepository;
 
-    @InjectMocks
+    @Mock
+    private ImageService imageService;
+
+    @Mock
+    private EntityManager em;
+
     private ItemService itemService;
+
+    @BeforeEach
+    void setUp() {
+        itemService = new ItemService(itemRepository, imageService, em);
+        itemService = spy(itemService);
+    }
 
     @Test
     @DisplayName("아이템 전체 조회를 DTO로 변환하여 반환한다")
     void findAllToDto() {
         // given
         Item item1 = new Item("itemA", 10000, 10, "/img/itemA.jpg");
+        item1.setId(1L);
         Item item2 = new Item("itemB", 20000, 20, "/img/itemB.jpg");
-        when(itemRepository.findAll()).thenReturn(Arrays.asList(item1, item2));
+        item2.setId(2L);
+        given(itemRepository.findAll()).willReturn(Arrays.asList(item1, item2));
 
         // when
         List<ItemDto> result = itemService.findAllToDto();
@@ -59,17 +78,24 @@ class ItemServiceTest {
         MockMultipartFile imageFile = new MockMultipartFile("imageFile", "test.jpg", "image/jpeg", "test image".getBytes());
         form.setImageFile(imageFile);
 
-        Item savedItem = new Item("New Item", 15000, 30);
+        String mockImageUrl = "/img/mock-image.jpg";
+        given(imageService.storeFile(any(MockMultipartFile.class))).willReturn(mockImageUrl);
+
+        Item savedItem = new Item();
         savedItem.setId(1L);
-        savedItem.setImageUrl("/img/test.jpg");
-
-        when(itemRepository.save(any(Item.class))).thenReturn(savedItem);
-
+        given(itemRepository.save(any(Item.class))).willReturn(savedItem);
+        
         // when
         Long itemId = itemService.createItem(form);
 
         // then
+        ArgumentCaptor<Item> itemCaptor = ArgumentCaptor.forClass(Item.class);
+        verify(itemRepository).save(itemCaptor.capture());
+        Item capturedItem = itemCaptor.getValue();
+        
         assertThat(itemId).isEqualTo(1L);
+        assertThat(capturedItem.getItemName()).isEqualTo("New Item");
+        assertThat(capturedItem.getImageUrl()).isEqualTo(mockImageUrl);
     }
     
     @Test
@@ -80,8 +106,8 @@ class ItemServiceTest {
         Item existingItem = new Item("Old Name", 100, 10);
         Item updateParam = new Item("New Name", 200, 20);
         updateParam.setImageUrl("/img/new.jpg");
-
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(existingItem));
+        
+        given(itemRepository.findById(itemId)).willReturn(Optional.of(existingItem));
 
         // when
         Item updatedItem = itemService.update(itemId, updateParam);
@@ -96,6 +122,7 @@ class ItemServiceTest {
     @Test
     @DisplayName("아이템 정보를 UUID와 함께 수정한다")
     void editItemWithUUID() throws IOException {
+
         // given
         Long itemId = 1L;
         ItemEditForm form = new ItemEditForm();
@@ -107,17 +134,24 @@ class ItemServiceTest {
 
         Item existingItem = new Item("Original Item", 10000, 10);
         existingItem.setId(itemId);
-
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(existingItem));
+        given(itemRepository.findById(itemId)).willReturn(Optional.of(existingItem));
+        
+        String mockImageUrl = "/img/mock-edited-image.png";
+        given(imageService.storeFile(any(MockMultipartFile.class))).willReturn(mockImageUrl);
 
         // when
         Long editedItemId = itemService.editItemWithUUID(form, itemId);
 
         // then
+        ArgumentCaptor<Item> itemCaptor = ArgumentCaptor.forClass(Item.class);
+        verify(itemRepository).save(itemCaptor.capture());
+        Item capturedItem = itemCaptor.getValue();
+
         assertThat(editedItemId).isEqualTo(itemId);
-        assertThat(existingItem.getItemName()).isEqualTo("Edited Item");
-        assertThat(existingItem.getPrice()).isEqualTo(25000);
-        assertThat(existingItem.getQuantity()).isEqualTo(50);
-        assertThat(existingItem.getImageUrl()).contains(".png");
+        assertThat(capturedItem.getItemName()).isEqualTo("Edited Item");
+        assertThat(capturedItem.getPrice()).isEqualTo(25000);
+        assertThat(capturedItem.getQuantity()).isEqualTo(50);
+        assertThat(capturedItem.getImageUrl()).isEqualTo(mockImageUrl);
     }
 }
+

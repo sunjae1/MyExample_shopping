@@ -3,6 +3,7 @@ package myex.shopping.service;
 import myex.shopping.domain.*;
 import myex.shopping.dto.mypagedto.MyPageOrderDto;
 import myex.shopping.dto.orderdto.OrderDBDto;
+import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,9 @@ class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private CartRepository cartRepository;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -55,9 +59,10 @@ class OrderServiceTest {
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item1));
         when(itemRepository.findById(2L)).thenReturn(Optional.of(item2));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(cartRepository.findByUser(any(User.class))).thenReturn(Optional.of(cart));
 
         // when
-        Order resultOrder = orderService.checkout(order, cart, user);
+        Order resultOrder = orderService.checkout(user);
 
         // then
         assertThat(resultOrder.getOrderItems()).hasSize(2);

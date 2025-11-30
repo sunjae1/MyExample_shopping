@@ -28,8 +28,10 @@ public class MyPageDto {
         this.user = new UserDto(user);
         this.orders = orders;
         this.posts = posts;
-        this.cartItems = cart.getCartItems().stream()
-                .map(oi -> new ItemDto(oi.getItem()))
-                .collect(Collectors.toList());
+        if (cart.getCartItems() != null) {
+            this.cartItems = cart.getCartItems().stream()
+                    .map(oi -> new ItemDto(oi.getItem()))
+                    .collect(Collectors.toList());
+        }
     }
 }

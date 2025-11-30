@@ -24,7 +24,12 @@ public class JpaUserRepository implements UserRepository {
     @Override
     @Transactional(readOnly = false)
     public User save(User user) {
-        em.persist(user); //GenerationType.IDENTITY -> INSERT 문 바로 실행.
+        if (user.getId() == null) {
+            em.persist(user); //GenerationType.IDENTITY -> INSERT 문 바로 실행.
+        }
+        else {
+            em.merge(user);
+        }
         return user;
     }
 
@@ -48,7 +53,8 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public List<User> findByName(String name) {
-        return em.createQuery("select u from User u where u.name =:name", User.class)
+        return em.createQuery("select u from User u " +
+                        "where u.name =:name", User.class)
                 .setParameter("name", name)
                 .getResultList();
         //getSingleResult() :조회가 하나일때 사용하는 메소드
@@ -58,8 +64,14 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public List<User> findAll() {
-
         return em.createQuery("select u from User u", User.class)
+                .getResultList();
+    }
+
+    @Override
+    public List<User> findAllByActiveTrue() {
+        return em.createQuery("select u from User u " +
+                        "where u.active = true", User.class)
                 .getResultList();
     }
 

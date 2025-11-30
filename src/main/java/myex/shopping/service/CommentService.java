@@ -36,15 +36,15 @@ public class CommentService {
     }
 
     //댓글 수정
-    public void updateComment(Long commentId, CommentForm form, Long userId) {
+    public Comment updateComment(Long commentId, CommentForm form, Long userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment Not Found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
 
         comment.setContent(form.getContent());
-        //더티체킹?
-
+        //더티체킹
+        return comment;
     }
     //댓글 삭제
     public void deleteComment(Long postId, Long commentId) {
@@ -65,4 +65,17 @@ public class CommentService {
         JPA 가 최적화 실행.
         */
     }
+
+    //댓글 작성자 본인인지 확인 메소드
+    public boolean isCommentOwner(Long id, User loginUser) {
+        if (loginUser == null) {
+            return false;
+        }
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment Not Found"));
+        //equals boolean 반환.
+        return comment.getUser().getId().equals(loginUser.getId());
+
+    }
+
 }

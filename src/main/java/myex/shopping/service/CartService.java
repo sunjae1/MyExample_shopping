@@ -8,6 +8,7 @@ import myex.shopping.domain.Cart;
 import myex.shopping.domain.CartItem;
 import myex.shopping.domain.Item;
 import myex.shopping.domain.User;
+import myex.shopping.dto.cartdto.CartDto;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
@@ -28,6 +29,34 @@ public class CartService {
     private final EntityManager em;
 
 
+    @Transactional(readOnly = false)
+    public Cart findOrCreateCartForUser(User sessionUser) {
+        //로그인 처리 예외로 바꾸기.
+        if (sessionUser == null) {
+            throw new ResourceNotFoundException("user not found");
+        }
+        User user = userRepository.findById(sessionUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
+
+        //사용자별 장바구니 찾거나 새로 만들어서 사용자와 연결 후 반환.
+        return cartRepository.findByUser(sessionUser)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    //더티체킹.
+                    user.addCart(newCart);
+                    log.info("findOrCreateCartForUser 메소드 끝"); //더티 체킹 : 메소드 끝나는 commit 시점에 INSERT 문 실행.
+                    return newCart; //지역변수로 newCart는 사라지지만 객체 주소를 가진 외부 변수가 있으므로 new Cart();는 GC 안됨.
+                });
+    }
+
+    //장바구니 전체 DTO 변환
+    @Transactional(readOnly = true)
+    public CartDto findByUserByDto(User user) {
+        return cartRepository.findByUser(user)
+                .map(CartDto::new)
+                .orElseThrow(() -> new ResourceNotFoundException("cart not found"));
+
+    }
 
     @Transactional(readOnly = false)
     public void save(Cart cart, HttpSession session) {
@@ -41,57 +70,16 @@ public class CartService {
     }
 
     @Transactional(readOnly = false)
-    public Cart findOrCreateCartForUser(User sessionUser) {
-        User user = userRepository.findById(sessionUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
-
-        //사용자별 장바구니 찾거나 새로 만들어서 사용자와 연결 후 반환.
-        return cartRepository.findByUser(sessionUser)
-                .orElseGet(() -> {
-                    Cart newCart = new Cart();
-                    //더티체킹.
-                    user.addCart(newCart);
-                    log.info("findOrCreateCartForUser 메소드 끝"); //더티 체킹 : 메소드 끝나는 commit 시점에 INSERT 문 실행.
-                    return newCart;
-                });
-    }
-
-    
-    @Transactional(readOnly = false)
-    public void deleteItem (Long itemId, HttpSession session) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("cart not found"));
-        User loginUser = (User) session.getAttribute("loginUser");
-        Cart cart = findOrCreateCartForUser(loginUser);
-        cart.removeItem(item);
-        //더티 체킹 - Commit 시점에 delete 쿼리 실행됨.
-    }
-
-    @Transactional(readOnly = false)
-    public void deleteCart(Long cartId, Long userId) {
-        log.info("cart 조회 전");
-        Cart cart = cartRepository.findById(cartId).get();
-        log.info("cart 조회 후");
-        log.info("user 조회 전");
-        User user = userRepository.findById(userId).get();
-        log.info("user 조회 후");
-        //User CASCADETYPE.ALL 이라서 Cart에도 전파(더티 체킹)
-        user.deleteCart(cart);
-        log.info("deleteCart 후");
-    }
-
-
-   @Transactional(readOnly = false)
-    public void update(User user, Cart cart) {
+    public void update(Cart cart) {
         log.info("준영속 객체 Cart : {}",cart);
 
         Cart managedCart = em.merge(cart); //update문 예약.
         log.info("em.flush(); 전");
-        em.flush(); //id는 hibernate가 merge()호출 중에 IdentifierGenerator 로 바로 ID 생성. 
-       // (다음 줄에 바로 Native Query가 나가지 않는 이상 지금 상태에선 필요 없음)
+        em.flush(); //id는 hibernate가 merge()호출 중에 IdentifierGenerator 로 바로 ID 생성.
+        // (다음 줄에 바로 Native Query가 나가지 않는 이상 지금 상태에선 필요 없음)
         log.info("em.flush() 후");
 
-       //세션과 영속 객체 같게 맞춤. --> cart: DB에서 꺼낸 준영속, managedCart : 영속 상태\
+        //세션과 영속 객체 같게 맞춤. --> cart: DB에서 꺼낸 준영속, managedCart : 영속 상태\
         log.info("DB에서 꺼낸 준영속 Cart.getId : {}", cart.getId());
         log.info("em.merge 후 영속 상태 manaedCart.getId : {}", managedCart.getId());
 //        cart.setId(managedCart.getId());
@@ -110,6 +98,35 @@ public class CartService {
        }
 */
     }
+
+
+    @Transactional(readOnly = false)
+    public Cart deleteItem (Long itemId, HttpSession session) {
+        //없는 아이템 삭제 -> 예외 발생.
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("cart not found"));
+        User loginUser = (User) session.getAttribute("loginUser");
+        Cart cart = findOrCreateCartForUser(loginUser);
+        //더티 체킹 - Commit 시점에 delete 쿼리 실행됨.
+        cart.removeItem(item);
+        return cart;
+    }
+
+    @Transactional(readOnly = false)
+    public void deleteCart(Long cartId, Long userId) {
+        log.info("cart 조회 전");
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(()-> new ResourceNotFoundException("cart not found"));
+        log.info("cart 조회 후");
+        log.info("user 조회 전");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
+        log.info("user 조회 후");
+        //User CASCADETYPE.ALL 이라서 Cart에도 전파(더티 체킹)
+        user.deleteCart(cart);
+        log.info("deleteCart 후");
+    }
+
     //메소드
     private Cart getOrCreateCart(HttpSession session) {
         Cart cart = (Cart) session.getAttribute("CART");

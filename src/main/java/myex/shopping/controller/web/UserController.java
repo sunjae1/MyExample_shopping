@@ -47,7 +47,6 @@ public class UserController {
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute("form") LoginForm form,
                         BindingResult bindingResult,
-                        Model model,
                         HttpServletRequest request,
                         RedirectAttributes redirectAttributes) {
         //검증 실패시
@@ -62,7 +61,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("errorMessage","아이디나 비밀번호가 틀렸습니다.");
             return "redirect:/";
         }
-        //로그인 성공 로직 (UUID 해서 있으면 그냥 반환, 아니면 신규 세션 생성.)
+        //로그인 성공 로직 (UUID 사용, 있으면 그냥 반환, 아니면 신규 세션 생성후 반환)
         HttpSession session = request.getSession();
         session.setAttribute("loginUser", loginUser);
         return "redirect:/main";
@@ -84,7 +83,7 @@ public class UserController {
     }
     //회원가입 등록.
     @PostMapping("/register")
-    public String add_user(@Valid @ModelAttribute("form") RegisterForm form,
+    public String addUser(@Valid @ModelAttribute("form") RegisterForm form,
                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("회원 가입 검증 실패 - {}", bindingResult);
@@ -109,16 +108,16 @@ public class UserController {
                            @RequestParam(required = false) String keyword) {
         List<ItemDto> items;
         User loginUser = (User) session.getAttribute("loginUser");
+        //keyword : 상품 검색 키워드(상품 이름)가 없을때
         if (keyword ==null || keyword.trim().isEmpty()){
             items = itemService.findAllToDto();
-//            items = itemRepository.findAll();
         }
+        //keyword : 상품 검색 키워드가 있을때
         else {
             items = itemService.findSearchByNameDto(keyword);
         }
         model.addAttribute("items", items);
         model.addAttribute("user",loginUser);
-
         return "main";
     }
     //마이페이지 보내는거 : user, orders, posts, cart
@@ -128,6 +127,7 @@ public class UserController {
     {
         User loginUser = (User) session.getAttribute("loginUser");
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
+        log.info("cart.getId() : {}", cart.getId());
         List<MyPageOrderDto> orderDtos = orderService.changeToOrderDtoList(loginUser);
         List<MyPagePostDBDto> postDtos = postService.changeToDtoList(loginUser);
 

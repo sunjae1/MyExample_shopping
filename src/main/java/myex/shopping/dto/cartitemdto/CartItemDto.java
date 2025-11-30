@@ -19,4 +19,11 @@ public class CartItemDto {
         this.quantity = cartItem.getQuantity();
         this.item = new ItemDto(cartItem.getItem());
     }
+    //총 가격 : 1000 * 3 = 3000;
+    public int totalItemPrice() {
+        if (item != null) {
+            return item.getPrice() * quantity;
+        }
+        return 0;
+    }
 }

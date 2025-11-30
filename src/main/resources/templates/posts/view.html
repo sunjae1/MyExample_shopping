@@ -111,11 +111,32 @@
                 </div>
             </div>
 
-            <!-- Edit Comment Form (hidden by default) -->
-            <div class="comment-edit-form" style="display: none;">
-                <form th:action="@{|/posts/${post.id}/comments/${comment.id}/update|}" method="post" th:object="${commentForm}">
-                    <input type="hidden" name="content" /> <!-- This will be populated by JS -->
+            <!-- Edit Comment Form (Container) -->
+            <div class="comment-edit-form" th:style="${errorCommentId != null and errorCommentId == comment.id} ? 'display: block;' : 'display: none;'">
+
+                <!-- FORM 1: Render this form ONLY if it's the one with the error -->
+                <form th:if="${errorCommentId != null and errorCommentId == comment.id}"
+                      th:action="@{|/posts/${post.id}/comments/${comment.id}/update|}" method="post"
+                      th:object="${commentToUpdate}">
+
+                    <div class="field-error" th:errors="*{content}"></div>
+                    <input type="hidden" name="content" />
+                    <textarea class="edit-textarea" th:text="*{content}"></textarea> <!-- th:field를 th:text로 수정 -->
+
+                    <div class="comment-actions">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="submitEditForm(this)">저장</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEditForm(this)">취소</button>
+                    </div>
+                </form>
+
+                <!-- FORM 2: Render this form for all non-error comments (it's normally hidden) -->
+                <form th:unless="${errorCommentId != null and errorCommentId == comment.id}"
+                      th:action="@{|/posts/${post.id}/comments/${comment.id}/update|}" method="post">
+
+                    <!-- 오류가 없는 상태이므로 th:errors가 필요 없습니다. -->
+                    <input type="hidden" name="content" />
                     <textarea class="edit-textarea" th:text="${comment.content}"></textarea>
+
                     <div class="comment-actions">
                         <button type="button" class="btn btn-primary btn-sm" onclick="submitEditForm(this)">저장</button>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEditForm(this)">취소</button>
@@ -151,8 +172,18 @@
         const displayDiv = commentDiv.querySelector('.comment-display');
         const editDiv = commentDiv.querySelector('.comment-edit-form');
 
-        displayDiv.style.display = displayDiv.style.display === 'none' ? 'block' : 'none';
-        editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
+        // 현재 수정 모드인지 확인 (editDiv가 보여지고 있는지)
+        const isEditing = editDiv.style.display !== 'none';
+
+        if (isEditing) {
+            // 수정 중일 때 -> 취소: 수정 폼을 숨기고, 댓글을 다시 보여줌
+            editDiv.style.display = 'none';
+            displayDiv.style.display = 'block';
+        } else {
+            // 수정 중이 아닐 때 -> 수정 시작: 댓글을 숨기고, 수정 폼을 보여줌
+            editDiv.style.display = 'block';
+            displayDiv.style.display = 'none';
+        }
     }
 
     function submitEditForm(button) {

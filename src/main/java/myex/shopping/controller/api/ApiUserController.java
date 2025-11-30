@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.*;
+import myex.shopping.dto.cartdto.CartDto;
 import myex.shopping.dto.itemdto.ItemDto;
 import myex.shopping.dto.mypagedto.MyPageDto;
 import myex.shopping.dto.orderdto.OrderDto;
@@ -69,7 +70,7 @@ public class ApiUserController {
             log.info("로그인 실패 ");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); //로그인 실패, 인증 실패
         }
-        //로그인 성공 로직 (UUID 사용하여 있으면 반환, 아니면 신규 세션 생성)
+        //로그인 성공 로직 (있으면 반환, 아니면 UUID 사용하여 신규 세션 생성)
         log.info("{} 로그인 성공(userService.login 메소드 통과)", loginUser);
         session.setAttribute("loginUser", loginUser);
         return ResponseEntity.ok(new UserDto(loginUser)); //200 OK
@@ -82,9 +83,18 @@ public class ApiUserController {
     )
     //전체 사용자 조회
     @GetMapping("/allUser")
-    public ResponseEntity<List<UserDto>> allUser(Model model) {
+    public ResponseEntity<List<UserDto>> allUser() {
         return ResponseEntity.ok(
                 userService.allUser().stream()
+                        .map(UserDto::new)
+                        .collect(Collectors.toList()));
+    }
+
+    //전체 활성화 사용자 조회
+    @GetMapping("/allUserByActive")
+    public ResponseEntity<List<UserDto>> allUserByActive() {
+        return ResponseEntity.ok(
+                userService.allUserByActive().stream()
                         .map(UserDto::new)
                         .collect(Collectors.toList()));
     }
@@ -103,7 +113,6 @@ public class ApiUserController {
         List<ItemDto> itemDto = itemRepository.findAll().stream()
                 .map(ItemDto::new)
                 .collect(Collectors.toList());
-
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
             log.info("로그인 실패 ");
@@ -133,14 +142,12 @@ public class ApiUserController {
         List<OrderDto> orders = orderRepository.findByUser(loginUser).stream()
                 .map(OrderDto::new)
                 .collect(Collectors.toList());
-
         List<PostDto> posts = postRepository.findByUser(loginUser).stream()
                 .map(PostDto::new)
                 .collect(Collectors.toList());
-
-        //세션 구현시 브라우저와 포스트맨 세션이 달라서, 공유 불가.
-        //Cart : 세션 -> DB로 교체.
+        //세션 -> DB로 변경.
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
+
         log.info("orders 정보 : {}", orders);
         log.info("cart 정보 : {}",cart);
         return ResponseEntity.ok(new MyPageDto(loginUser, orders, posts, cart));
@@ -157,7 +164,6 @@ public class ApiUserController {
     //회원가입 입력값 : email, name, password
     @PostMapping("/register")
     public ResponseEntity<UserDto> add_user(@Valid @RequestBody RegisterForm form) {
-
         User user = new User(form.getEmail(),form.getName(), form.getPassword());
         userService.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new UserDto(user));
@@ -195,13 +201,10 @@ public class ApiUserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         userService.deleteUser(loginUser.getId());
-
         //회원 탈퇴 후 세션 만료(로그아웃 효과)
         session.invalidate();
-
         log.info("사용자 탈퇴 완료: {}", loginUser.getEmail());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //204
-
     }
 
     private static Cart getOrCreateCart(HttpSession session) {

@@ -13,4 +13,5 @@ public interface UserRepository {
     List<User> findByName(String name);
     List<User> findAll();
 
+    List<User> findAllByActiveTrue();
 }

@@ -58,6 +58,11 @@ public class MemoryItemRepository implements ItemRepository {
         store.remove(itemId);
     }
 
+    @Override
+    public List<Item> searchByName(String keyword) {
+        return List.of();
+    }
+
     //item 저장소 전부 삭제.
     public void clearStore() {
         store.clear();

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Item;
 import myex.shopping.dto.itemdto.ItemDto;
+import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.ItemAddForm;
 import myex.shopping.form.ItemEditForm;
 import myex.shopping.repository.ItemRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,14 +69,11 @@ public class ApiItemController {
     //개별 아이템 상세 조회
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemDto> item(@PathVariable @Positive(message = "양수만 입력 가능합니다.") long itemId) {
-        Optional<Item> findItemOpt = itemRepository.findById(itemId);
 
-        if (findItemOpt.isPresent()) {
-            ItemDto itemDto = new ItemDto(findItemOpt.get());
-            return ResponseEntity.ok(itemDto);
-        }
-        else
-            return ResponseEntity.notFound().build();
+        return itemRepository.findById(itemId)
+                .map(ItemDto::new)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @Operation(
@@ -93,18 +92,16 @@ public class ApiItemController {
     public ResponseEntity<ItemDto> addItem(@Valid @ModelAttribute ItemAddForm form,
                           RedirectAttributes redirectAttributes) throws IOException {
 
-        Long savedItemId = itemService.createItem(form);
-        ItemDto itemDto = itemRepository.findById(savedItemId)
-                .map(ItemDto::new)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이템은 없습니다."));
-
         log.info("ItemController AddItem : PostMapping");
-        return ResponseEntity.status(HttpStatus.CREATED).body(itemDto); //201
+        Long savedItemId = itemService.createItem(form);
+        return itemRepository.findById(savedItemId)
+                .map(ItemDto::new)
+                .map(dto -> ResponseEntity.created(URI.create("/api/items/" + savedItemId)).body(dto))
+                .orElseGet(() -> ResponseEntity.status(500).build());
     }
 
     //아이템 수정 :상세 + 수정화면 공용
     //수정 화면이 필요하면 GET /items/{itemId} 에서 현재 상태를 가져와서 수정 폼에 채움.
-
     /*
     실무 설계.
     GET /items -> 전체 목록 조회
@@ -124,10 +121,10 @@ public class ApiItemController {
     public ResponseEntity<ItemDto> editItem (@PathVariable @Positive(message = "양수만 입력 가능합니다") Long itemId,
                         @Valid @ModelAttribute ItemEditForm form) throws IOException {
         Long updateItemId = itemService.editItemWithUUID(form, itemId);
-        ItemDto itemDto = itemRepository.findById(updateItemId)
+        return itemRepository.findById(updateItemId)
                 .map(ItemDto::new)
-                .orElseThrow(() -> new IllegalArgumentException("해당 아이템을 찾을 수 없습니다."));
-        return ResponseEntity.ok(itemDto);
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
@@ -141,14 +138,12 @@ public class ApiItemController {
     )
     @DeleteMapping("/{itemId}/delete")
     public ResponseEntity<?> deleteItem(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long itemId) {
-        Optional<Item> findItemOpt = itemRepository.findById(itemId);
-        if (findItemOpt.isPresent()) {
-            itemRepository.deleteItem(itemId);
-            return ResponseEntity.noContent().build(); //204 No Content
-        }
-        else {
-            return ResponseEntity.notFound().build(); //404 Not Found
-        }
+        return itemRepository.findById(itemId)
+                .map(item -> {
+                    itemRepository.deleteItem(itemId);
+                    return ResponseEntity.noContent().build(); //204
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build()); //404
     }
 
 }

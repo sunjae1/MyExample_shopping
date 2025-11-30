@@ -34,10 +34,13 @@ public class User {
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cart> carts;
+    private List<Cart> carts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
+
+    //소프트 삭제
+    private boolean active;
 
     //JPA 전용 기본 생성자 - 없을 시 InstantiationException,
     //JPA 구현체 Hibernate 는 데베에서 조회한 데이터로 엔티티 객체 만들 때, 먼저 기본 생성자를 호출하여 텅 빈 객체 생성 후, 객체 필드에 데이터 값을 채워 넣는 방식으로 동작.

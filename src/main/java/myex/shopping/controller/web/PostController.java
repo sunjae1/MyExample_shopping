@@ -4,9 +4,9 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
 import myex.shopping.dto.postdto.PostDBDto;
+import myex.shopping.dto.postdto.PostEditDto;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.CommentForm;
 import myex.shopping.form.PostForm;
@@ -18,9 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,7 +30,6 @@ import java.util.Optional;
 public class PostController {
     private final PostRepository postRepository;
     private final PostService postService;
-
     //게시판 조회.
     @GetMapping
     public String list(Model model,
@@ -43,20 +40,14 @@ public class PostController {
         model.addAttribute("posts", posts);
         return "posts/list";
     }
-
-
     //게시물 한개 상세 보기.
     @GetMapping("/{id}")
     public String view(@PathVariable Long id,
                        Model model,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
-
-        User loginUser = (User) session.getAttribute("loginUser");
         log.info("post.id = {}", id);
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
-
+        User loginUser = (User) session.getAttribute("loginUser");
 /*        if (postOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorPV","유효하지 않은 게시물입니다.");
             return "redirect:/posts";
@@ -64,8 +55,6 @@ public class PostController {
         //LazyInitializationException 방지 위해서 DTO로 전환.
         // 뷰에서 LAZY 필드 접근 시 예외 막기 위해.
         PostDBDto postDBDto = postService.changeToDto(id);
-        log.info("post 정보 : {}", post);
-
         model.addAttribute("loginUser",loginUser);
         model.addAttribute("post", postDBDto);
         model.addAttribute("commentForm", new CommentForm());
@@ -94,11 +83,9 @@ public class PostController {
             model.addAttribute("user", loginUser);
             return "posts/new";
         }
-
         postService.createPost(form, session);
         return "redirect:/posts";
     }
-
     //게시물 수정 폼
     @GetMapping("/{id}/update")
     public String updateForm(@PathVariable Long id,
@@ -107,11 +94,10 @@ public class PostController {
         model.addAttribute("post", postDBDto);
         return "posts/edit";
     }
-
     //게시물 수정
     @PostMapping("/{id}/update")
     public String updatePost(@PathVariable Long id,
-                             @Valid @ModelAttribute("post") PostForm form,
+                             @Valid @ModelAttribute("post") PostEditDto form,
                              BindingResult bindingResult) {
         log.info("게시물 수정 요청 컨트롤러 진입");
         log.info("PostForm 정보 : {}", form);
@@ -121,6 +107,7 @@ public class PostController {
         }
         postService.updatePost(id, form);
         return "redirect:/posts/{id}";
+        //@PostMapping("/{postId}/update") 경로 변수 {postId} 는 redirect:/{postId} 플레이스홀더 값이랑 매칭 됨.
     }
 
     //게시물 삭제.
@@ -130,14 +117,11 @@ public class PostController {
                          RedirectAttributes redirectAttributes) {
         //항상 null 가능성이 있는 변수를 .equals() 앞에 쓰면 NPE 위험
         log.info("redirectInfo 값 : {}", redirectInfo);
-        //삭제할려는 id 가 있는지 검증.
-        postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post Not Found"));
      /*   if (postOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorPV", "유효하지 않은 게시물입니다.");
             return "redirect:/posts";
         }*/
-        postRepository.delete(id);
+        postRepository.deleteById(id);
         if ("mypage".equals(redirectInfo))
         {
             return "redirect:/mypage";

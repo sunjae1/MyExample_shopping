@@ -44,7 +44,7 @@ public class MemoryPostRepository implements PostRepository {
 
     //삭제 버튼
     @Override
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         store.remove(id);
     }
 }

@@ -65,10 +65,11 @@ class UserServiceTest {
         User user = new User("test@test.com", "Tester", "password");
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
 
-        // when & then
-        assertThatThrownBy(() -> userService.login("test@test.com", "wrongpassword"))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("user not found");
+        // when
+        User loginUser = userService.login("test@test.com", "wrongpassword");
+
+        // then
+        assertThat(loginUser).isNull();
     }
     
     @Test

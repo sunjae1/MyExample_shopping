@@ -37,8 +37,8 @@ public class TestDataInit {
     @PostConstruct는 프록시로 감싸지지기 전 원본 객체에서 호출 될 수 있다. -> 트랜잭션 적용이 되지 않음. -> save(itemA)는 Repository 에서 트랜잭션 적용되고, 다시 여기 코드에 준영속으로 된다.(Transactional이 없기 때문에, 예) 대출 된 책은 준영속)
     --Spring Application이 완전히 초기화 되고, 모든 Bean, Proxy 준비 된 후에 데이터 초기화 시킬려면 @ApplicationReadyEvent를 써야함. --
     @PostConstruct //스프링 빈이 생성되고, 의존성 주입이 끝난 뒤 호출되는 메서드 (빈이 다 준비되면 자동으로 메소드 실행*/
-    @Transactional
-    @EventListener(ApplicationReadyEvent.class)
+//    @Transactional
+//    @EventListener(ApplicationReadyEvent.class)
     public void init() {
 
         //save -> em.persist 되어서, Repository 안 @Transactional 되어, 영속성 컨텍스트로 관리.

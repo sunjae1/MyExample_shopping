@@ -69,22 +69,18 @@ public class JpaItemRepository implements ItemRepository {
         em.merge(item);
     }
 
+
     @Override
     @Transactional(readOnly = false)
+    //소프트 삭제로 변경.
     public void deleteItem(Long itemId) {
         //em.remove는 영속 객체를 매개변수로 받아야함.
-        //entity -> em.remove(entity) /람다를 더 짧게 쓴 것.
-
-       /* Optional<Item> findOpt = findById(itemId);
-        findOpt.ifPresent(em::remove);*/
-
         Item item = em.find(Item.class, itemId);
         if (item !=null) {
             item.setDeleted(true); //소프트 삭제 : deleted 필드를 true로 설정
             em.merge(item);
         }
     }
-
     @Transactional(readOnly = true)
     public List<Item> searchByName(String name) {
         return em.createQuery("SELECT i FROM Item i where i.itemName like :name", Item.class)

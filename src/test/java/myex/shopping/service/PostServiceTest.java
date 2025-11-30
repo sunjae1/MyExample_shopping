@@ -43,7 +43,6 @@ class PostServiceTest {
         Post post = new Post("Test Title", "Test Content");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(postRepository.save(post)).thenReturn(post);
 
         // when
         Post result = postService.addUser(post, 1L);
@@ -88,8 +87,11 @@ class PostServiceTest {
     void changeToDtoList() {
         // given
         User user = new User();
+        user.setName("testuser"); // Set user name
         Post post1 = new Post("Title1", "Content1");
+        post1.setUser(user); // Set user for post1
         Post post2 = new Post("Title2", "Content2");
+        post2.setUser(user); // Set user for post2
         user.getPosts().addAll(Arrays.asList(post1, post2));
         
         when(postRepository.findByUser(user)).thenReturn(Arrays.asList(post1, post2));
@@ -100,6 +102,7 @@ class PostServiceTest {
         // then
         assertThat(dtoList).hasSize(2);
         assertThat(dtoList.get(0).getTitle()).isEqualTo("Title1");
+        assertThat(dtoList.get(0).getAuthorName()).isEqualTo("testuser");
     }
 
     @Test
