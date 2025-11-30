@@ -24,12 +24,19 @@ jobs:
         if [ "$STATE" != "running" ]; then
           echo "인스턴스가 꺼져있습니다. 시작합니다..."
           aws ec2 start-instances --instance-ids ${{ secrets.EC2_INSTANCE_ID }}
+          # 1차 대기 : AWS 콘솔상 Running이 뜰 때까지
           aws ec2 wait instance-running --instance-ids ${{ secrets.EC2_INSTANCE_ID }}
-          echo "인스턴스 부팅 완료! SSH 접속 대기 중..."
-          sleep 30 # SSH 데몬이 뜰 때까지 조금 더 대기
+          echo "AWS Instance Running 상태 도달. 이제 SSH 포트 오픈을 대기합니다..."
         else
           echo "인스턴스가 이미 실행 중입니다."
         fi
+        # 무조건 22번 포트가 열릴 때까지 5초 간격으로 찔러보기
+        #nc(netcat) 명령어로 호스트의 22번 포트 스캔
+        while ! nc -z -v -w 5 ${{ secrets.EC2_HOST }} 22; do
+          echo "SSH 포트가 아직 닫혀있습니다. 5초 뒤 재시도..."
+          sleep 5
+        done
+        echo "SSH 포트 연결 확인 완료! 다음 단계로 진행합니다."
 
     # 3️⃣ 코드 체크아웃
     - name: Checkout Code
