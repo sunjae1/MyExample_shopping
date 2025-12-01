@@ -88,7 +88,7 @@ class OrderServiceTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         // when
-        orderService.orderCancel(1L);
+        orderService.orderCancel(1L, user);
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);

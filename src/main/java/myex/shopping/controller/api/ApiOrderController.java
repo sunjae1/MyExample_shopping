@@ -94,8 +94,10 @@ public class ApiOrderController {
     )
     //주문 취소. : items/{id}/cancel
     @DeleteMapping("/{id}/cancel")
-    public ResponseEntity<?> orderCancel(@PathVariable @Positive Long id) {
-        OrderDto orderDto = new OrderDto(orderService.orderCancel(id));
+    public ResponseEntity<?> orderCancel(@PathVariable @Positive Long id,
+                                         HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        OrderDto orderDto = new OrderDto(orderService.orderCancel(id, loginUser));
         return ResponseEntity.ok(orderDto);
     }
 }

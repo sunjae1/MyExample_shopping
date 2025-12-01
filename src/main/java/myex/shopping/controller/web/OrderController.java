@@ -61,8 +61,10 @@ public class OrderController {
     //주문 취소. : items/{id}/cancel
     @PostMapping("/{id}/cancel")
     public String orderCancel(@PathVariable Long id,
+                              HttpSession session,
                               @RequestParam(required = false) String redirectInfo) {
-        orderService.orderCancel(id);
+        User loginUser = (User) session.getAttribute("loginUser");
+        orderService.orderCancel(id, loginUser);
         //마이 페이지에서 주문 취소할 시 redirect 분기.
         if ("mypage".equals(redirectInfo))
         {

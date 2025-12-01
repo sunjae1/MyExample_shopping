@@ -1,10 +1,12 @@
 package myex.shopping.service;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.*;
 import myex.shopping.dto.mypagedto.MyPageOrderDto;
 import myex.shopping.dto.orderdto.OrderDBDto;
+import myex.shopping.exception.AccessForbiddenException;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
@@ -12,6 +14,7 @@ import myex.shopping.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,13 +51,21 @@ public class OrderService {
         return order;
     }
 
-    public Order orderCancel(Long id) {
+    public Order orderCancel(Long id, User loginUser) {
         //더티 체킹.
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("order not found"));
         //재고 올리고 상태 CANCELLED 로 바뀜, 주문내역은 사라지지 않음.(기록용)
-        order.cancel();
-        return order;
+
+        //주문자와 로그인한 사용자가 같은지 확인
+        if (order.getUser().getId().equals(loginUser.getId())) {
+            order.cancel();
+            return order;
+        }
+        else {
+            throw new AccessForbiddenException("주문을 취소할 권한이 없습니다.");
+        }
+
     }
 
     public List<MyPageOrderDto> changeToOrderDtoList(User user) {
