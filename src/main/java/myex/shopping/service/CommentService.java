@@ -1,5 +1,6 @@
 package myex.shopping.service;
 
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import myex.shopping.repository.CommentRepository;
 import myex.shopping.repository.PostRepository;
 import myex.shopping.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -22,6 +24,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final EntityManager em;
 
     //댓글 추가
     public Comment addComment(Long postId, CommentForm form, HttpSession session) {
@@ -32,6 +35,7 @@ public class CommentService {
         comment.setUser(loginUser);
         comment.setContent(form.getContent());
         post.addComment(comment); //연관관계 편의 메소드
+//        em.persist(comment);
         return comment;
     }
 

@@ -67,6 +67,12 @@ public class ApiOrderController {
         // Cart : CartItem ==> Order : OrderItem 전환.
         OrderDto orderDto = new OrderDto(orderService.checkout(loginUser));
         //생성 완료. /주문 완료된 order 보여줌.
+
+        //장바구니 전체 삭제.
+        cartService.deleteCart(cart.getId(),loginUser.getId());
+
+
+
         return ResponseEntity.status(HttpStatus.CREATED).body(orderDto);
     }
 

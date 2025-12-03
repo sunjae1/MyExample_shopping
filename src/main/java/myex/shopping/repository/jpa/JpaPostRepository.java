@@ -2,6 +2,7 @@ package myex.shopping.repository.jpa;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
 import myex.shopping.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Primary
 @Repository
 @RequiredArgsConstructor
@@ -30,7 +32,14 @@ public class JpaPostRepository implements PostRepository {
 
     @Override
     public Optional<Post> findById(Long id) {
-        return Optional.ofNullable(em.find(Post.class, id));
+        List<Post> result = em.createQuery("select p from Post p " +
+                        "join fetch p.user " +
+                        "left join fetch p.comments c " +
+                        "left join fetch c.user cu " +
+                        "where p.id = :id", Post.class)
+                .setParameter("id", id)
+                .getResultList();
+        return result.stream().findFirst();
     }
 
     //fetch join 으로 수정.
@@ -63,6 +72,7 @@ public class JpaPostRepository implements PostRepository {
     public void deleteById(Long id) {
         Post post = em.find(Post.class, id);
         if (post != null) {
+            log.info("Post Delete");
             em.remove(post);
         }
         else {

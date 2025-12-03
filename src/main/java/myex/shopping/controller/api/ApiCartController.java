@@ -13,6 +13,7 @@ import myex.shopping.domain.Item;
 import myex.shopping.domain.User;
 import myex.shopping.dto.cartdto.CartDto;
 import myex.shopping.dto.cartdto.RemoveCartDto;
+import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.CartForm;
 import myex.shopping.repository.CartRepository;
 import myex.shopping.repository.ItemRepository;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Optional;
+import jakarta.persistence.EntityManager;
 
 @Slf4j
 @RestController
@@ -35,6 +37,7 @@ public class ApiCartController {
     private final ItemRepository itemRepository;
     private final CartRepository cartRepository;
     private final CartService cartService;
+    private final EntityManager em;
 
 
     @Operation(
@@ -78,9 +81,16 @@ public class ApiCartController {
         //전체 장바구니 수량이 총 수량을 넘었을 때
         if (result == false) {
             log.info("전체 장바구니 수량이 총 수량을 넘었을 때");
-            return ResponseEntity.badRequest().build(); //전체 장바구니 수량이 총 수량 넘을때 400
+            return ResponseEntity.badRequest().build(); //클라이언트 오류 400
         }
-        CartDto cartDto = new CartDto(cart);
+        // 장바구니 내용 변경 후 DB에 저장 (더티 체킹을 통해 변경 감지)
+        cartRepository.save(cart); // 변경된 cart 엔티티를 명시적으로 저장
+
+        // refresh를 통해 현재 트랜잭션의 cart 객체를 최신 DB 상태로 업데이트
+        em.flush(); // 변경사항을 DB에 반영
+        em.refresh(cart); // DB의 최신 상태로 cart 객체를 갱신
+
+        CartDto cartDto = new CartDto(cart); // Use the refreshed cart
         return ResponseEntity.ok(cartDto); //200
     }
 
@@ -99,7 +109,7 @@ public class ApiCartController {
 
         return cartRepository.findByUser(loginUser)
                 .map(cart -> ResponseEntity.ok(new CartDto(cart)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElse(null); // null 해야 빈 장바구니 출력 가능.
     }
 
     @Operation(

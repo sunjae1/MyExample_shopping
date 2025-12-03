@@ -133,7 +133,7 @@ public class ApiPostController {
                     @ApiResponse(responseCode = "204", description = "삭제 성공")
             }
     )
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable @Positive(message = "양수만 입력 가능합니다.") Long id,
                                     HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");

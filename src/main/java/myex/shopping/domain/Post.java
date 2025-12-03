@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -80,4 +81,15 @@ public class Post {
         this.user = null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return Objects.equals(getId(), post.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
+    }
 }

@@ -54,7 +54,7 @@ public class CartService {
     public CartDto findByUserByDto(User user) {
         return cartRepository.findByUser(user)
                 .map(CartDto::new)
-                .orElseThrow(() -> new ResourceNotFoundException("cart not found"));
+                .orElse(null); //null 해야 프론트에서 가능.
 
     }
 
