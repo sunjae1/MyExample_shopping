@@ -3,63 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <title>Login - My Shopping Mall</title>
+    <!-- 공통 스타일시트와 로그인 전용 스타일시트를 모두 포함 -->
+    <link rel="stylesheet" th:href="@{/style.css}">
     <link rel="stylesheet" th:href="@{/login.css}">
 </head>
 <body>
-<div class="login-container">
-    <div class="login-image"></div>
-    <div class="login-form-container">
-        <div class="login-wrapper">
-            <h2>Login</h2>
-            <p class="sub-text">이메일과 패스워드를 입력하여 로그인하여 쇼핑을 즐기세요!</p>
-            <div th:if="${errorMessage}" class="field-error" th:text="${errorMessage}"></div>
 
-    <form method="post" th:action="@{/login}" action="/login" th:object="${form}" id="login-form">
-        <div class="input-group">
-            <input type="text" th:field="*{email}" placeholder="Email">
-            <!--th:errors 속성은 필드 경로를 넣는 용도 *{email}-->
-            <!--        ${#fields.errors('email')} 이건 EL표현식.-->
-            <div class="field-error" th:errors="*{email}">이메일 오류 메시지</div>
-        </div>
+<!-- 메인 페이지와 동일한 헤더 -->
+<header th:replace="~{fragments/header :: header}"></header>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
 
-        <div class="input-group">
-            <input type="password" th:field="*{password}" placeholder="Password">
-            <div class="field-error" th:errors="*{password}">패스워드 오류 메시지</div>
-        </div>
-<!--
+<div class="form-signin-wrapper">
+    <div class="form-card">
+        <h2>Login</h2>
+        <p class="sub-text">이메일과 패스워드를 입력하여 쇼핑을 즐기세요!</p>
 
-        <div class="remember-forget">
-            <label for="remember-check">
-                <input type="checkbox" id="remember-check">아이디 저장하기
-            </label>
-            <a href="#">Forget Password?</a>
-        </div>
--->
+        <div th:if="${errorMessage}" class="global-error" th:text="${errorMessage}"></div>
+        <div class="field-error" th:if="${LoginMessage}" th:text="${LoginMessage}"></div>
 
-        <input type="submit" value="Login">
-            <div class="field-error" th:if="${LoginMessage}" th:text="${LoginMessage}">로그인 필요 메시지</div>
-    </form>
-            <div class="register-link">
-                <p>계정을 가지고 있지 않나요?
-                    <a th:href="@{/register}">회원 가입</a>
-                </p>
-             </div>
-
-            <div class="other-links">
-                <a th:href="@{/}">메인 페이지로</a>
-                <a th:href="@{/allUser}">회원 목록 조회</a>
+        <form method="post" th:action="@{/login}" th:object="${form}">
+            <div class="input-group">
+                <input type="text" th:field="*{email}" placeholder="Email" required>
+                <div class="field-error" th:errors="*{email}"></div>
             </div>
+
+            <div class="input-group">
+                <input type="password" th:field="*{password}" placeholder="Password" required>
+                <div class="field-error" th:errors="*{password}"></div>
+            </div>
+
+            <button type="submit" class="btn-signin">Login</button>
+        </form>
+
+        <div class="form-link">
+            <p>계정이 없으신가요? <a th:href="@{/register}">회원가입</a></p>
         </div>
     </div>
 </div>
 
-<!--    <h2 th:href ="@{/register}"><a th:href ="@{/register}">회원가입 </a></h2>
-    <h2><a th:href ="@{/allUser}">회원 목록 조회</a></h2>
-    <h2><a th:href ="@{/}">메인 페이지</a></h2>
-    <h2><a th:href ="@{/items}">상품 관리 페이지</a></h2>
-    <h2><a th:href ="@{/items/orderAll}">주문 관리 페이지</a></h2>
-    <h2><a th:href ="@{/items/cartAll}">전체 장바구니 보기</a></h2>
-    <h2><a th:href ="@{/posts}">게시물 보기</a></h2>-->
+<!-- 메인 페이지와 동일한 푸터 -->
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 </body>
 </html>

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.User;
 import myex.shopping.dto.postdto.PostDBDto;
 import myex.shopping.dto.postdto.PostEditDto;
+import myex.shopping.dto.userdto.UserDto;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.CommentForm;
 import myex.shopping.form.PostForm;
@@ -34,9 +35,14 @@ public class PostController {
     @GetMapping
     public String list(Model model,
                        HttpSession session) {
-        List<PostDBDto> posts = postService.findAllPostDBDto();
         User loginUser = (User) session.getAttribute("loginUser");
-        model.addAttribute("loginUser", loginUser);
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+            model.addAttribute("loginUser", userDto);
+        }
+        List<PostDBDto> posts = postService.findAllPostDBDto();
+//        User loginUser = (User) session.getAttribute("loginUser");
         model.addAttribute("posts", posts);
         return "posts/list";
     }
@@ -48,6 +54,11 @@ public class PostController {
                        RedirectAttributes redirectAttributes) {
         log.info("post.id = {}", id);
         User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("loginUser",userDto);
+            model.addAttribute("user",userDto);
+        }
 /*        if (postOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorPV","유효하지 않은 게시물입니다.");
             return "redirect:/posts";
@@ -55,7 +66,7 @@ public class PostController {
         //LazyInitializationException 방지 위해서 DTO로 전환.
         // 뷰에서 LAZY 필드 접근 시 예외 막기 위해.
         PostDBDto postDBDto = postService.changeToDto(id);
-        model.addAttribute("loginUser",loginUser);
+//        model.addAttribute("loginUser",loginUser);
         model.addAttribute("post", postDBDto);
         model.addAttribute("commentForm", new CommentForm());
         return "posts/view";
@@ -65,7 +76,10 @@ public class PostController {
     public String createForm(Model model,
                              HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
-        model.addAttribute("user", loginUser);
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         model.addAttribute("post", new PostForm());
         return "posts/new";
     }
@@ -78,9 +92,13 @@ public class PostController {
                          Model model,
                          HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         if (bindingResult.hasErrors()) {
             log.info("게시물 등록 폼 검증 실패 : {}", bindingResult);
-            model.addAttribute("user", loginUser);
+//            model.addAttribute("user", loginUser);
             return "posts/new";
         }
         postService.createPost(form, session);
@@ -89,7 +107,14 @@ public class PostController {
     //게시물 수정 폼
     @GetMapping("/{id}/update")
     public String updateForm(@PathVariable Long id,
-                             Model model){
+                             Model model,
+                             HttpSession session){
+
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         PostDBDto postDBDto = postService.changeToDto(id);
         model.addAttribute("post", postDBDto);
         return "posts/edit";
@@ -98,9 +123,16 @@ public class PostController {
     @PostMapping("/{id}/update")
     public String updatePost(@PathVariable Long id,
                              @Valid @ModelAttribute("post") PostEditDto form,
-                             BindingResult bindingResult) {
+                             BindingResult bindingResult,
+                             HttpSession session,
+                             Model model) {
         log.info("게시물 수정 요청 컨트롤러 진입");
         log.info("PostForm 정보 : {}", form);
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         if (bindingResult.hasErrors()) {
             log.info("검증 실패 : {}",bindingResult);
             return "posts/edit";
@@ -117,10 +149,6 @@ public class PostController {
                          RedirectAttributes redirectAttributes) {
         //항상 null 가능성이 있는 변수를 .equals() 앞에 쓰면 NPE 위험
         log.info("redirectInfo 값 : {}", redirectInfo);
-     /*   if (postOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorPV", "유효하지 않은 게시물입니다.");
-            return "redirect:/posts";
-        }*/
         postRepository.deleteById(id);
         if ("mypage".equals(redirectInfo))
         {

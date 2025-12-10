@@ -2,6 +2,7 @@ package myex.shopping.repository;
 
 import myex.shopping.domain.Item;
 import myex.shopping.dto.itemdto.ItemDto;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,4 +18,8 @@ public interface ItemRepository {
     void deleteItem(Long itemId);
 
     List<Item> searchByName(String keyword);
+
+    List<Item> findByCategory(Long categoryId);
+
+    List<Item> findByCategoryAndName(Long categoryId, String keyword);
 }

@@ -38,7 +38,6 @@ public class JpaItemRepository implements ItemRepository {
 
     @Override
     public Optional<Item> findById(Long id) {
-//        return Optional.ofNullable(em.find(Item.class, id));
         List<Item> result = em.createQuery("select i from Item i where i.id = :id and i.deleted = false", Item.class)
                 .setParameter("id", id)
                 .getResultList();
@@ -63,9 +62,9 @@ public class JpaItemRepository implements ItemRepository {
         item.setImageUrl(updateParam.getImageUrl());
         //DB에 파일은 저장 못하기 때문에 Url 만 저장.
 
-        //비영속 -> 영속 객체 생성해서 영속성 컨텍스트에 등록.
-        //여기서 item은 여전히 비영속, em.merge 반환값이 영속 객체.
-        //commit, flush 일어나면 INSERT, UPDATE 쿼리 나감.
+        //비영속 -> 영속, 객체 생성해서 영속성 컨텍스트에 등록.
+        //item은 여전히 비영속, em.merge 반환값이 영속 객체.
+        //commit, flush 일어나면 INSERT, UPDATE 쿼리 실행.
         em.merge(item);
     }
 
@@ -74,7 +73,7 @@ public class JpaItemRepository implements ItemRepository {
     @Transactional(readOnly = false)
     //소프트 삭제로 변경.
     public void deleteItem(Long itemId) {
-        //em.remove는 영속 객체를 매개변수로 받아야함.
+        //em.remove는 영속 객체를 매개변수로 받음.
         Item item = em.find(Item.class, itemId);
         if (item !=null) {
             item.setDeleted(true); //소프트 삭제 : deleted 필드를 true로 설정
@@ -85,6 +84,22 @@ public class JpaItemRepository implements ItemRepository {
     public List<Item> searchByName(String name) {
         return em.createQuery("SELECT i FROM Item i where i.itemName like :name", Item.class)
                 .setParameter("name", "%" + name + "%")    //중요 : 검색어 앞뒤에 %를 직접 붙여줘야 함
+                .getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Item> findByCategory(Long categoryId) {
+        return em.createQuery("SELECT i FROM Item i where i.category.id = :categoryId", Item.class)
+                .setParameter("categoryId", categoryId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Item> findByCategoryAndName(Long categoryId, String keyword) {
+        return em.createQuery("SELECT i FROM Item i WHERE i.category.id = :categoryId AND i.itemName LIKE :keyword", Item.class)
+                .setParameter("categoryId", categoryId)
+                .setParameter("keyword", "%" + keyword + "%")
                 .getResultList();
     }
 }

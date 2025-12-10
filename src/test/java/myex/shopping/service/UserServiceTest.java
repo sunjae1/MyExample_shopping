@@ -2,7 +2,6 @@ package myex.shopping.service;
 
 import myex.shopping.domain.User;
 import myex.shopping.dto.userdto.UserEditDto;
-import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -108,7 +107,7 @@ class UserServiceTest {
         Long userId = 1L;
         User existingUser = new User("old@test.com", "OldName", "password");
         UserEditDto updateDto = new UserEditDto();
-        updateDto.setUsername("NewName");
+        updateDto.setName("NewName");
         updateDto.setEmail("new@test.com");
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));

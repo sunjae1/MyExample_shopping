@@ -8,6 +8,7 @@ import myex.shopping.domain.Comment;
 import myex.shopping.domain.Post;
 import myex.shopping.domain.User;
 import myex.shopping.dto.postdto.PostDBDto;
+import myex.shopping.dto.userdto.UserDto;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.CommentForm;
 import myex.shopping.repository.CommentRepository;
@@ -36,7 +37,12 @@ public class CommentController {
                              BindingResult bindingResult,
                              HttpSession session,
                              Model model) {
-        User loginUser = (User)session.getAttribute("loginUser");
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+            model.addAttribute("loginUser",userDto);
+        }
         //ModelAttribute는 {postId} 경로변수도 객체 멤버변수에 있으면 바인딩 가능.
         log.info("로그인 유저 : {}", loginUser);
         log.info("CommentForm  정보 : {}",form);
@@ -44,7 +50,6 @@ public class CommentController {
             log.info("댓글 폼 검증 오류 : {}",bindingResult);
             PostDBDto postDBDto = postService.changeToDto(postId);
             model.addAttribute("post", postDBDto);
-            model.addAttribute("loginUser",loginUser);
             return "posts/view";
         }
         commentService.addComment(postId, form, session);
@@ -62,12 +67,16 @@ public class CommentController {
         log.info("CommentForm 정보: {}",form);
         //로그인 확인
         User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user", userDto);
+            model.addAttribute("loginUser",userDto);
+        }
         //검증 로직
         if (bindingResult.hasErrors()) {
             log.info("댓글 수정 폼 검증 오류 : {}",bindingResult);
             PostDBDto postDBDto = postService.changeToDto(postId);
             model.addAttribute("post", postDBDto);
-            model.addAttribute("loginUser", loginUser);
             model.addAttribute("errorCommentId", commentId);
             // 'commentToUpdate' 와 그에 대한 BindingResult 추가.
             // 새 댓글 상자를 위한 깨끗한 form 객체만 추가.
