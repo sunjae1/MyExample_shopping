@@ -15,6 +15,9 @@ public class UserDto {
     @Schema(description = "사용자 이름", example = "테스터")
     private String username;
 
+    public UserDto() {
+    }
+
     public UserDto(User user) {
         this.id = user.getId();
         this.email = user.getEmail();

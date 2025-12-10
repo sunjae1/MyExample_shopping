@@ -31,6 +31,7 @@
     <!-- 검색 폼 추가 시작 -->
     <div class="search-form-container">
         <form th:action="@{/items}" method="get" class="search-form">
+            <input type="hidden" name="categoryId" th:value="${param.categoryId}">
             <input type="text" name="keyword" th:value="${param.keyword}" placeholder="상품 이름 검색">
             <button type="submit" class="btn btn-search">검색</button>
         </form>

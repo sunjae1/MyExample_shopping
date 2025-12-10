@@ -34,16 +34,9 @@ public class ItemController {
     //전체 아이템 조회 (+검색 추가)
     @GetMapping
     public String items(Model model,
-                        @RequestParam(required = false) String keyword) {
-        List<ItemDto> items;
-        //검색 없을 때,
-        if (keyword == null || keyword.trim().isEmpty()) {
-            items = itemService.findAllToDto();
-        }
-        //검색 있을 때,
-        else {
-            items = itemService.findSearchByNameDto(keyword);
-        }
+                        @RequestParam(required = false) String keyword,
+                        @RequestParam(required = false) Long categoryId) {
+        List<ItemDto> items = itemService.findItems(keyword, categoryId);
         model.addAttribute("items", items);
         return "items/items";
     }

@@ -9,6 +9,7 @@ import myex.shopping.domain.*;
 import myex.shopping.dto.itemdto.ItemDto;
 import myex.shopping.dto.mypagedto.MyPageOrderDto;
 import myex.shopping.dto.mypagedto.MyPagePostDBDto;
+import myex.shopping.dto.userdto.UserDto;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
@@ -105,19 +106,16 @@ public class UserController {
     @GetMapping("/")
     public String mainPage(Model model,
                            HttpSession session,
-                           @RequestParam(required = false) String keyword) {
-        List<ItemDto> items;
+                           @RequestParam(required = false) String keyword,
+                           @RequestParam(required = false) Long categoryId) {
+
         User loginUser = (User) session.getAttribute("loginUser");
-        //keyword : 상품 검색 키워드(상품 이름)가 없을때
-        if (keyword ==null || keyword.trim().isEmpty()){
-            items = itemService.findAllToDto();
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
         }
-        //keyword : 상품 검색 키워드가 있을때
-        else {
-            items = itemService.findSearchByNameDto(keyword);
-        }
+        List<ItemDto> items = itemService.findItems(keyword, categoryId);
         model.addAttribute("items", items);
-        model.addAttribute("user",loginUser);
         return "main";
     }
     //마이페이지 보내는거 : user, orders, posts, cart
