@@ -45,7 +45,7 @@ public class OrderController {
         log.info("장바구니 -> 주문 전환 후 : order 정보 {} ", checkout);
         //장바구니 전체 삭제.
         cartService.deleteCart(cart.getId(),loginUser.getId());
-        return "redirect:/main"; //주문 완료 후 메인 페이지로 Redirect.
+        return "redirect:/"; //주문 완료 후 메인 페이지로 Redirect.
     }
     //주문 전체 조회.
     @GetMapping("/orderAll")

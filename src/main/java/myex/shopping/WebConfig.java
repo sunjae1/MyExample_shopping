@@ -31,11 +31,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**") //모든 요청에 적용
                 .addPathPatterns("/posts/new")
                 .excludePathPatterns(
-                        "/", //로그인 페이지
-                        "/register", //회원가입 페이지
-                        "/main", //메인 쇼핑 페이지
-                        "/login", //로그인 GET & POST 모두 제외
+                        "/login", //로그인 페이지
                         "/logout",//로그아웃
+                        "/register", //회원가입 페이지
+                        "/", //메인 쇼핑 페이지
                         "/*.css",
                         "/*.js",
                         "/image/**",

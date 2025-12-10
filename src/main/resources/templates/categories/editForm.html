@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Category</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
+
+<nav>
+    <a th:href="@{/}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/categories}" style="color: var(--primary-text);">카테고리 관리</a>
+    <a th:href="@{/posts}">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/login}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
+
+<div class="container">
+    <div class="form-container">
+        <h2 class="form-title">카테고리 수정</h2>
+
+        <form th:action="@{|/categories/${category.id}/edit|}" th:object="${category}" method="post">
+            <input type="hidden" th:field="*{id}" />
+            <div class="form-group">
+                <label for="name">카테고리 이름</label>
+                <input type="text" id="name" th:field="*{name}" class="form-input" placeholder="Enter category name">
+                <div class="field-error" th:errors="*{name}"></div>
+            </div>
+
+            <div class="button-container">
+                <button th:onclick="|location.href='@{/categories}'|" type="button" class="btn btn-secondary">취소</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
+
+</body>
+</html>

@@ -108,7 +108,7 @@ public class ApiUserController {
             }
     )
     //메인 페이지, 상품 전체 조회. (record 확인 한번 하기)
-    @GetMapping("/main")
+    @GetMapping("/")
     public ResponseEntity<UserResponse> mainPage(HttpSession session) {
         List<ItemDto> itemDto = itemRepository.findAll().stream()
                 .map(ItemDto::new)

@@ -110,18 +110,19 @@
 </header>
 
 <nav>
-    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/}">홈</a>
     <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/categories}">카테고리 관리 페이지</a>
     <a th:href="@{/posts}">게시판</a>
     <a th:href="@{/mypage}">마이 페이지</a>
-    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/login}">로그인</a>
     <a th:href="@{/register}">회원가입</a>
 </nav>
 
 <div class="container">
 
     <div class="breadcrumbs">
-        <a th:href="@{/main}">홈</a> &gt;
+        <a th:href="@{/}">홈</a> &gt;
         <a th:href="@{|/items/${item.id}|}" th:text="${item.itemName}">Item Name</a> &gt;
         <span>장바구니 추가</span>
     </div>
@@ -158,7 +159,7 @@
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">장바구니에 담기</button>
                 </div>
                  <div style="text-align: center; margin-top: 15px;">
-                    <a th:href="@{/main}" class="btn btn-secondary">취소</a>
+                    <a th:href="@{/}" class="btn btn-secondary">취소</a>
                 </div>
             </form>
         </div>
