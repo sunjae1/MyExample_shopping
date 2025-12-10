@@ -1,12 +1,15 @@
 package myex.shopping.controller.web;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Item;
+import myex.shopping.domain.User;
 import myex.shopping.dto.itemdto.ItemDto;
 import myex.shopping.dto.itemdto.ItemDtoDetail;
 import myex.shopping.dto.itemdto.ItemEditDto;
+import myex.shopping.dto.userdto.UserDto;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.ItemAddForm;
 import myex.shopping.form.ItemEditForm;
@@ -35,7 +38,13 @@ public class ItemController {
     @GetMapping
     public String items(Model model,
                         @RequestParam(required = false) String keyword,
-                        @RequestParam(required = false) Long categoryId) {
+                        @RequestParam(required = false) Long categoryId,
+                        HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         List<ItemDto> items = itemService.findItems(keyword, categoryId);
         model.addAttribute("items", items);
         return "items/items";
@@ -43,22 +52,29 @@ public class ItemController {
     //개별 아이템 조회
     @GetMapping("/{itemId}")
     public String item(@PathVariable long itemId, Model model,
-                       RedirectAttributes redirectAttributes) {
+                       RedirectAttributes redirectAttributes,
+                       HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
+
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("item not found"));
-/*        //경로변수 -1 이런 값 들어올때 검증.
-        if (itemOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorPV", "유효하지 않은 ItemId 값입니다.");
-            return "redirect:/items";
-        }*/
-        
         //DTO로 변환.
         model.addAttribute("item", new ItemDtoDetail(item));
         return "items/item";
     }
     //아이템 추가 폼.
     @GetMapping("/add")
-    public String addForm(Model model) {
+    public String addForm(Model model,
+                          HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         //th:object 위해 빈 객체 전달.
         model.addAttribute("item", new ItemAddForm());
         return "items/addForm";
@@ -83,15 +99,15 @@ public class ItemController {
     @GetMapping("/{itemId}/edit")
     public String editForm (@PathVariable("itemId") Long itemId,
                             Model model,
-                            RedirectAttributes redirectAttributes) {
+                            HttpSession session) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("item not found"));
-
-   /*     if (byId.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorPV","유효하지 않은 ID 값입니다.");
-            return "redirect:/main";
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
         }
-*/
+
         model.addAttribute("item", new ItemEditDto(item));
         return "items/editForm";
     }

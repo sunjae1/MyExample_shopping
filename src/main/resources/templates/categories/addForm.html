@@ -36,7 +36,7 @@
                 </div>
                 <!-- 로그인 된 경우 -->
                 <div th:if="${user != null}">
-                    <div class="dropdown-header" th:text="${user.username} + '님'">사용자 이름</div>
+                    <div class="dropdown-header" th:text="${user.name} + '님'">사용자 이름</div>
                     <a th:href="@{/mypage}" class="dropdown-item">마이 페이지</a>
                     <a th:href="@{/items/orderAll}" class="dropdown-item">주문 내역</a>
                     <form th:action="@{/logout}" method="post">
@@ -68,9 +68,10 @@
     </div>
 </div>
 
-<footer>
-    <p>&copy; 2025 My Shopping Mall</p>
-</footer>
+<!--공통 푸터-->
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<div th:replace="~{fragments/script :: script}"></div>
 
 </body>
 </html>

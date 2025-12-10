@@ -9,6 +9,7 @@ import myex.shopping.domain.Item;
 import myex.shopping.domain.User;
 import myex.shopping.dto.cartdto.CartDto;
 import myex.shopping.dto.itemdto.ItemDto;
+import myex.shopping.dto.userdto.UserDto;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.CartForm;
 import myex.shopping.repository.CartRepository;
@@ -38,6 +39,11 @@ public class CartController {
                            @ModelAttribute CartForm cartForm,
                            HttpSession session,
                            Model model) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         ItemDto item = itemService.findByIdToDto(itemId);
         model.addAttribute("item", item);
         return "cart/cartForm";
@@ -53,6 +59,12 @@ public class CartController {
                             HttpSession session) {
         log.info("cart 상품 추가 컨트롤러 진입");
         log.info("cartForm 정보 : {}", cartForm);
+
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         Item item = itemRepository.findById(cartForm.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("item not found"));
         if (bindingResult.hasErrors()) {
@@ -69,7 +81,7 @@ public class CartController {
             return "cart/cartForm";
         }
         //사용자 장바구니 가져오거나 없으면 생성.
-        User loginUser = (User) session.getAttribute("loginUser");
+//        User loginUser = (User) session.getAttribute("loginUser");
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
         //아이템과 수량 추가.
         boolean result = cart.addItem(item, cartForm.getQuantity());

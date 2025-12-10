@@ -66,7 +66,7 @@ public class IntegrationTest {
                         .param("password", "password")
                 )
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/login"));
 
         // 2. 로그인
         MockHttpSession session = new MockHttpSession();
