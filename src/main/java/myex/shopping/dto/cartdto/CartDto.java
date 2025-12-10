@@ -24,6 +24,11 @@ public class CartDto {
     public CartDto() {
     }
 
+    public CartDto(List<CartItemDto> cartItems) {
+        this.cartItems = cartItems;
+
+    }
+
     public CartDto(Cart cart) {
         this.allPrice = cart.allPrice();
         this.cartItems = cart.getCartItems().stream()

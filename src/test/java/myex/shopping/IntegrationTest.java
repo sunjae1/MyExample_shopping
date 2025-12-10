@@ -77,7 +77,7 @@ public class IntegrationTest {
                         .session(session) // Pass session to login
                 )
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/main"))
+                .andExpect(redirectedUrl("/"))
                 .andExpect(request().sessionAttribute("loginUser", is(notNullValue())))
                 .andExpect(request().sessionAttribute("loginUser", isA(User.class)));
 
