@@ -46,11 +46,12 @@ header h1 {
 
 nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; /* 자식 요소를 오른쪽으로 정렬 */
     align-items: center;
+    position: relative; /* 자식의 absolute 위치 기준점 */
     background-color: var(--background-color);
     border-bottom: 1px solid var(--border-color);
-    padding: 0.5rem;
+    padding: 0.5rem 1.5rem; /* 좌우 패딩 추가 */
 }
 
 nav a {
@@ -928,7 +929,10 @@ footer {
 /* main.html navbar user actions */
 nav .nav-links {
     display: flex;
-    gap: 1.5rem; /* 기존 nav a 패딩과 유사 */
+    gap: 1.5rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 nav .user-actions {

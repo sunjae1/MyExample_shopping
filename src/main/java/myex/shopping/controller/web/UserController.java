@@ -124,6 +124,7 @@ public class UserController {
                          Model model)
     {
         User loginUser = (User) session.getAttribute("loginUser");
+        UserDto userDto = new UserDto(loginUser);
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
         log.info("cart.getId() : {}", cart.getId());
         List<MyPageOrderDto> orderDtos = orderService.changeToOrderDtoList(loginUser);
@@ -131,7 +132,7 @@ public class UserController {
 
         log.info("orders DTO 정보 : {}",orderDtos);
 
-        model.addAttribute("user",loginUser);
+        model.addAttribute("user",userDto);
         model.addAttribute("orders", orderDtos);
         model.addAttribute("posts", postDtos);
         model.addAttribute("cart",cart);
