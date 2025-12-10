@@ -24,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.Collections;
 import java.util.Optional;
 import jakarta.persistence.EntityManager;
 
@@ -109,7 +110,7 @@ public class ApiCartController {
 
         return cartRepository.findByUser(loginUser)
                 .map(cart -> ResponseEntity.ok(new CartDto(cart)))
-                .orElse(null); // null 해야 빈 장바구니 출력 가능.
+                .orElse(ResponseEntity.ok(new CartDto(Collections.emptyList()))); // null 해야 빈 장바구니 출력 가능.
     }
 
     @Operation(
