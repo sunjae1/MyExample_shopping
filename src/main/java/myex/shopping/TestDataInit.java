@@ -43,6 +43,17 @@ public class TestDataInit {
 
         //save -> em.persist 되어서, Repository 안 @Transactional 되어, 영속성 컨텍스트로 관리.
 
+
+        //카테고리 테스트 데이터 등록
+        //리스트 고려.
+        Category category1 = new Category();
+        Category category2 = new Category();
+        category1.setName("상의");
+        category2.setName("하의");
+
+
+
+
         Item itemA = new Item("남성 스투시 반팔 상의", 2000, 10,"/image/1.webp");
         itemRepository.save(itemA);
         itemRepository.save(new Item("남성 블루종 레더 자켓 블랙", 4000,20, "/image/2.webp"));
