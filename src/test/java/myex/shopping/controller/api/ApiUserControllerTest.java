@@ -67,7 +67,7 @@ class ApiUserControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().encoding("UTF-8"))
                 .andExpect(jsonPath("$.email", is("newuser@example.com")))
-                .andExpect(jsonPath("$.username", is("새로운유저")));
+                .andExpect(jsonPath("$.name", is("새로운유저")));
 
         User foundUser = userRepository.findByEmail("newuser@example.com").orElseThrow();
         assertThat(foundUser).isNotNull();
@@ -122,7 +122,7 @@ class ApiUserControllerTest {
         MockHttpSession session = getLoginSession(testUser.getEmail(), "password123");
 
         UserEditDto userEditDto = new UserEditDto();
-        userEditDto.setUsername("수정된이름");
+        userEditDto.setName("수정된이름");
         userEditDto.setEmail("updated@example.com");
 
         // when & then
@@ -134,7 +134,7 @@ class ApiUserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpect(jsonPath("$.username", is("수정된이름")))
+                .andExpect(jsonPath("$.name", is("수정된이름")))
                 .andExpect(jsonPath("$.email", is("updated@example.com")));
 
         // 세션 정보도 갱신되었는지 확인

@@ -1,12 +1,15 @@
 package myex.shopping.controller.web;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import myex.shopping.domain.Category;
+import myex.shopping.domain.User;
 import myex.shopping.dto.categorydto.CategoryCreateDTO;
 import myex.shopping.dto.categorydto.CategoryDTO;
 import myex.shopping.dto.categorydto.CategoryEditDTO;
+import myex.shopping.dto.userdto.UserDto;
 import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.repository.jpa.JpaCategoryRepository;
 import myex.shopping.service.CategoryService;
@@ -29,7 +32,13 @@ public class CategoryController {
     private final JpaCategoryRepository categoryRepository;
 
     @GetMapping
-    public String list(Model model) {
+    public String list(Model model,
+                       HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         List<CategoryDTO> categories = categoryRepository.findAll().stream()
                 .map(CategoryDTO::new)
                 .collect(Collectors.toList());
@@ -38,7 +47,13 @@ public class CategoryController {
     }
 
     @GetMapping("/add")
-    public String addForm(Model model) {
+    public String addForm(Model model,
+                          HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         model.addAttribute("category", new CategoryCreateDTO());
         return "categories/addForm";
     }
@@ -46,7 +61,15 @@ public class CategoryController {
     @PostMapping("/add")
     public String addCategory(@Valid @ModelAttribute("category") CategoryCreateDTO categoryCreateDTO,
                               BindingResult bindingResult,
-                              RedirectAttributes redirectAttributes) {
+                              RedirectAttributes redirectAttributes,
+                              HttpSession session,
+                              Model model) {
+
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         if (bindingResult.hasErrors()) {
             log.info("카테고리 생성 폼 검증 실패: {}", bindingResult);
             return "categories/addForm";
@@ -57,7 +80,14 @@ public class CategoryController {
     }
 
     @GetMapping("/{categoryId}/edit")
-    public String editForm(@PathVariable Long categoryId, Model model) {
+    public String editForm(@PathVariable Long categoryId,
+                           Model model,
+                           HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         model.addAttribute("category", new CategoryDTO(category));
@@ -68,7 +98,14 @@ public class CategoryController {
     public String editCategory(@PathVariable Long categoryId,
                                @Valid @ModelAttribute("category") CategoryEditDTO categoryEditDTO,
                                BindingResult bindingResult,
-                               RedirectAttributes redirectAttributes) {
+                               RedirectAttributes redirectAttributes,
+                               Model model,
+                               HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         if (bindingResult.hasErrors()) {
             log.info("카테고리 수정 폼 검증 실패: {}", bindingResult);
             return "categories/editForm";

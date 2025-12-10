@@ -9,6 +9,7 @@ import myex.shopping.domain.*;
 import myex.shopping.dto.itemdto.ItemDto;
 import myex.shopping.dto.mypagedto.MyPageOrderDto;
 import myex.shopping.dto.mypagedto.MyPagePostDBDto;
+import myex.shopping.dto.userdto.UserDto;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
@@ -59,7 +60,7 @@ public class UserController {
         if (loginUser == null) {
             log.info("로그인 실패 - 아이디나 비밀번호 불일치");
             redirectAttributes.addFlashAttribute("errorMessage","아이디나 비밀번호가 틀렸습니다.");
-            return "redirect:/";
+            return "redirect:/login";
         }
         //로그인 성공 로직 (UUID 사용, 있으면 그냥 반환, 아니면 신규 세션 생성후 반환)
         HttpSession session = request.getSession();
@@ -92,7 +93,7 @@ public class UserController {
         User user = new User(form.getEmail(), form.getName(), form.getPassword());
         //회원가입 성공 시
         userService.save(user);
-        return "redirect:/";
+        return "redirect:/login";
     }
     //전체 회원 목록 조회.
     @GetMapping("/allUser")
@@ -105,19 +106,16 @@ public class UserController {
     @GetMapping("/")
     public String mainPage(Model model,
                            HttpSession session,
-                           @RequestParam(required = false) String keyword) {
-        List<ItemDto> items;
+                           @RequestParam(required = false) String keyword,
+                           @RequestParam(required = false) Long categoryId) {
+
         User loginUser = (User) session.getAttribute("loginUser");
-        //keyword : 상품 검색 키워드(상품 이름)가 없을때
-        if (keyword ==null || keyword.trim().isEmpty()){
-            items = itemService.findAllToDto();
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
         }
-        //keyword : 상품 검색 키워드가 있을때
-        else {
-            items = itemService.findSearchByNameDto(keyword);
-        }
+        List<ItemDto> items = itemService.findItems(keyword, categoryId);
         model.addAttribute("items", items);
-        model.addAttribute("user",loginUser);
         return "main";
     }
     //마이페이지 보내는거 : user, orders, posts, cart
@@ -126,6 +124,10 @@ public class UserController {
                          Model model)
     {
         User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            UserDto userDto = new UserDto(loginUser);
+            model.addAttribute("user",userDto);
+        }
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
         log.info("cart.getId() : {}", cart.getId());
         List<MyPageOrderDto> orderDtos = orderService.changeToOrderDtoList(loginUser);
@@ -133,7 +135,6 @@ public class UserController {
 
         log.info("orders DTO 정보 : {}",orderDtos);
 
-        model.addAttribute("user",loginUser);
         model.addAttribute("orders", orderDtos);
         model.addAttribute("posts", postDtos);
         model.addAttribute("cart",cart);

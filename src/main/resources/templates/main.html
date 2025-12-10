@@ -7,23 +7,14 @@
 </head>
 <body>
 
-<header>
-    <h1>My Shopping Mall</h1>
-</header>
+<header th:replace="~{fragments/header :: header}"></header>
 
-<nav>
-    <a th:href="@{/}">홈</a>
-    <a th:href="@{/items}">상품 관리 페이지</a>
-    <a th:href="@{/categories}">카테고리 관리 페이지</a>
-    <a th:href="@{/posts}">게시판</a>
-    <a th:href="@{/mypage}">마이 페이지</a>
-    <a th:href="@{/login}">로그인</a>
-    <a th:href="@{/register}">회원가입</a>
-</nav>
+<nav th:replace="~{fragments/nav :: nav}"></nav>
 
 <!-- 검색 폼 추가 시작 -->
 <div class="container search-form-container">
     <form th:action="@{/}" method="get" class="search-form">
+        <input type="hidden" name="categoryId" th:value="${param.categoryId}">
         <input type="text" name="keyword" th:value="${param.keyword}" placeholder="상품 이름 검색">
         <button type="submit" class="btn btn-search">검색</button>
     </form>
@@ -50,23 +41,12 @@
         </div>
     </div>
 
-    <div class="text-center mt-20">
-        <form th:action="@{/logout}" method="post" style="display: inline;">
-            <button type="submit" class="btn btn-secondary">로그아웃</button>
-        </form>
-        <div style="text-align: center;">
-            <a class="btn btn-secondary" th:href ="@{/items/cartAll}">전체 장바구니 보기</a>
-            <a class="btn btn-secondary" th:href ="@{/items/orderAll}">주문 관리 페이지</a>
-            <a class="btn btn-secondary" th:href ="@{/posts}">게시판 보기</a>
-            <a class="btn btn-secondary" th:href ="@{/mypage}">마이 페이지</a>
-        </div>
-    </div>
+
 
 </div>
+<!--공통 푸터-->
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<footer>
-    <p>&copy; 2025 My Shopping Mall</p>
-</footer>
-
+<div th:replace="~{fragments/script :: script}"></div>
 </body>
 </html>

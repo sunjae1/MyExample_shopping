@@ -12,6 +12,7 @@ import myex.shopping.repository.ItemRepository;
 import myex.shopping.repository.jpa.JpaItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -96,6 +97,45 @@ public class ItemService {
                 .stream()
                 .map(ItemDto::new)
                 .collect(Collectors.toList());
+    }
+
+    public List<ItemDto> findByCategory(Long categoryId) {
+        return itemRepository.findByCategory(categoryId)
+                .stream()
+                .map(ItemDto::new)
+                .collect(Collectors.toList());
+    }
+
+    //키워드 검색 && 카테고리 로 아이템 검색
+    public List<ItemDto> findItems(String keyword, Long categoryId) {
+        //카테고리 && 검색어 둘 다 있는경우
+        if (StringUtils.hasText(keyword) && categoryId != null) {
+            return itemRepository.findByCategoryAndName(categoryId, keyword)
+                    .stream()
+                    .map(ItemDto::new)
+                    .collect(Collectors.toList());
+        }
+        //검색어만 있는 경우
+        else if (StringUtils.hasText(keyword)) {
+            return itemRepository.searchByName(keyword)
+                    .stream()
+                    .map(ItemDto::new)
+                    .collect(Collectors.toList());
+        }
+        //카테고리만 있는 경우
+        else if (categoryId != null) {
+            return itemRepository.findByCategory(categoryId)
+                    .stream()
+                    .map(ItemDto::new)
+                    .collect(Collectors.toList());
+        }
+        //둘 다 없는 경우.
+        else {
+            return itemRepository.findAll()
+                    .stream()
+                    .map(ItemDto::new)
+                    .collect(Collectors.toList());
+        }
 
     }
 }

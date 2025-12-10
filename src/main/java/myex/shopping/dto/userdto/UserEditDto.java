@@ -13,11 +13,11 @@ public class UserEditDto {
     @Schema(description = "사용자 이메일", example = "test@na.com")
     private String email;
     @Schema(description = "사용자 이름", example = "테스터")
-    private String username;
+    private String name;
 
     public UserEditDto(User user) {
         this.email = user.getEmail();
-        this.username = user.getName();
+        this.name = user.getName();
     }
 
     public UserEditDto() {
@@ -27,7 +27,7 @@ public class UserEditDto {
     public String toString() {
         return "UserDto{" +
                 ", email='" + email + '\'' +
-                ", username='" + username + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

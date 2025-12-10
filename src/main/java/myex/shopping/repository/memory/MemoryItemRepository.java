@@ -63,6 +63,16 @@ public class MemoryItemRepository implements ItemRepository {
         return List.of();
     }
 
+    @Override
+    public List<Item> findByCategory(Long categoryId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Item> findByCategoryAndName(Long categoryId, String keyword) {
+        return List.of();
+    }
+
     //item 저장소 전부 삭제.
     public void clearStore() {
         store.clear();
