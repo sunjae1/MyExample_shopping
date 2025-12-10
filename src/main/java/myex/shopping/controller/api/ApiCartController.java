@@ -31,7 +31,7 @@ import jakarta.persistence.EntityManager;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/items")
+@RequestMapping("/api/items")
 @Tag(name = "Cart", description = "장바구니 관련 API")
 @Validated
 public class ApiCartController {

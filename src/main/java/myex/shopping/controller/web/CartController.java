@@ -31,7 +31,7 @@ public class CartController {
     private final CartService cartService;
 
     //한 상품에 대한 주문 페이지를 보여주고, 장바구니 담기 클릭시 장바구니에 저장.
-    //main --> 장바구니 담기 버튼.
+    // /처음 쇼핑몰 홈페이지 --> 장바구니 담기 버튼.
     //@PathVariable Long itemid 로 item 꺼내서 뷰에 item 전달.
     @GetMapping("/{itemId}/cart")
     public String viewCart(@PathVariable Long itemId,
@@ -89,7 +89,7 @@ public class CartController {
             cartService.update(cart);
         }
         log.info("cart.getId() : {}", cart.getId());
-        return "redirect:/main";
+        return "redirect:/";
     }
     //장바구니 전체 보여주는 뷰.
     @GetMapping("/cartAll")

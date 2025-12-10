@@ -37,7 +37,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             //request.getSession(true) : 기존 세션 있으면 return, 없으면 새 세션 생성하여 반환.
             HttpSession validSession = request.getSession(true);
             validSession.setAttribute("needLoginMessage", "로그인이 필요한 작업입니다.");
-            response.sendRedirect("/");
+            response.sendRedirect("/login");
             return false;
         }
 

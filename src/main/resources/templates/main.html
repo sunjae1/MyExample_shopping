@@ -12,17 +12,18 @@
 </header>
 
 <nav>
-    <a th:href="@{/main}">홈</a>
+    <a th:href="@{/}">홈</a>
     <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/categories}">카테고리 관리 페이지</a>
     <a th:href="@{/posts}">게시판</a>
     <a th:href="@{/mypage}">마이 페이지</a>
-    <a th:href="@{/}">로그인</a>
+    <a th:href="@{/login}">로그인</a>
     <a th:href="@{/register}">회원가입</a>
 </nav>
 
 <!-- 검색 폼 추가 시작 -->
 <div class="container search-form-container">
-    <form th:action="@{/main}" method="get" class="search-form">
+    <form th:action="@{/}" method="get" class="search-form">
         <input type="text" name="keyword" th:value="${param.keyword}" placeholder="상품 이름 검색">
         <button type="submit" class="btn btn-search">검색</button>
     </form>

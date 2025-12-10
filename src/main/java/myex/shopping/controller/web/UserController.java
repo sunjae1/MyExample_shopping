@@ -31,7 +31,7 @@ public class UserController {
     private final ItemService itemService;
 
     //로그인 페이지로 보내기.
-    @GetMapping("/")
+    @GetMapping("/login")
     public String start(Model model,
                         HttpSession session) {
         model.addAttribute("form", new LoginForm());
@@ -64,7 +64,7 @@ public class UserController {
         //로그인 성공 로직 (UUID 사용, 있으면 그냥 반환, 아니면 신규 세션 생성후 반환)
         HttpSession session = request.getSession();
         session.setAttribute("loginUser", loginUser);
-        return "redirect:/main";
+        return "redirect:/";
     }
     //로그아웃
     @PostMapping("/logout")
@@ -102,7 +102,7 @@ public class UserController {
         return "allUser";
     }
     //메인 페이지 요청 : Item, User (+검색 추가)
-    @GetMapping("/main")
+    @GetMapping("/")
     public String mainPage(Model model,
                            HttpSession session,
                            @RequestParam(required = false) String keyword) {

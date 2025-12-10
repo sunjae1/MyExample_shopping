@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Category Management</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<header>
+    <h1>My Shopping Mall</h1>
+</header>
+
+<nav>
+    <a th:href="@{/}">홈</a>
+    <a th:href="@{/items}">상품 관리 페이지</a>
+    <a th:href="@{/categories}" style="color: var(--primary-text);">카테고리 관리</a>
+    <a th:href="@{/posts}">게시판</a>
+    <a th:href="@{/mypage}">마이 페이지</a>
+    <a th:href="@{/login}">로그인</a>
+    <a th:href="@{/register}">회원가입</a>
+</nav>
+
+<div class="container">
+
+    <div class="page-header">
+        <h2 class="page-title">카테고리 관리 페이지</h2>
+        <a th:href="@{/categories/add}" class="btn btn-primary">새 카테고리 등록</a>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="order-table">
+                <thead>
+                <tr>
+                    <th>카테고리 ID</th>
+                    <th>카테고리 이름</th>
+                    <th>수정/삭제</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="category : ${categories}">
+                    <td th:text="${category.id}">1</td>
+                    <td th:text="${category.name}">Category Name</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{|/categories/${category.id}/edit|}" class="btn btn-secondary btn-sm">수정</a>
+                            <form th:action="@{|/categories/${category.id}/delete|}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-secondary btn-sm">삭제</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>&copy; 2025 My Shopping Mall</p>
+</footer>
+
+</body>
+</html>
