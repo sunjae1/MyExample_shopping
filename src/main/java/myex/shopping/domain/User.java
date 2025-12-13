@@ -22,12 +22,12 @@ public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "이메일을 입력해주세요")
+//    @NotEmpty(message = "이메일을 입력해주세요")
     private String email;
-    @NotEmpty(message = "사용자 이름을 입력해주세요")
+//    @NotEmpty(message = "사용자 이름을 입력해주세요")
     private String name;
-    @NotEmpty(message = "비밀번호를 입력해주세요")
-    @Size(min = 3, max = 15, message = "패스워드는 3자 이상 15자 이하 입니다.")
+//    @NotEmpty(message = "비밀번호를 입력해주세요")
+//    @Size(min = 3, max = 15, message = "패스워드는 3자 이상 15자 이하 입니다.")
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

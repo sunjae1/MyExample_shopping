@@ -64,13 +64,14 @@ public class WebExceptionHandler {
 
     //타입 미스매치, 뷰로 뿌리는건 나중에 변경. (전체 추가해야 해서 hmtl layout 사용 예정)
     @ExceptionHandler(TypeMismatchException.class)
-    public ResponseEntity<Map<String,String>> handleTypeMismatch(TypeMismatchException ex) {
+    public String handleTypeMismatch(TypeMismatchException ex, Model model) {
         Map<String, String> error = new HashMap<>();
         String field = (ex.getPropertyName() == null) ? null : ex.getPropertyName(); //파라미터 명. Long id
         String invalidValue = (ex.getValue() == null) ? null : ex.getValue().toString(); //무효 요청 값.
         String requiredType = (ex.getRequiredType() == null) ? null : ex.getRequiredType().getSimpleName();
         error.put(field, String.format("'%s'은(는) %s 타입으로 변환할 수 없습니다.", invalidValue, requiredType));
-        return ResponseEntity.badRequest().body(error);
+        model.addAttribute("errorMessage", error.get("field"));
+        return "error/404";
     }
     @ExceptionHandler(ResourceNotFoundException.class)
     public String handleNotFound(ResourceNotFoundException e, Model model) {

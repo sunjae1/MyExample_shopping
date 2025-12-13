@@ -10,6 +10,7 @@ import myex.shopping.dto.itemdto.ItemDto;
 import myex.shopping.dto.mypagedto.MyPageOrderDto;
 import myex.shopping.dto.mypagedto.MyPagePostDBDto;
 import myex.shopping.dto.userdto.UserDto;
+import myex.shopping.exception.ResourceNotFoundException;
 import myex.shopping.form.LoginForm;
 import myex.shopping.form.RegisterForm;
 import myex.shopping.repository.ItemRepository;
@@ -19,6 +20,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -37,45 +40,14 @@ public class UserController {
                         HttpSession session) {
         model.addAttribute("form", new LoginForm());
         //인터셉터 -> 로그인 페이지 리다이렉트(로그인 필요 메시지 출력)
-        String LoginMessage = (String) session.getAttribute("needLoginMessage");
-        if (LoginMessage != null) {
-            model.addAttribute("LoginMessage", LoginMessage);
-            session.removeAttribute("needLoginMessage"); //한 번만 보여주기
+
+        //Spring Security가 저장한 원래 요청이 있는지 확인.
+        if (session.getAttribute("SPRING_SECURITY_SAVED_REQUEST") != null) {
+            model.addAttribute("LoginMessage", "로그인이 필요한 작업입니다.");
         }
         return "login";
     }
-    //로그인 처리
-    @PostMapping("/login")
-    public String login(@Valid @ModelAttribute("form") LoginForm form,
-                        BindingResult bindingResult,
-                        HttpServletRequest request,
-                        RedirectAttributes redirectAttributes) {
-        //검증 실패시
-        if (bindingResult.hasErrors()) {
-            log.info("검증 오류 발생 {}", bindingResult);
-            return "login";
-        }
-        User loginUser = userService.login(form.getEmail(), form.getPassword());
-        //로그인 실패시
-        if (loginUser == null) {
-            log.info("로그인 실패 - 아이디나 비밀번호 불일치");
-            redirectAttributes.addFlashAttribute("errorMessage","아이디나 비밀번호가 틀렸습니다.");
-            return "redirect:/login";
-        }
-        //로그인 성공 로직 (UUID 사용, 있으면 그냥 반환, 아니면 신규 세션 생성후 반환)
-        HttpSession session = request.getSession();
-        session.setAttribute("loginUser", loginUser);
-        return "redirect:/";
-    }
-    //로그아웃
-    @PostMapping("/logout")
-    public String logout(HttpSession session) {
-        if (session !=null) {
-            session.invalidate();
-        }
-        log.info("로그아웃 성공");
-        return "redirect:/";
-    }
+
     //회원가입 폼 조회.
     @GetMapping("/register")
     public String register(Model model) {
@@ -105,12 +77,13 @@ public class UserController {
     //메인 페이지 요청 : Item, User (+검색 추가)
     @GetMapping("/")
     public String mainPage(Model model,
-                           HttpSession session,
+                           Principal principal,
                            @RequestParam(required = false) String keyword,
                            @RequestParam(required = false) Long categoryId) {
 
-        User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser != null) {
+        if (principal != null) {
+            User loginUser =userService.findByEmail(principal.getName())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             UserDto userDto = new UserDto(loginUser);
             model.addAttribute("user",userDto);
         }
@@ -120,14 +93,14 @@ public class UserController {
     }
     //마이페이지 보내는거 : user, orders, posts, cart
     @GetMapping("/mypage")
-    public String myPage(HttpSession session,
+    public String myPage(Principal principal,
                          Model model)
     {
-        User loginUser = (User) session.getAttribute("loginUser");
-        if (loginUser != null) {
+        User loginUser = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             UserDto userDto = new UserDto(loginUser);
             model.addAttribute("user",userDto);
-        }
+
         Cart cart = cartService.findOrCreateCartForUser(loginUser);
         log.info("cart.getId() : {}", cart.getId());
         List<MyPageOrderDto> orderDtos = orderService.changeToOrderDtoList(loginUser);
