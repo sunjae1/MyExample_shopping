@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: myshopping
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: myuser123!
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+
+  app:
+    build: . # Build from the Dockerfile in the current directory
+    ports:
+      - "8081:8081" # Expose the application port
+    depends_on:
+      - db # Ensure the database starts before the application
+    environment:
+      SPRING_PROFILES_ACTIVE: dev # Ensure the application uses the dev profile
+    restart: on-failure
+
+volumes:
+  mysql-data:
